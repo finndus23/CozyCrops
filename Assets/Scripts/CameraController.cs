@@ -48,7 +48,7 @@ public class CameraController : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null) return;
 
-        float scroll = mouse.scroll.ReadValue().y * 0.01f;
+        float scroll = mouse.scroll.ReadValue().y * 0.10f;
         cam.orthographicSize -= scroll * zoomSpeed;
         cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
     }
