@@ -22,10 +22,78 @@ public class GridManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        InitializeGrid();
+
+        // Wenn bereits Kinder vorhanden sind → vorgebautes Grid laden
+        if (transform.childCount > 0)
+            LoadPrebuiltTiles();
+        else
+            InitializeGrid();
     }
 
-    void InitializeGrid()
+    // ──────────────────────────────────────────────
+    // Editor-only: Grid im Scene-View vorbauen
+    // ──────────────────────────────────────────────
+
+    [ContextMenu("Grid generieren")]
+    private void GenerateGrid()
+    {
+        // Vorhandene Tiles bereinigen (DestroyImmediate für Editor-Zeit)
+        for (int i = transform.childCount - 1; i >= 0; i--)
+            DestroyImmediate(transform.GetChild(i).gameObject);
+
+        cells = new GridCell[width, height];
+        tileObjects = new GameObject[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                cells[x, z] = new GridCell(x, z);
+                SpawnTile(x, z, grassTilePrefab, TileType.Grass);
+            }
+        }
+
+#if UNITY_EDITOR
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        Debug.Log($"[GridManager] Grid generiert: {width}x{height} Tiles als Scene-Objekte gespeichert.");
+#endif
+    }
+
+    // ──────────────────────────────────────────────
+    // Runtime: vorgebaute Tiles laden
+    // ──────────────────────────────────────────────
+
+    private void LoadPrebuiltTiles()
+    {
+        cells = new GridCell[width, height];
+        tileObjects = new GameObject[width, height];
+
+        // Leere GridCells anlegen
+        for (int x = 0; x < width; x++)
+            for (int z = 0; z < height; z++)
+                cells[x, z] = new GridCell(x, z);
+
+        // Vorhandene Scene-Kinder auf Grid-Koordinaten mappen
+        foreach (Transform child in transform)
+        {
+            if (!WorldToGrid(child.position, out int x, out int z)) continue;
+
+            tileObjects[x, z] = child.gameObject;
+            cells[x, z].TileVisual = child.GetComponent<FarmTileVisual>();
+
+            var marker = child.GetComponent<TileMarker>();
+            if (marker != null)
+                cells[x, z].Type = marker.tileType;
+        }
+
+        Debug.Log($"[GridManager] {transform.childCount} vorgebaute Tiles geladen.");
+    }
+
+    // ──────────────────────────────────────────────
+    // Runtime: Grid zur Laufzeit neu generieren (Fallback)
+    // ──────────────────────────────────────────────
+
+    private void InitializeGrid()
     {
         cells = new GridCell[width, height];
         tileObjects = new GameObject[width, height];
@@ -35,14 +103,19 @@ public class GridManager : MonoBehaviour
             for (int z = 0; z < height; z++)
             {
                 cells[x, z] = new GridCell(x, z);
-                SpawnTile(x, z, grassTilePrefab);
+                SpawnTile(x, z, grassTilePrefab, TileType.Grass);
             }
         }
     }
 
+    // ──────────────────────────────────────────────
+    // Public API
+    // ──────────────────────────────────────────────
+
     public bool TryPlaceTile(int x, int z, TileType type)
     {
         if (!IsInBounds(x, z)) return false;
+        if (cells[x, z].IsLocked) return false;
         if (type == TileType.Grass) return false;
         if (cells[x, z].Type == type) return false;
 
@@ -52,17 +125,18 @@ public class GridManager : MonoBehaviour
             TileType.FarmPlot => farmPlotPrefab,
             TileType.Path     => pathTilePrefab,
             _                 => grassTilePrefab
-        });
+        }, type);
         return true;
     }
 
     public bool TryRemoveTile(int x, int z)
     {
         if (!IsInBounds(x, z)) return false;
+        if (cells[x, z].IsLocked) return false;
         if (cells[x, z].Type == TileType.Grass) return false;
 
         cells[x, z].Type = TileType.Grass;
-        ReplaceTile(x, z, grassTilePrefab);
+        ReplaceTile(x, z, grassTilePrefab, TileType.Grass);
         return true;
     }
 
@@ -79,6 +153,7 @@ public class GridManager : MonoBehaviour
     }
 
     public GridCell GetCell(int x, int z) => IsInBounds(x, z) ? cells[x, z] : null;
+    public GameObject GetTileObject(int x, int z) => IsInBounds(x, z) ? tileObjects[x, z] : null;
 
     public bool WorldToGrid(Vector3 worldPos, out int x, out int z)
     {
@@ -94,16 +169,28 @@ public class GridManager : MonoBehaviour
 
     public bool IsInBounds(int x, int z) => x >= 0 && x < width && z >= 0 && z < height;
 
-    private void SpawnTile(int x, int z, GameObject prefab)
+    // ──────────────────────────────────────────────
+    // Interne Hilfsmethoden
+    // ──────────────────────────────────────────────
+
+    private void SpawnTile(int x, int z, GameObject prefab, TileType type)
     {
         if (prefab == null) return;
-        tileObjects[x, z] = Instantiate(prefab, GridToWorld(x, z), Quaternion.identity, transform);
+
+        var go = Instantiate(prefab, GridToWorld(x, z), Quaternion.identity, transform);
+        tileObjects[x, z] = go;
+        cells[x, z].TileVisual = go.GetComponent<FarmTileVisual>();
+
+        // TileType für LoadPrebuiltTiles persistieren
+        var marker = go.GetComponent<TileMarker>() ?? go.AddComponent<TileMarker>();
+        marker.tileType = type;
     }
 
-    private void ReplaceTile(int x, int z, GameObject prefab)
+    private void ReplaceTile(int x, int z, GameObject prefab, TileType type)
     {
         if (tileObjects[x, z] != null)
             Destroy(tileObjects[x, z]);
-        SpawnTile(x, z, prefab);
+        cells[x, z].TileVisual = null;
+        SpawnTile(x, z, prefab, type);
     }
 }

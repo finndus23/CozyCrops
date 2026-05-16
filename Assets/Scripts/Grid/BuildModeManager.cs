@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,8 @@ public class BuildModeManager : MonoBehaviour
 {
     public static BuildModeManager Instance { get; private set; }
     public bool IsActive { get; private set; }
+
+    public event Action<bool> OnBuildModeChanged;
 
     void Awake() => Instance = this;
 
@@ -22,5 +25,6 @@ public class BuildModeManager : MonoBehaviour
         IsActive = active;
         if (!active)
             SelectionManager.Instance.ClearSelection();
+        OnBuildModeChanged?.Invoke(active);
     }
 }
