@@ -14,8 +14,7 @@ public class GridInput : MonoBehaviour
 
     // Hover-Tracking für Material-Tint
     private Renderer hoveredRenderer;
-    private Material cachedOriginalMaterial;  // für Grass/Path-Tiles
-    private FarmTileVisual hoveredTileVisual; // für FarmPlot-Tiles
+    private Material cachedOriginalMaterial;
 
     // Drag-Tracking für Farm-Modus
     private int lastToolX = -1, lastToolZ = -1;
@@ -127,13 +126,8 @@ public class GridInput : MonoBehaviour
         // Vorheriges Tile wiederherstellen
         if (hoveredRenderer != null)
         {
-            if (hoveredTileVisual != null)
-                hoveredTileVisual.RestoreMaterial();            // FarmPlot: State-Material zurück
-            else
-                hoveredRenderer.material = cachedOriginalMaterial; // Grass/Path: Original zurück
-
+            hoveredRenderer.material = cachedOriginalMaterial;
             hoveredRenderer        = null;
-            hoveredTileVisual      = null;
             cachedOriginalMaterial = null;
         }
 
@@ -145,15 +139,11 @@ public class GridInput : MonoBehaviour
         var rend = tileObj.GetComponentInChildren<Renderer>();
         if (rend == null) return;
 
-        hoveredRenderer   = rend;
-        hoveredTileVisual = tileObj.GetComponent<FarmTileVisual>();
-
-        // Für Grass/Path: Original-Material cachen bevor wir eine Instanz erstellen
-        if (hoveredTileVisual == null)
-            cachedOriginalMaterial = rend.sharedMaterial;
+        cachedOriginalMaterial = rend.sharedMaterial;
+        hoveredRenderer        = rend;
 
         // Material-Instanz erstellen und Farbe abdunkeln
-        var mat   = rend.material; // erstellt automatisch eine Instanz
+        var mat   = rend.material;
         var color = mat.color;
         mat.color = new Color(color.r * hoverDarken, color.g * hoverDarken, color.b * hoverDarken, color.a);
     }
@@ -161,7 +151,7 @@ public class GridInput : MonoBehaviour
     bool TryGetGridPosition(Vector2 screenPos, out int x, out int z)
     {
         Ray ray = cam.ScreenPointToRay(screenPos);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        Plane groundPlane = new Plane(Vector3.up, GridManager.Instance.transform.position);
 
         if (groundPlane.Raycast(ray, out float distance))
         {

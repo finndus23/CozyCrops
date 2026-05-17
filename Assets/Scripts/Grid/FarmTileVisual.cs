@@ -2,41 +2,50 @@ using UnityEngine;
 
 public enum FarmTileState { Dry, Tilled, Watered }
 
+/// <summary>
+/// Sitzt auf dem leeren FarmPlot-Anker-Prefab.
+/// Tauscht das sichtbare Kind-Prefab je nach State aus.
+/// Jeder State kann ein komplett eigenes 3D-Modell + Material haben.
+/// </summary>
 public class FarmTileVisual : MonoBehaviour
 {
-    [SerializeField] private Material dryMaterial;
-    [SerializeField] private Material tilledMaterial;
-    [SerializeField] private Material wateredMaterial;
+    [SerializeField] private GameObject dryPrefab;
+    [SerializeField] private GameObject tilledPrefab;
+    [SerializeField] private GameObject wateredPrefab;
 
     public FarmTileState CurrentState { get; private set; } = FarmTileState.Dry;
 
-    private Renderer rend;
+    private GameObject currentChild;
 
     void Awake()
     {
-        rend = GetComponentInChildren<Renderer>();
-        if (rend == null)
-            Debug.LogWarning($"[FarmTileVisual] Kein Renderer gefunden auf {gameObject.name} oder Kindobjekten.");
+        ApplyState(FarmTileState.Dry);
     }
 
     public void SetState(FarmTileState state)
     {
-        if (rend == null) { Debug.LogWarning($"[FarmTileVisual] rend ist null auf {gameObject.name}"); return; }
-
         CurrentState = state;
-        ApplyMaterial(state);
+        ApplyState(state);
     }
 
-    /// <summary>Stellt das State-Material wieder her — z.B. nach einem Hover-Override.</summary>
-    public void RestoreMaterial() => ApplyMaterial(CurrentState);
-
-    private void ApplyMaterial(FarmTileState state)
+    private void ApplyState(FarmTileState state)
     {
-        rend.material = state switch
+        if (currentChild != null)
+            Destroy(currentChild);
+
+        var prefab = state switch
         {
-            FarmTileState.Tilled  => tilledMaterial,
-            FarmTileState.Watered => wateredMaterial,
-            _                     => dryMaterial
+            FarmTileState.Tilled  => tilledPrefab,
+            FarmTileState.Watered => wateredPrefab,
+            _                     => dryPrefab
         };
+
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[FarmTileVisual] Kein Prefab für State {state} auf {gameObject.name}");
+            return;
+        }
+
+        currentChild = Instantiate(prefab, transform.position, transform.rotation, transform);
     }
 }
