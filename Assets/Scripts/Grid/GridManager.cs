@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject grassTilePrefab;
     [SerializeField] private GameObject farmPlotPrefab;
     [SerializeField] private GameObject pathTilePrefab;
+    [SerializeField] private GameObject borderTilePrefab;
 
     private GridCell[,] cells;
     private GameObject[,] tileObjects;
@@ -53,9 +54,11 @@ public class GridManager : MonoBehaviour
             }
         }
 
+        SpawnBorderRing();
+
 #if UNITY_EDITOR
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
-        Debug.Log($"[GridManager] Grid generiert: {width}x{height} Tiles als Scene-Objekte gespeichert.");
+        Debug.Log($"[GridManager] Grid generiert: {width}x{height} Tiles + Border als Scene-Objekte gespeichert.");
 #endif
     }
 
@@ -106,6 +109,8 @@ public class GridManager : MonoBehaviour
                 SpawnTile(x, z, grassTilePrefab, TileType.Grass);
             }
         }
+
+        SpawnBorderRing();
     }
 
     // ──────────────────────────────────────────────
@@ -157,14 +162,15 @@ public class GridManager : MonoBehaviour
 
     public bool WorldToGrid(Vector3 worldPos, out int x, out int z)
     {
-        x = Mathf.FloorToInt(worldPos.x / cellSize);
-        z = Mathf.FloorToInt(worldPos.z / cellSize);
+        Vector3 local = worldPos - transform.position;
+        x = Mathf.FloorToInt(local.x / cellSize);
+        z = Mathf.FloorToInt(local.z / cellSize);
         return IsInBounds(x, z);
     }
 
     public Vector3 GridToWorld(int x, int z)
     {
-        return new Vector3(x * cellSize + cellSize * 0.5f, 0f, z * cellSize + cellSize * 0.5f);
+        return transform.position + new Vector3(x * cellSize + cellSize * 0.5f, 0f, z * cellSize + cellSize * 0.5f);
     }
 
     public bool IsInBounds(int x, int z) => x >= 0 && x < width && z >= 0 && z < height;
@@ -192,5 +198,29 @@ public class GridManager : MonoBehaviour
             Destroy(tileObjects[x, z]);
         cells[x, z].TileVisual = null;
         SpawnTile(x, z, prefab, type);
+    }
+
+    private void SpawnBorderRing()
+    {
+        if (borderTilePrefab == null) return;
+
+        // Oben und unten (inkl. Ecken)
+        for (int x = -1; x <= width; x++)
+        {
+            SpawnBorderTile(x, -1);
+            SpawnBorderTile(x, height);
+        }
+
+        // Links und rechts (ohne Ecken)
+        for (int z = 0; z < height; z++)
+        {
+            SpawnBorderTile(-1, z);
+            SpawnBorderTile(width, z);
+        }
+    }
+
+    private void SpawnBorderTile(int x, int z)
+    {
+        Instantiate(borderTilePrefab, GridToWorld(x, z), Quaternion.identity, transform);
     }
 }
