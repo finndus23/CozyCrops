@@ -32,6 +32,10 @@ public class PlantManager : MonoBehaviour
 
         cell.IsTilled = true;
         cell.TileVisual?.SetState(FarmTileState.Tilled);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
         return true;
     }
 
@@ -53,8 +57,14 @@ public class PlantManager : MonoBehaviour
             return false;
         }
 
-        activePlants.Add(cell);
+        if (!activePlants.Contains(cell))
+            activePlants.Add(cell);
+
         SpawnVisual(cell);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
         return true;
     }
 
@@ -67,6 +77,10 @@ public class PlantManager : MonoBehaviour
         cell.Plant.Water();
         if (cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
             cell.TileVisual?.SetState(FarmTileState.Watered);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
         return true;
     }
 
@@ -83,16 +97,71 @@ public class PlantManager : MonoBehaviour
         cell.TileVisual?.SetState(FarmTileState.Dry);
         RemoveVisual(cell);
         activePlants.Remove(cell);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
         return true;
+    }
+
+    // --- Save-/Load-Hilfen ---
+
+    /// <summary>
+    /// Löscht alle Pflanzen-GameObjects, aber verändert nicht die GridCell-Daten.
+    /// Wird beim Laden benutzt, bevor die gespeicherten Pflanzen neu aufgebaut werden.
+    /// </summary>
+    public void ClearAllPlantVisuals()
+    {
+        foreach (var kvp in plantVisuals)
+        {
+            if (kvp.Value != null)
+                Destroy(kvp.Value);
+        }
+
+        plantVisuals.Clear();
+        activePlants.Clear();
+    }
+
+    /// <summary>
+    /// Baut activePlants und Pflanzen-Visuals aus den aktuell geladenen GridCell-Daten neu auf.
+    /// </summary>
+    public void RebuildLoadedPlantsFromGrid()
+    {
+        ClearAllPlantVisuals();
+
+        GridManager grid = GridManager.Instance;
+        if (grid == null) return;
+
+        for (int x = 0; x < grid.Width; x++)
+        {
+            for (int z = 0; z < grid.Height; z++)
+            {
+                GridCell cell = grid.GetCell(x, z);
+                if (cell == null || !cell.HasPlant) continue;
+
+                if (!activePlants.Contains(cell))
+                    activePlants.Add(cell);
+
+                SpawnVisual(cell);
+            }
+        }
+
+        Debug.Log($"[PlantManager] {activePlants.Count} geladene Pflanze(n) registriert.");
     }
 
     // --- Wachstum ---
 
     private void TickGrowth()
     {
-        foreach (var cell in activePlants)
+        // Rückwärts iterieren, damit spätere Änderungen an der Liste nicht so leicht Probleme machen.
+        for (int i = activePlants.Count - 1; i >= 0; i--)
         {
-            if (!cell.HasPlant) continue;
+            var cell = activePlants[i];
+            if (cell == null || !cell.HasPlant)
+            {
+                activePlants.RemoveAt(i);
+                continue;
+            }
 
             bool stageChanged = cell.Plant.Tick(Time.deltaTime);
             if (stageChanged)
@@ -101,6 +170,9 @@ public class PlantManager : MonoBehaviour
                 // Wässerung hat sich zurückgesetzt — Tile wieder auf Tilled
                 if (!cell.Plant.IsFullyGrown)
                     cell.TileVisual?.SetState(FarmTileState.Tilled);
+
+                if (FarmSaveManager.Instance != null)
+                    FarmSaveManager.Instance.RequestSave();
             }
         }
     }
@@ -109,6 +181,10 @@ public class PlantManager : MonoBehaviour
 
     private void SpawnVisual(GridCell cell)
     {
+        if (cell == null || !cell.HasPlant) return;
+
+        RemoveVisual(cell);
+
         var prefab = cell.Plant.GetCurrentPrefab();
         if (prefab == null) return;
 
@@ -125,9 +201,13 @@ public class PlantManager : MonoBehaviour
 
     private void RemoveVisual(GridCell cell)
     {
+        if (cell == null) return;
+
         if (plantVisuals.TryGetValue(cell, out var go))
         {
-            Destroy(go);
+            if (go != null)
+                Destroy(go);
+
             plantVisuals.Remove(cell);
         }
     }

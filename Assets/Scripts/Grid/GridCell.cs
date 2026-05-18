@@ -33,4 +33,22 @@ public class GridCell
         IsTilled = false;
         return harvested;
     }
+
+    /// <summary>
+    /// Wird nur vom Save-/Load-System benutzt, damit private Plant-Daten sauber zurückgesetzt werden können.
+    /// </summary>
+    public void ApplyLoadedPlant(PlantInstance plant)
+    {
+        Plant = plant;
+        if (plant != null)
+            IsTilled = true;
+    }
+
+    /// <summary>
+    /// Wird nur vom Save-/Load-System benutzt.
+    /// </summary>
+    public void ClearLoadedPlant()
+    {
+        Plant = null;
+    }
 }

@@ -24,6 +24,19 @@ public class PlantInstance
     }
 
     /// <summary>
+    /// Wird vom Load-System benutzt, um den exakten gespeicherten Pflanzenzustand wiederherzustellen.
+    /// </summary>
+    public PlantInstance(PlantType type, int stageIndex, float growthTimer, int wateringsThisStage)
+    {
+        Type = type;
+
+        int maxStage = Mathf.Max(0, Type.StageCount - 1);
+        StageIndex = Mathf.Clamp(stageIndex, 0, maxStage);
+        GrowthTimer = Mathf.Max(0f, growthTimer);
+        WateringsThisStage = Mathf.Max(0, wateringsThisStage);
+    }
+
+    /// <summary>
     /// Gibt zurück ob die Pflanze in die nächste Phase gewachsen ist.
     /// </summary>
     public bool Tick(float deltaTime)
