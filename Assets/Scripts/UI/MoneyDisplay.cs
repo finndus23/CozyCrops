@@ -17,5 +17,5 @@ public class MoneyDisplay : MonoBehaviour
             PlayerInventory.Instance.OnMoneyChanged -= UpdateDisplay;
     }
 
-    private void UpdateDisplay(int amount) => moneyText.text = $"{amount} G";
+    private void UpdateDisplay(int amount) => moneyText.text = $"{amount}";
 }
