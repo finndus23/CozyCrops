@@ -12,6 +12,9 @@ using UnityEngine.InputSystem;
 /// Buy-NPC  -> nur BuyPanel sichtbar.
 /// Sell-NPC -> nur SellPanel sichtbar.
 /// Nutzt dein vorhandenes PlayerInventory/FarmSaveManager-System.
+///
+/// Fix: Unterstützt jetzt mehrere CloseButtons und eine public CloseShop()-Methode,
+/// damit BuyPanel und SellPanel jeweils eigene Close-Buttons haben können.
 /// </summary>
 public class FarmMarketDialogueShopController : MonoBehaviour
 {
@@ -24,7 +27,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     [Header("Root UI")]
     [SerializeField] private GameObject dialogueRoot;
+
+    [Tooltip("Optional alter einzelner Close Button. Kann leer bleiben, wenn du Close Buttons benutzt.")]
     [SerializeField] private Button closeButton;
+
+    [Tooltip("Hier kannst du CloseButton aus BuyPanel und CloseButton aus SellPanel eintragen.")]
+    [SerializeField] private Button[] closeButtons;
 
     [Header("NPC Text")]
     [SerializeField] private TMP_Text npcNameText;
@@ -53,21 +61,25 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private float seedSellPriceFactor = 0.5f;
 
     private FarmMarketNpc currentNpc;
+    private bool closeButtonsRegistered;
 
     public bool IsOpen { get; private set; }
 
     private void Awake()
     {
-        if (gameplayCamera == null)
-            gameplayCamera = Camera.main;
-
-        if (inventory == null)
-            inventory = PlayerInventory.Instance;
-
-        if (closeButton != null)
-            closeButton.onClick.AddListener(Close);
-
+        CacheReferencesIfNeeded();
+        RegisterCloseButtons();
         CloseInstant();
+    }
+
+    private void OnEnable()
+    {
+        RegisterCloseButtons();
+    }
+
+    private void OnDestroy()
+    {
+        UnregisterCloseButtons();
     }
 
     private void Update()
@@ -76,7 +88,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             return;
 
         if (WasEscapePressed())
-            Close();
+            CloseShop();
     }
 
     public void Open(FarmMarketNpc npc)
@@ -84,12 +96,11 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (npc == null)
             return;
 
-        if (inventory == null)
-            inventory = PlayerInventory.Instance;
+        CacheReferencesIfNeeded();
 
         if (inventory == null)
         {
-            Debug.LogWarning("[FarmMarketDialogueShopController] Kein PlayerInventory gefunden. Lege in der MarketScene ein GameObject mit PlayerInventory an.");
+            Debug.LogWarning("[FarmMarketDialogueShopController] Kein PlayerInventory gefunden. Lege in der MarketScene ein GameObject mit PlayerInventory an oder weise es im Inspector zu.");
             return;
         }
 
@@ -98,6 +109,8 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         if (dialogueRoot != null)
             dialogueRoot.SetActive(true);
+
+        RegisterCloseButtons();
 
         if (gameplayCamera != null)
             gameplayCamera.enabled = false;
@@ -108,6 +121,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 PositionDialogueCamera(npc);
 
             dialogueCamera.enabled = true;
+            dialogueCamera.gameObject.SetActive(true);
         }
 
         if (npcNameText != null)
@@ -120,39 +134,135 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         RefreshShop();
     }
 
+    /// <summary>
+    /// Alte Methode bleibt absichtlich drin, falls irgendwo schon Close() im Button-OnClick steht.
+    /// </summary>
     public void Close()
+    {
+        CloseShop();
+    }
+
+    /// <summary>
+    /// Diese Methode kannst du direkt bei jedem CloseButton im OnClick eintragen.
+    /// </summary>
+    public void CloseShop()
     {
         IsOpen = false;
         currentNpc = null;
 
-        if (dialogueRoot != null)
-            dialogueRoot.SetActive(false);
-
-        if (dialogueCamera != null)
-            dialogueCamera.enabled = false;
-
-        if (gameplayCamera != null)
-            gameplayCamera.enabled = true;
-
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
-    }
-
-    private void CloseInstant()
-    {
-        IsOpen = false;
-
-        if (dialogueRoot != null)
-            dialogueRoot.SetActive(false);
-
-        if (dialogueCamera != null)
-            dialogueCamera.enabled = false;
 
         if (buyPanel != null)
             buyPanel.SetActive(false);
 
         if (sellPanel != null)
             sellPanel.SetActive(false);
+
+        if (dialogueRoot != null)
+            dialogueRoot.SetActive(false);
+
+        if (dialogueCamera != null)
+        {
+            dialogueCamera.enabled = false;
+            dialogueCamera.gameObject.SetActive(false);
+        }
+
+        if (gameplayCamera != null)
+        {
+            gameplayCamera.gameObject.SetActive(true);
+            gameplayCamera.enabled = true;
+        }
+    }
+
+    private void CloseInstant()
+    {
+        IsOpen = false;
+        currentNpc = null;
+
+        ClearRows(buyContentRoot);
+        ClearRows(sellContentRoot);
+
+        if (buyPanel != null)
+            buyPanel.SetActive(false);
+
+        if (sellPanel != null)
+            sellPanel.SetActive(false);
+
+        if (dialogueRoot != null)
+            dialogueRoot.SetActive(false);
+
+        if (dialogueCamera != null)
+        {
+            dialogueCamera.enabled = false;
+            dialogueCamera.gameObject.SetActive(false);
+        }
+
+        if (gameplayCamera != null)
+        {
+            gameplayCamera.gameObject.SetActive(true);
+            gameplayCamera.enabled = true;
+        }
+    }
+
+    private void CacheReferencesIfNeeded()
+    {
+        if (gameplayCamera == null)
+            gameplayCamera = Camera.main;
+
+        if (inventory == null)
+            inventory = PlayerInventory.Instance;
+    }
+
+    private void RegisterCloseButtons()
+    {
+        if (closeButtonsRegistered)
+            return;
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(CloseShop);
+            closeButton.onClick.RemoveListener(Close);
+            closeButton.onClick.AddListener(CloseShop);
+        }
+
+        if (closeButtons != null)
+        {
+            foreach (Button button in closeButtons)
+            {
+                if (button == null)
+                    continue;
+
+                button.onClick.RemoveListener(CloseShop);
+                button.onClick.RemoveListener(Close);
+                button.onClick.AddListener(CloseShop);
+            }
+        }
+
+        closeButtonsRegistered = true;
+    }
+
+    private void UnregisterCloseButtons()
+    {
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(CloseShop);
+            closeButton.onClick.RemoveListener(Close);
+        }
+
+        if (closeButtons != null)
+        {
+            foreach (Button button in closeButtons)
+            {
+                if (button == null)
+                    continue;
+
+                button.onClick.RemoveListener(CloseShop);
+                button.onClick.RemoveListener(Close);
+            }
+        }
+
+        closeButtonsRegistered = false;
     }
 
     private void PositionDialogueCamera(FarmMarketNpc npc)
@@ -170,8 +280,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void RefreshShop()
     {
-        if (inventory == null)
-            inventory = PlayerInventory.Instance;
+        CacheReferencesIfNeeded();
 
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);

@@ -1894,6 +1894,7 @@ RectTransform:
   - {fileID: 961817367}
   - {fileID: 1211147335}
   - {fileID: 447149629}
+  - {fileID: 1240457050}
   m_Father: {fileID: 678019710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1920,6 +1921,8 @@ MonoBehaviour:
   cameraLookOffset: {x: 0.8, y: 0.7, z: 0}
   dialogueRoot: {fileID: 802046843}
   closeButton: {fileID: 1240457051}
+  closeButtons:
+  - {fileID: 1240457051}
   npcNameText: {fileID: 148334859}
   speechBubbleText: {fileID: 1471671313}
   moneyText: {fileID: 242624664}
@@ -2278,7 +2281,6 @@ RectTransform:
   - {fileID: 242624663}
   - {fileID: 372846785}
   - {fileID: 1533459839}
-  - {fileID: 1240457050}
   m_Father: {fileID: 802046844}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
@@ -2642,17 +2644,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240457049}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1429843421}
-  m_Father: {fileID: 961817367}
+  m_Father: {fileID: 802046844}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 347, y: 348}
+  m_AnchoredPosition: {x: 737, y: 350.5}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1240457051
@@ -2701,7 +2703,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 802046845}
         m_TargetAssemblyTypeName: FarmMarketDialogueShopController, Assembly-CSharp
-        m_MethodName: Close
+        m_MethodName: CloseShop
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
