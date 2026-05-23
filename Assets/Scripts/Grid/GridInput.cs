@@ -6,6 +6,11 @@ public class GridInput : MonoBehaviour
 {
     [SerializeField] [Range(0.3f, 0.95f)] private float hoverDarken = 0.65f;
 
+    // Für AoEPreview von außen lesbar
+    public static int  HoveredX       { get; private set; }
+    public static int  HoveredZ       { get; private set; }
+    public static bool IsHoveringGrid { get; private set; }
+
     private Camera cam;
     private bool isDragging;
     private int hoveredX, hoveredZ;
@@ -35,6 +40,10 @@ public class GridInput : MonoBehaviour
         isOverGrid = TryGetGridPosition(screenPos, out hoveredX, out hoveredZ);
         isLockedTile = isOverGrid && (GridManager.Instance.GetCell(hoveredX, hoveredZ)?.IsLocked ?? false);
 
+        HoveredX       = hoveredX;
+        HoveredZ       = hoveredZ;
+        IsHoveringGrid = isOverGrid && !isLockedTile;
+
         // Build-Modus: Tiles platzieren (bestehende Logik)
         if (BuildModeManager.Instance.IsActive)
         {
@@ -45,16 +54,20 @@ public class GridInput : MonoBehaviour
             return;
         }
 
-        // Farm-Modus: Tools benutzen
-        UpdateHover(isOverGrid && !isLockedTile && Hotbar.Instance.ActiveTool != ToolType.None);
+        // Farm-Modus: AoEPreview übernimmt das Tile-Highlighting
+        UpdateHover(false);
 
         if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile)
         {
-            if (hoveredX != lastToolX || hoveredZ != lastToolZ)
+            // Während eines Casts auf dieselbe Tile gelockt bleiben
+            if (!ToolUseHandler.Instance.IsCasting)
             {
-                lastToolX = hoveredX;
-                lastToolZ = hoveredZ;
-                HandleToolUse(hoveredX, hoveredZ);
+                if (hoveredX != lastToolX || hoveredZ != lastToolZ)
+                {
+                    lastToolX = hoveredX;
+                    lastToolZ = hoveredZ;
+                    ToolUseHandler.Instance.TryStartUse(hoveredX, hoveredZ, Hotbar.Instance.ActiveTool);
+                }
             }
         }
 
@@ -62,30 +75,7 @@ public class GridInput : MonoBehaviour
         {
             lastToolX = -1;
             lastToolZ = -1;
-        }
-    }
-
-    void HandleToolUse(int x, int z)
-    {
-        switch (Hotbar.Instance.ActiveTool)
-        {
-            case ToolType.Hoe:
-                PlantManager.Instance.TryTill(x, z);
-                break;
-
-            case ToolType.Seed:
-                var seed = Hotbar.Instance.SelectedSeed;
-                if (seed != null)
-                    PlantManager.Instance.TryPlant(x, z, seed);
-                break;
-
-            case ToolType.WateringCan:
-                PlantManager.Instance.TryWater(x, z);
-                break;
-
-            case ToolType.Scythe:
-                PlantManager.Instance.TryHarvest(x, z);
-                break;
+            // Cast läuft immer bis zum Ende — kein Cancel bei Maus-Release
         }
     }
 

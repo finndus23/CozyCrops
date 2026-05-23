@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fb13ce36d1f44f45830b80630040463, type: 3}
+  m_Name: Hoe
+  m_EditorClassIdentifier: Assembly-CSharp::ToolData
+  toolType: 1
+  displayName: Hoe
+  icon: {fileID: 0}
+  maxLevel: 30
+  baseAoSize: 1
+  baseDuration: 5
+  durationReductionPerLevel: 0.03
+  minDuration: 0.1
+  baseCost: 10
+  costScalingPerLevel: 10
+  milestones: []

@@ -2870,6 +2870,7 @@ GameObject:
   - component: {fileID: 1972460177}
   - component: {fileID: 1972460176}
   - component: {fileID: 1972460178}
+  - component: {fileID: 1972460179}
   m_Layer: 0
   m_Name: SaveSystem
   m_TagString: Untagged
@@ -2931,6 +2932,23 @@ MonoBehaviour:
   allPlantTypes:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
   persistAcrossScenes: 1
+--- !u!114 &1972460179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972460175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2fd46549396724c8eec15d2327c943, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToolRegistry
+  tools:
+  - {fileID: 11400000, guid: 16052411c5b58574ea7a358827149f9c, type: 2}
+  - {fileID: 11400000, guid: f09978ff7f1d950418bd4a4e09326dbf, type: 2}
+  - {fileID: 11400000, guid: 7d21acf2ae878ea42934abdcf037d59a, type: 2}
+  - {fileID: 11400000, guid: 7493683d8e0f0e54eb68a0038ed9e66a, type: 2}
 --- !u!1 &1987454519
 GameObject:
   m_ObjectHideFlags: 0
