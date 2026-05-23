@@ -15,6 +15,8 @@ public class GridInput : MonoBehaviour
     // Hover-Tracking für Material-Tint
     private Renderer hoveredRenderer;
     private Material cachedOriginalMaterial;
+    private int lastHoverX = -1, lastHoverZ = -1;
+    private bool lastHoverVisible = false;
 
     // Drag-Tracking für Farm-Modus
     private int lastToolX = -1, lastToolZ = -1;
@@ -36,7 +38,7 @@ public class GridInput : MonoBehaviour
         // Build-Modus: Tiles platzieren (bestehende Logik)
         if (BuildModeManager.Instance.IsActive)
         {
-            SetHoverVisible(isOverGrid && !isLockedTile);
+            UpdateHover(isOverGrid && !isLockedTile);
             HandleSelection(mouse);
             HandleContextMenu(mouse, screenPos);
             HandleEscape();
@@ -44,7 +46,7 @@ public class GridInput : MonoBehaviour
         }
 
         // Farm-Modus: Tools benutzen
-        SetHoverVisible(isOverGrid && !isLockedTile && Hotbar.Instance.ActiveTool != ToolType.None);
+        UpdateHover(isOverGrid && !isLockedTile && Hotbar.Instance.ActiveTool != ToolType.None);
 
         if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile)
         {
@@ -119,6 +121,18 @@ public class GridInput : MonoBehaviour
             SelectionManager.Instance.ClearSelection();
             TileContextMenu.Instance?.Hide();
         }
+    }
+
+    void UpdateHover(bool visible)
+    {
+        // Nur neu berechnen wenn sich Tile oder Sichtbarkeit geändert hat
+        if (visible == lastHoverVisible && hoveredX == lastHoverX && hoveredZ == lastHoverZ) return;
+
+        lastHoverVisible = visible;
+        lastHoverX = hoveredX;
+        lastHoverZ = hoveredZ;
+
+        SetHoverVisible(visible);
     }
 
     void SetHoverVisible(bool visible)

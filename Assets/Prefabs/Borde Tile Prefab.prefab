@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2840546008299299404}
   - component: {fileID: 8466778826693824263}
   - component: {fileID: 2224753946231259000}
-  - component: {fileID: -1133628866681936781}
   m_Layer: 0
   m_Name: Borde Tile Prefab
   m_TagString: Untagged
@@ -113,18 +112,3 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-1133628866681936781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6023751674650765824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48dfd1e1cd1dd02489c578f5fcef8d9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FarmTileVisual
-  dryPrefab: {fileID: 0}
-  tilledPrefab: {fileID: 0}
-  wateredPrefab: {fileID: 0}
