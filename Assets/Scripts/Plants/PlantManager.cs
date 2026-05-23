@@ -31,7 +31,6 @@ public class PlantManager : MonoBehaviour
         if (cell.IsTilled || cell.HasPlant) return false;
 
         cell.IsTilled = true;
-        Debug.Log($"[TryTill] TileVisual ist: {(cell.TileVisual != null ? cell.TileVisual.name : "NULL")}");
         cell.TileVisual?.SetState(FarmTileState.Tilled);
 
         if (FarmSaveManager.Instance != null)

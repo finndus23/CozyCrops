@@ -40,8 +40,6 @@ public class FarmTileVisual : MonoBehaviour
             _                     => dryPrefab
         };
 
-        Debug.Log($"[FarmTileVisual] ApplyState {state} → Prefab: {(prefab != null ? prefab.name : "NULL")}");
-
         if (prefab == null)
         {
             Debug.LogWarning($"[FarmTileVisual] Kein Prefab für State {state} auf {gameObject.name}");
