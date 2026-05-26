@@ -21,6 +21,9 @@ public class HotbarUI : MonoBehaviour
         new() { toolType = ToolType.Seed, showCount = true, hasDropdown = true }, // immer letzter Slot
     };
 
+    [Header("Seed-Slot")]
+    [SerializeField] private Sprite emptySeedSprite;
+
     [Header("Farben")]
     [SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 0.85f);
     [SerializeField] private Color activeColor  = new Color(0.75f, 0.55f, 0.1f, 1f);
@@ -183,15 +186,14 @@ public class HotbarUI : MonoBehaviour
         // Icon updaten
         if (slotUI.icon != null)
         {
-            slotUI.icon.sprite = selected?.icon;
-            slotUI.icon.color = selected?.icon != null ? Color.white : new Color(0.4f, 0.4f, 0.4f, 1f);
+            slotUI.icon.sprite = selected?.icon ?? emptySeedSprite;
+            slotUI.icon.color = Color.white;
         }
 
         // Count updaten
         if (slotUI.countLabel != null)
         {
             int seedCount = selected != null ? PlayerInventory.Instance.GetSeedCount(selected) : 0;
-            Debug.Log($"[HotbarUI] UpdateSeedSlot — selected: {selected?.plantName ?? "null"}, count: {seedCount}");
             slotUI.countLabel.text = selected != null ? $"x{seedCount}" : "";
         }
     }

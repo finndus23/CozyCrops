@@ -31827,7 +31827,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 60
   orthographic: 1
@@ -53517,6 +53517,7 @@ GameObject:
   - component: {fileID: 528237631}
   - component: {fileID: 528237630}
   - component: {fileID: 528237629}
+  - component: {fileID: 528237632}
   m_Layer: 0
   m_Name: GridZone (2)
   m_TagString: Untagged
@@ -53612,6 +53613,18 @@ Transform:
   - {fileID: 1728942982}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &528237632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 528237628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 666bdd4a2de488b4880237af7498eada, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneBlocker
 --- !u!1 &530747677
 GameObject:
   m_ObjectHideFlags: 0
@@ -199687,6 +199700,7 @@ GameObject:
   - component: {fileID: 2114086532}
   - component: {fileID: 2114086531}
   - component: {fileID: 2114086530}
+  - component: {fileID: 2114086533}
   m_Layer: 0
   m_Name: GridZone(1)
   m_TagString: Untagged
@@ -199799,6 +199813,18 @@ Transform:
   - {fileID: 479776718}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &2114086533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114086529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 666bdd4a2de488b4880237af7498eada, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneBlocker
 --- !u!1 &2114750341
 GameObject:
   m_ObjectHideFlags: 0
