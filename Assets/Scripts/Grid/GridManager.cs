@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -125,12 +127,10 @@ public class GridManager : MonoBehaviour
         if (cells[x, z].Type == type) return false;
 
         cells[x, z].Type = type;
-        ReplaceTile(x, z, type switch
-        {
-            TileType.FarmPlot => farmPlotPrefab,
-            TileType.Path     => pathTilePrefab,
-            _                 => grassTilePrefab
-        }, type);
+        cells[x, z].IsTilled = false;
+        cells[x, z].ClearLoadedPlant();
+
+        ReplaceTile(x, z, GetPrefabForType(type), type);
         return true;
     }
 
@@ -141,20 +141,78 @@ public class GridManager : MonoBehaviour
         if (cells[x, z].Type == TileType.Grass) return false;
 
         cells[x, z].Type = TileType.Grass;
+        cells[x, z].IsTilled = false;
+        cells[x, z].ClearLoadedPlant();
+
         ReplaceTile(x, z, grassTilePrefab, TileType.Grass);
         return true;
     }
 
     public void ApplyToSelection(TileType type)
     {
+        bool changed = false;
+
         foreach (var cell in SelectionManager.Instance.SelectedCells)
         {
+            bool success;
+
             if (type == TileType.Grass)
-                TryRemoveTile(cell.x, cell.y);
+                success = TryRemoveTile(cell.x, cell.y);
             else
-                TryPlaceTile(cell.x, cell.y, type);
+                success = TryPlaceTile(cell.x, cell.y, type);
+
+            if (success)
+                changed = true;
         }
+
         SelectionManager.Instance.ClearSelection();
+
+        if (changed && FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+    }
+
+    /// <summary>
+    /// Wird vom Save-/Load-System benutzt. Setzt alle gespeicherten Tiles, Pflanzen und Visuals zurück.
+    /// </summary>
+    public void ApplySaveTiles(List<TileSaveData> savedTiles)
+    {
+        if (savedTiles == null)
+        {
+            Debug.LogWarning("[GridManager] Keine Tile-Daten im Save vorhanden.");
+            return;
+        }
+
+        PlantManager.Instance?.ClearAllPlantVisuals();
+
+        int appliedCount = 0;
+        int skippedCount = 0;
+        int loadedPlantCount = 0;
+
+        foreach (TileSaveData tileData in savedTiles)
+        {
+            if (tileData == null)
+            {
+                skippedCount++;
+                continue;
+            }
+
+            if (!IsInBounds(tileData.x, tileData.z))
+            {
+                skippedCount++;
+                continue;
+            }
+
+            ApplySingleSavedTile(tileData);
+            appliedCount++;
+
+            if (tileData.hasPlant)
+                loadedPlantCount++;
+        }
+
+        // Nach dem Wiederherstellen aller Cell-Daten baut der PlantManager seine interne Liste neu auf.
+        PlantManager.Instance?.RebuildLoadedPlantsFromGrid();
+
+        Debug.Log($"[GridManager] Save angewendet. Applied={appliedCount}, Skipped={skippedCount}, PlantsInSave={loadedPlantCount}");
     }
 
     public GridCell GetCell(int x, int z) => IsInBounds(x, z) ? cells[x, z] : null;
@@ -176,28 +234,135 @@ public class GridManager : MonoBehaviour
     public bool IsInBounds(int x, int z) => x >= 0 && x < width && z >= 0 && z < height;
 
     // ──────────────────────────────────────────────
+    // Save-/Load-Hilfen
+    // ──────────────────────────────────────────────
+
+    private void ApplySingleSavedTile(TileSaveData tileData)
+    {
+        GridCell cell = cells[tileData.x, tileData.z];
+
+        TileType loadedType = ParseTileType(tileData.tileType);
+
+        cell.Type = loadedType;
+        cell.IsLocked = tileData.isLocked;
+        cell.IsTilled = loadedType == TileType.FarmPlot && tileData.isTilled;
+        cell.ClearLoadedPlant();
+
+        // Für den F6-Test absichtlich immer neu bauen.
+        // Dadurch kann kein falsches Scene-Prefab oder alter Marker den sichtbaren Load-Zustand blockieren.
+        ReplaceTile(tileData.x, tileData.z, GetPrefabForType(loadedType), loadedType);
+
+        if (loadedType == TileType.FarmPlot && tileData.hasPlant)
+            ApplyLoadedPlant(cell, tileData);
+
+        RefreshFarmTileVisual(cell);
+    }
+
+    private void ApplyLoadedPlant(GridCell cell, TileSaveData tileData)
+    {
+        if (PlantDatabase.Instance == null)
+        {
+            Debug.LogWarning("[GridManager] Kein PlantDatabase in der Scene gefunden. Pflanze konnte nicht geladen werden.");
+            return;
+        }
+
+        PlantType plantType = PlantDatabase.Instance.GetById(tileData.plantId);
+        if (plantType == null)
+        {
+            Debug.LogWarning($"[GridManager] PlantType mit SaveId '{tileData.plantId}' nicht gefunden.");
+            return;
+        }
+
+        PlantInstance loadedPlant = new PlantInstance(
+            plantType,
+            tileData.plantStageIndex,
+            tileData.plantGrowthTimer,
+            tileData.plantWateringsThisStage);
+
+        cell.ApplyLoadedPlant(loadedPlant);
+    }
+
+    private void RefreshFarmTileVisual(GridCell cell)
+    {
+        if (cell == null) return;
+        if (cell.Type != TileType.FarmPlot) return;
+        if (cell.TileVisual == null) return;
+
+        if (!cell.IsTilled && !cell.HasPlant)
+        {
+            cell.TileVisual.SetState(FarmTileState.Dry);
+            return;
+        }
+
+        if (cell.HasPlant && cell.Plant != null && !cell.Plant.IsFullyGrown &&
+            cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
+        {
+            cell.TileVisual.SetState(FarmTileState.Watered);
+            return;
+        }
+
+        cell.TileVisual.SetState(FarmTileState.Tilled);
+    }
+
+    private TileType ParseTileType(string value)
+    {
+        if (Enum.TryParse(value, out TileType parsed))
+            return parsed;
+
+        return TileType.Grass;
+    }
+
+    private GameObject GetPrefabForType(TileType type)
+    {
+        return type switch
+        {
+            TileType.FarmPlot => farmPlotPrefab,
+            TileType.Path => pathTilePrefab,
+            _ => grassTilePrefab
+        };
+    }
+
+    // ──────────────────────────────────────────────
     // Interne Hilfsmethoden
     // ──────────────────────────────────────────────
 
     private void SpawnTile(int x, int z, GameObject prefab, TileType type)
     {
-        if (prefab == null) return;
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[GridManager] Kein Prefab für TileType {type} bei {x},{z} gesetzt.");
+            return;
+        }
 
         var go = Instantiate(prefab, GridToWorld(x, z), Quaternion.identity, transform);
         tileObjects[x, z] = go;
+        cells[x, z].Type = type;
         cells[x, z].TileVisual = go.GetComponent<FarmTileVisual>();
 
-        // TileType für LoadPrebuiltTiles persistieren
-        var marker = go.GetComponent<TileMarker>() ?? go.AddComponent<TileMarker>();
-        marker.tileType = type;
+        EnsureMarker(go, type);
     }
 
     private void ReplaceTile(int x, int z, GameObject prefab, TileType type)
     {
         if (tileObjects[x, z] != null)
+        {
+            // Sofort ausblenden, weil Destroy() erst am Frame-Ende wirklich löscht.
+            // Sonst kann beim F6-Test kurz das alte Default-Tile über dem geladenen Tile liegen.
+            tileObjects[x, z].SetActive(false);
             Destroy(tileObjects[x, z]);
+            tileObjects[x, z] = null;
+        }
+
         cells[x, z].TileVisual = null;
         SpawnTile(x, z, prefab, type);
+    }
+
+    private void EnsureMarker(GameObject go, TileType type)
+    {
+        if (go == null) return;
+
+        var marker = go.GetComponent<TileMarker>() ?? go.AddComponent<TileMarker>();
+        marker.tileType = type;
     }
 
     private void SpawnBorderRing()

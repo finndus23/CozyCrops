@@ -3,6 +3,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewPlantType", menuName = "CozyCrops/Plant Type")]
 public class PlantType : ScriptableObject
 {
+    [Header("Save")]
+    [Tooltip("Eindeutige ID für Savegames. Leer lassen = Asset-Name wird benutzt. Nicht später ändern, sonst können alte Saves die Pflanze nicht mehr finden.")]
+    [SerializeField] private string saveId;
+    public string SaveId => string.IsNullOrWhiteSpace(saveId) ? name : saveId;
+
     [Header("Info")]
     public string plantName;
     public Sprite icon;

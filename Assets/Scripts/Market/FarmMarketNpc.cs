@@ -1,0 +1,39 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum FarmMarketNpcTradeMode
+{
+    BuySeeds,
+    SellInventory
+}
+
+/// <summary>
+/// Dieses Script kommt auf jeden Markt-NPC/Cube.
+/// TradeMode entscheidet, welches UI geöffnet wird:
+/// BuySeeds      -> BuyPanel
+/// SellInventory -> SellPanel
+/// </summary>
+[RequireComponent(typeof(Collider))]
+public class FarmMarketNpc : MonoBehaviour
+{
+    [Header("NPC")]
+    [SerializeField] private string displayName = "Merchant";
+
+    [TextArea]
+    [SerializeField] private string speechText = "Hey! Want to trade?";
+
+    [Header("Trade Type")]
+    [SerializeField] private FarmMarketNpcTradeMode tradeMode = FarmMarketNpcTradeMode.BuySeeds;
+
+    [Header("Nur für BuySeeds-NPC")]
+    [SerializeField] private List<PlantType> seedsForSale = new List<PlantType>();
+
+    [Header("Optional Camera Focus")]
+    [SerializeField] private Transform cameraFocusPoint;
+
+    public string DisplayName => displayName;
+    public string SpeechText => speechText;
+    public FarmMarketNpcTradeMode TradeMode => tradeMode;
+    public IReadOnlyList<PlantType> SeedsForSale => seedsForSale;
+    public Transform CameraFocusPoint => cameraFocusPoint != null ? cameraFocusPoint : transform;
+}

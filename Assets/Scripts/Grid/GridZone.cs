@@ -17,10 +17,16 @@ public class GridZone : MonoBehaviour
     [SerializeField] public int unlockCost = 500;
 
     [Header("Gizmo")]
-    [SerializeField] private Color lockedColor   = new Color(1f, 0.2f, 0.2f, 0.25f);
+    [SerializeField] private Color lockedColor = new Color(1f, 0.2f, 0.2f, 0.25f);
     [SerializeField] private Color unlockedColor = new Color(0.2f, 1f, 0.2f, 0.15f);
 
     public bool IsUnlocked { get; private set; }
+
+    [Header("Save")]
+    [Tooltip("Eindeutige ID für Savegames. Leer lassen = GameObject-Name wird benutzt. Nicht später ändern.")]
+    [SerializeField] private string saveId;
+    public string SaveId => string.IsNullOrWhiteSpace(saveId) ? gameObject.name : saveId;
+
     public event Action OnUnlocked;
 
     private BoxCollider zoneCollider;
@@ -61,6 +67,27 @@ public class GridZone : MonoBehaviour
 
         OnUnlocked?.Invoke();
         Debug.Log($"[GridZone] '{gameObject.name}' freigeschaltet.");
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+    }
+
+    /// <summary>
+    /// Wird vom Load-System benutzt.
+    /// Hinweis: Wenn eine Zone im selben Play Mode bereits unlocked wurde, sind ihre Blocker zerstört.
+    /// Ein Load zurück auf locked kann die zerstörten Blocker nicht wiederherstellen.
+    /// Nach einem Szenen-Neuladen ist das kein Problem, weil die Blocker wieder aus der Scene kommen.
+    /// </summary>
+    public void ApplyLoadedState(bool unlocked)
+    {
+        if (unlocked)
+        {
+            Unlock();
+        }
+        else
+        {
+            IsUnlocked = false;
+        }
     }
 
     // ── Scene View Gizmo ──────────────────────────────────────────────────────
@@ -71,7 +98,7 @@ public class GridZone : MonoBehaviour
         if (col == null) return;
 
         Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.color  = IsUnlocked ? unlockedColor : lockedColor;
+        Gizmos.color = IsUnlocked ? unlockedColor : lockedColor;
         Gizmos.DrawCube(col.center, col.size);
 
         // Rand etwas dunkler für bessere Sichtbarkeit
