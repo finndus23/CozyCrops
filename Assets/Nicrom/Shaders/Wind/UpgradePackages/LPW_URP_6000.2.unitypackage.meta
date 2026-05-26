@@ -5,6 +5,7 @@ DefaultImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+<<<<<<< Updated upstream
 AssetOrigin:
   serializedVersion: 1
   productId: 182586
@@ -12,3 +13,5 @@ AssetOrigin:
   packageVersion: 1.4.0
   assetPath: Assets/Nicrom/Shaders/Wind/UpgradePackages/LPW_URP_6000.2.unitypackage
   uploadId: 859548
+=======
+>>>>>>> Stashed changes
