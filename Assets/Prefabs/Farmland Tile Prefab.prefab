@@ -75,6 +75,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48dfd1e1cd1dd02489c578f5fcef8d9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmTileVisual
-  dryPrefab: {fileID: 2844257053488977872, guid: e87dbed971d2f634593616cf6adb0a80, type: 3}
-  tilledPrefab: {fileID: 2844257053488977872, guid: a1af9f4a4c1aca24393bddf9ae43cc53, type: 3}
-  wateredPrefab: {fileID: 2844257053488977872, guid: 5d52768f87b293f43aa0a86e19d4bb6e, type: 3}
+  dryPrefab: {fileID: 4905429441910650070, guid: 93726edd0d284704eb79e85bd28de41e, type: 3}
+  tilledPrefab: {fileID: 8140918144578198174, guid: 391c42612dd2e1746b16d3f6cf07ec71, type: 3}
+  wateredPrefab: {fileID: 8035756330603154426, guid: 56de6c5559ace384c9e8d1dc89573b98, type: 3}

@@ -2949,10 +2949,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f09978ff7f1d950418bd4a4e09326dbf, type: 2}
   - {fileID: 11400000, guid: 7d21acf2ae878ea42934abdcf037d59a, type: 2}
   - {fileID: 11400000, guid: 7493683d8e0f0e54eb68a0038ed9e66a, type: 2}
-  startLevels:
-  - toolType: 1
-    level: 10
-  statsPreview: "(Rechtsklick auf Komponente \u2192 Stats anzeigen)"
+  startLevels: []
+  statsPreview: (Keine Tools geladen)
 --- !u!1 &1987454519
 GameObject:
   m_ObjectHideFlags: 0

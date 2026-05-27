@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 1
   displayName: Hoe
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2993ec53b31f30b4b89cf0ee4a9932ff, type: 3}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1

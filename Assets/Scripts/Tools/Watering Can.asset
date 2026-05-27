@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 2
   displayName: Watering Can
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: acb96d43d17316841940420ba610e163, type: 3}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1

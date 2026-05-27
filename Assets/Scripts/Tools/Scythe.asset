@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 4
   displayName: Scythe
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: fc7af1bf30c93784682a3b2f6d7dd751, type: 3}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1
