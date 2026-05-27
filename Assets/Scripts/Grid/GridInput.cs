@@ -29,6 +29,8 @@ public class GridInput : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
+        if (ToolUseHandler.Instance != null)
+            ToolUseHandler.Instance.OnCastCompleted += () => { lastToolX = -1; lastToolZ = -1; };
     }
 
     void Update()

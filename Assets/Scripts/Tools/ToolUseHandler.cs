@@ -54,18 +54,23 @@ public class ToolUseHandler : MonoBehaviour
     {
         if (IsCasting || tool == ToolType.None) return false;
 
-        int  aoSize  = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetAoSize(tool)  : 1;
-        float duration = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetDuration(tool) : 0f;
+        // Vorab prüfen ob die Aktion überhaupt Sinn ergibt — kein Cast auf ungültige Tiles
+        if (!CanApplyTool(x, z, tool)) return false;
 
-        castX        = x;
-        castZ        = z;
-        castTool     = tool;
-        castDuration = duration;
-        castTimer    = 0f;
+        int aoSize = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetAoSize(tool) : 1;
+
+        castX       = x;
+        castZ       = z;
+        castTool    = tool;
+        castTimer   = 0f;
         CastProgress = 0f;
-        IsCasting    = true;
+        IsCasting   = true;
 
         castAoTiles = CalculateAoTiles(x, z, aoSize);
+
+        // Duration skaliert mit Tile-Anzahl: 2×2 = 4× Duration, 3×3 = 9× Duration
+        float durationPerTile = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetDuration(tool) : 0f;
+        castDuration = durationPerTile * Mathf.Max(1, castAoTiles.Count);
         OnCastStarted?.Invoke(castAoTiles);
 
         // Duration 0 → sofort anwenden (kein visuelles Warten)
@@ -134,6 +139,26 @@ public class ToolUseHandler : MonoBehaviour
                 PlantManager.Instance.TryHarvest(x, z, yieldBonus);
                 break;
         }
+    }
+
+    // ── Validierung ──────────────────────────────────────────────────────────
+
+    /// <summary>Prüft ob das Tool auf dieser Tile überhaupt anwendbar ist.</summary>
+    private bool CanApplyTool(int x, int z, ToolType tool)
+    {
+        var cell = GridManager.Instance?.GetCell(x, z);
+        if (cell == null || cell.IsLocked) return false;
+
+        return tool switch
+        {
+            ToolType.Hoe         => cell.Type == TileType.FarmPlot && !cell.IsTilled && !cell.HasPlant,
+            ToolType.WateringCan => cell.HasPlant,
+            ToolType.Scythe      => cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown,
+            ToolType.Seed        => cell.IsTilled && !cell.HasPlant
+                                    && Hotbar.Instance.SelectedSeed != null
+                                    && PlayerInventory.Instance.GetSeedCount(Hotbar.Instance.SelectedSeed) > 0,
+            _                    => false
+        };
     }
 
     // ── AoE-Berechnung ────────────────────────────────────────────────────────
