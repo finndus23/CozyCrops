@@ -9,11 +9,8 @@ public class Hotbar : MonoBehaviour
 {
     public static Hotbar Instance { get; private set; }
 
-    [Header("Aktiver Seed (Startwert)")]
-    [SerializeField] private PlantType selectedSeed;
-
     public ToolType ActiveTool { get; private set; } = ToolType.None;
-    public PlantType SelectedSeed => selectedSeed;
+    public PlantType SelectedSeed { get; private set; }
 
     public event Action<ToolType> OnToolChanged;
     public event Action<PlantType> OnSeedChanged;
@@ -28,7 +25,7 @@ public class Hotbar : MonoBehaviour
 
     public void SetSeed(PlantType type)
     {
-        selectedSeed = type;
+        SelectedSeed = type;
         OnSeedChanged?.Invoke(type);
     }
 }

@@ -139,8 +139,7 @@ public class HotbarUI : MonoBehaviour
         slotUI.keyHint.text = (keyIndex + 1).ToString();
         slotUI.background.color = normalColor;
 
-        // Hinweis: ?? funktioniert nicht mit Unity-Objekten (fake null) — expliziter Check nötig
-        Sprite slotIcon = config.icon != null ? config.icon : ToolRegistry.Instance?.GetData(config.toolType)?.icon;
+        var slotIcon = ToolRegistry.Instance?.GetData(config.toolType)?.icon;
         if (slotIcon != null)
             slotUI.icon.sprite = slotIcon;
 
@@ -188,7 +187,7 @@ public class HotbarUI : MonoBehaviour
         // Icon updaten
         if (slotUI.icon != null)
         {
-            slotUI.icon.sprite = selected?.icon ?? emptySeedSprite;
+            slotUI.icon.sprite = (selected != null && selected.icon != null) ? selected.icon : emptySeedSprite;
             slotUI.icon.color = Color.white;
         }
 
