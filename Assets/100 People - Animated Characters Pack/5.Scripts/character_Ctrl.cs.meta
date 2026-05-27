@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: db9acb4309af446ccab454c1c018fb9d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 149966
+  packageName: 100 People - Animated Characters Pack
+  packageVersion: 1.0
+  assetPath: Assets/100 People - Animated Characters Pack/5.Scripts/character_Ctrl.cs
+  uploadId: 319144
