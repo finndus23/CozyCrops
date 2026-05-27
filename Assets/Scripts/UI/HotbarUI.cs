@@ -139,8 +139,10 @@ public class HotbarUI : MonoBehaviour
         slotUI.keyHint.text = (keyIndex + 1).ToString();
         slotUI.background.color = normalColor;
 
-        if (config.icon != null)
-            slotUI.icon.sprite = config.icon;
+        // Hinweis: ?? funktioniert nicht mit Unity-Objekten (fake null) — expliziter Check nötig
+        Sprite slotIcon = config.icon != null ? config.icon : ToolRegistry.Instance?.GetData(config.toolType)?.icon;
+        if (slotIcon != null)
+            slotUI.icon.sprite = slotIcon;
 
         slotUI.countLabel.gameObject.SetActive(config.showCount);
         if (config.showCount)
