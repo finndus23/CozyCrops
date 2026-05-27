@@ -15,6 +15,7 @@ public class SaveGameData
 
     public List<TileSaveData> tiles = new();
     public List<ZoneSaveData> zones = new();
+    public List<ToolLevelSaveData> toolLevels = new();
 }
 
 [Serializable]
@@ -46,4 +47,11 @@ public class ZoneSaveData
 {
     public string zoneId;
     public bool isUnlocked;
+}
+
+[Serializable]
+public class ToolLevelSaveData
+{
+    public string toolType;
+    public int level;
 }

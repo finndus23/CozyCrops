@@ -84,15 +84,15 @@ public class PlantManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Sichel: Reife Pflanze ernten.</summary>
-    public bool TryHarvest(int x, int z)
+    /// <summary>Sichel: Reife Pflanze ernten. yieldBonus = zusätzliche Crops durch Upgrades.</summary>
+    public bool TryHarvest(int x, int z, int yieldBonus = 0)
     {
         var cell = GridManager.Instance.GetCell(x, z);
         if (cell == null || cell.IsLocked || !cell.HasPlant) return false;
         if (!cell.Plant.IsFullyGrown) return false;
 
         var harvested = cell.Harvest();
-        PlayerInventory.Instance.AddCrop(harvested.Type);
+        PlayerInventory.Instance.AddCrop(harvested.Type, 1 + yieldBonus);
 
         cell.TileVisual?.SetState(FarmTileState.Dry);
         RemoveVisual(cell);

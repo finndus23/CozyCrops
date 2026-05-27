@@ -588,6 +588,12 @@ public class FarmSaveManager : MonoBehaviour
             SaveZones(data, zones);
         }
 
+        if (ToolRegistry.Instance != null)
+        {
+            data.toolLevels.Clear();
+            data.toolLevels.AddRange(ToolRegistry.Instance.GetSaveData());
+        }
+
         EnsureSaveLists(data);
         return data;
     }
@@ -680,11 +686,18 @@ public class FarmSaveManager : MonoBehaviour
             ApplyZones(data);
             ApplyGrid(data);
             ApplyInventory(data);
+            ApplyToolLevels(data);
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private void ApplyToolLevels(SaveGameData data)
+    {
+        if (ToolRegistry.Instance == null) return;
+        ToolRegistry.Instance.ApplyLoadedData(data.toolLevels);
     }
 
     private void ApplyInventory(SaveGameData data)
@@ -746,6 +759,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.crops == null) data.crops = new List<InventoryStackSaveData>();
         if (data.tiles == null) data.tiles = new List<TileSaveData>();
         if (data.zones == null) data.zones = new List<ZoneSaveData>();
+        if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();
     }
 
     private void OnApplicationQuit()
