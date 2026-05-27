@@ -17,9 +17,14 @@ MonoBehaviour:
   icon: {fileID: 0}
   maxLevel: 30
   baseAoSize: 1
-  baseDuration: 5
+  baseDuration: 1
   durationReductionPerLevel: 0.03
   minDuration: 0.1
   baseCost: 10
   costScalingPerLevel: 10
-  milestones: []
+  milestones:
+  - level: 10
+    aoSize: 2
+    yieldBonus: 1
+    durationOverride: -1
+    unlockText: ALTER WOW

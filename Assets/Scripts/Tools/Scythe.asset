@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fb13ce36d1f44f45830b80630040463, type: 3}
   m_Name: Scythe
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
-  toolType: 0
-  displayName: 
+  toolType: 4
+  displayName: Scythe
+  icon: {fileID: 0}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1
