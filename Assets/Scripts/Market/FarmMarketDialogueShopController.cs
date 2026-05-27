@@ -45,10 +45,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [Header("Separate UIs")]
     [SerializeField] private GameObject buyPanel;
     [SerializeField] private GameObject sellPanel;
+    [SerializeField] private GameObject upgradePanel;
 
     [Header("Content Roots")]
     [SerializeField] private Transform buyContentRoot;
     [SerializeField] private Transform sellContentRoot;
+    [SerializeField] private Transform upgradeContentRoot;
     [SerializeField] private FarmMarketShopRowUI rowPrefab;
 
     [Header("Data")]
@@ -152,12 +154,16 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
+        ClearRows(upgradeContentRoot);
 
         if (buyPanel != null)
             buyPanel.SetActive(false);
 
         if (sellPanel != null)
             sellPanel.SetActive(false);
+
+        if (upgradePanel != null)
+            upgradePanel.SetActive(false);
 
         if (dialogueRoot != null)
             dialogueRoot.SetActive(false);
@@ -182,12 +188,16 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
+        ClearRows(upgradeContentRoot);
 
         if (buyPanel != null)
             buyPanel.SetActive(false);
 
         if (sellPanel != null)
             sellPanel.SetActive(false);
+
+        if (upgradePanel != null)
+            upgradePanel.SetActive(false);
 
         if (dialogueRoot != null)
             dialogueRoot.SetActive(false);
@@ -284,24 +294,23 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
+        ClearRows(upgradeContentRoot);
         UpdateMoneyText();
 
         if (currentNpc == null)
             return;
 
-        bool openBuy = currentNpc.TradeMode == FarmMarketNpcTradeMode.BuySeeds;
-        bool openSell = currentNpc.TradeMode == FarmMarketNpcTradeMode.SellInventory;
+        bool openBuy     = currentNpc.TradeMode == FarmMarketNpcTradeMode.BuySeeds;
+        bool openSell    = currentNpc.TradeMode == FarmMarketNpcTradeMode.SellInventory;
+        bool openUpgrade = currentNpc.TradeMode == FarmMarketNpcTradeMode.ToolUpgrade;
 
-        if (buyPanel != null)
-            buyPanel.SetActive(openBuy);
+        if (buyPanel != null)     buyPanel.SetActive(openBuy);
+        if (sellPanel != null)    sellPanel.SetActive(openSell);
+        if (upgradePanel != null) upgradePanel.SetActive(openUpgrade);
 
-        if (sellPanel != null)
-            sellPanel.SetActive(openSell);
-
-        if (openBuy)
-            BuildBuyRows();
-        else if (openSell)
-            BuildSellRows();
+        if (openBuy)          BuildBuyRows();
+        else if (openSell)    BuildSellRows();
+        else if (openUpgrade) BuildUpgradeRows();
     }
 
     private void BuildBuyRows()
@@ -432,6 +441,118 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         if (!createdAnyRow)
             SetStatus("Du hast aktuell keine Items zum Verkaufen.");
+    }
+
+    private void BuildUpgradeRows()
+    {
+        if (upgradeContentRoot == null || rowPrefab == null || ToolRegistry.Instance == null)
+        {
+            Debug.LogWarning("[FarmMarketDialogueShopController] Upgrade: upgradeContentRoot, rowPrefab oder ToolRegistry fehlt.");
+            return;
+        }
+
+        ToolType[] upgradableTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed };
+
+        foreach (ToolType tool in upgradableTools)
+        {
+            ToolData data = ToolRegistry.Instance.GetData(tool);
+            if (data == null) continue;
+
+            bool owned = ToolRegistry.Instance != null && ToolRegistry.Instance.IsOwned(tool);
+            ToolType captured = tool;
+
+            if (!owned)
+            {
+                // Tool noch nicht gekauft — Basis-Stats anzeigen
+                int  ao  = data.GetAoSize(0);
+                float dur = data.GetDuration(0);
+                string baseStats = $"AoE: {ao}×{ao}  |  {dur:F1}s/Tile";
+
+                FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
+                row.Setup(
+                    data.icon,
+                    data.displayName,
+                    baseStats,
+                    $"Kaufen: {data.buyPrice} G",
+                    "Kaufen",
+                    () => BuyTool(captured),
+                    string.Empty,
+                    null);
+            }
+            else
+            {
+                // Tool bereits vorhanden → Upgrade anzeigen
+                int level   = ToolRegistry.Instance.GetLevel(tool);
+                int maxLevel = data.maxLevel;
+                int cost    = ToolRegistry.Instance.GetUpgradeCost(tool);
+                bool isMax  = ToolRegistry.Instance.IsMaxLevel(tool);
+
+                int  ao       = data.GetAoSize(level);
+                float dur     = data.GetDuration(level);
+                int  yBonus   = data.GetYieldBonus(level);
+
+                string statsLabel = $"Lvl {level}/{maxLevel}  |  AoE: {ao}×{ao}  |  {dur:F1}s/Tile"
+                                  + (yBonus > 0 ? $"  |  +{yBonus} Ertrag" : "");
+                string costLabel  = isMax ? "MAX LEVEL" : $"Upgrade: {cost} G";
+
+                FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
+                row.Setup(
+                    data.icon,
+                    data.displayName,
+                    statsLabel,
+                    costLabel,
+                    isMax ? "—" : "Upgraden",
+                    isMax ? null : () => UpgradeTool(captured),
+                    string.Empty,
+                    null);
+            }
+        }
+    }
+
+    private void BuyTool(ToolType tool)
+    {
+        if (ToolRegistry.Instance == null || inventory == null) return;
+
+        ToolData data = ToolRegistry.Instance.GetData(tool);
+        if (data == null) return;
+
+        if (!inventory.TrySpendMoney(data.buyPrice))
+        {
+            SetStatus($"Nicht genug Geld. Benötigt: {data.buyPrice} G");
+            UpdateMoneyText();
+            return;
+        }
+
+        ToolRegistry.Instance.OwnTool(tool);
+        SetStatus($"{data.displayName} freigeschaltet! Kehre zur Farm zurück um es zu benutzen.");
+        SaveAfterTradeIfNeeded();
+        ClearRows(upgradeContentRoot);
+        BuildUpgradeRows();
+        UpdateMoneyText();
+    }
+
+    private void UpgradeTool(ToolType tool)
+    {
+        if (ToolRegistry.Instance == null || inventory == null) return;
+
+        int cost = ToolRegistry.Instance.GetUpgradeCost(tool);
+        if (cost < 0) { SetStatus("Bereits auf MAX LEVEL."); return; }
+
+        if (!inventory.TrySpendMoney(cost))
+        {
+            SetStatus($"Nicht genug Geld. Benötigt: {cost} G");
+            UpdateMoneyText();
+            return;
+        }
+
+        ToolRegistry.Instance.TryUpgrade(tool);
+
+        ToolData data = ToolRegistry.Instance.GetData(tool);
+        SetStatus($"{data?.displayName ?? tool.ToString()} → Lvl {ToolRegistry.Instance.GetLevel(tool)}");
+        SaveAfterTradeIfNeeded();
+        ClearRows(upgradeContentRoot);
+        BuildUpgradeRows();
+        UpdateMoneyText();
     }
 
     private void BuySeed(PlantType plant, int amount)

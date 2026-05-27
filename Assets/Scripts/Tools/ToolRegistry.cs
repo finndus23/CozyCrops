@@ -27,6 +27,7 @@ public class ToolRegistry : MonoBehaviour
     // Aktueller Level pro ToolType (0 = kein Upgrade)
     private readonly Dictionary<ToolType, int> levels  = new();
     private readonly Dictionary<ToolType, ToolData> dataMap = new();
+    private readonly HashSet<ToolType> ownedTools = new();
 
     void Awake()
     {
@@ -89,6 +90,21 @@ public class ToolRegistry : MonoBehaviour
     {
         var data = GetData(tool);
         return data != null && GetLevel(tool) >= data.maxLevel;
+    }
+
+    // ── Tool besitzen ─────────────────────────────────────────────────────────
+
+    /// <summary>Feuert wenn owned Tools sich ändern (Kauf oder Save-Load).</summary>
+    public event System.Action OnOwnedToolsChanged;
+
+    public bool IsOwned(ToolType tool) => ownedTools.Contains(tool);
+
+    public void OwnTool(ToolType tool)
+    {
+        ownedTools.Add(tool);
+        OnOwnedToolsChanged?.Invoke();
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
     }
 
     // ── Upgrade ───────────────────────────────────────────────────────────────
@@ -180,6 +196,24 @@ public class ToolRegistry : MonoBehaviour
         }
 
         Debug.Log($"[ToolRegistry] {loaded.Count} Tool-Level(s) geladen.");
+    }
+
+    public List<string> GetOwnedToolsSaveData()
+    {
+        var list = new List<string>();
+        foreach (var tool in ownedTools)
+            list.Add(tool.ToString());
+        return list;
+    }
+
+    public void ApplyOwnedToolsData(List<string> loaded)
+    {
+        if (loaded == null) return;
+        ownedTools.Clear();
+        foreach (var entry in loaded)
+            if (System.Enum.TryParse<ToolType>(entry, out var tool))
+                ownedTools.Add(tool);
+        OnOwnedToolsChanged?.Invoke();
     }
 }
 

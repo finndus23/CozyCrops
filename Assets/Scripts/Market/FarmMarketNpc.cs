@@ -4,12 +4,13 @@ using UnityEngine;
 public enum FarmMarketNpcTradeMode
 {
     BuySeeds,
-    SellInventory
+    SellInventory,
+    ToolUpgrade
 }
 
 /// <summary>
 /// Dieses Script kommt auf jeden Markt-NPC/Cube.
-/// TradeMode entscheidet, welches UI geöffnet wird:
+/// TradeMode entscheidet, welches UI geï¿½ffnet wird:
 /// BuySeeds      -> BuyPanel
 /// SellInventory -> SellPanel
 /// </summary>
@@ -25,7 +26,7 @@ public class FarmMarketNpc : MonoBehaviour
     [Header("Trade Type")]
     [SerializeField] private FarmMarketNpcTradeMode tradeMode = FarmMarketNpcTradeMode.BuySeeds;
 
-    [Header("Nur für BuySeeds-NPC")]
+    [Header("Nur fï¿½r BuySeeds-NPC")]
     [SerializeField] private List<PlantType> seedsForSale = new List<PlantType>();
 
     [Header("Optional Camera Focus")]

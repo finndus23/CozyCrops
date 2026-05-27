@@ -31,6 +31,9 @@ public class ToolData : ScriptableObject
     public float minDuration = 0.1f;
 
     [Header("Kosten")]
+    [Tooltip("Einmaliger Kaufpreis um das Tool freizuschalten.")]
+    public int buyPrice = 50;
+
     [Tooltip("Goldkosten für das erste Upgrade (Level 0 → 1).")]
     public int baseCost = 50;
 

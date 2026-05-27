@@ -56317,17 +56317,17 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 549671840}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -306.8694}
-  m_LocalScale: {x: 0.5890626, y: 0.5890626, z: 0.5890626}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1459832560}
   - {fileID: 1610093809}
-  m_Father: {fileID: 1671291795}
+  m_Father: {fileID: 2128791145}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 489.6257, y: 88.35939}
+  m_AnchoredPosition: {x: -0.00012207031, y: 127.93105}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &549671842
@@ -64778,7 +64778,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 230812871447902687, guid: 99695a40943fbed44adf2117a9152e84, type: 3}
       insertIndex: -1
       addedObject: {fileID: 834832704}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2308874968998033037, guid: 99695a40943fbed44adf2117a9152e84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2104423899}
   m_SourcePrefab: {fileID: 100100000, guid: 99695a40943fbed44adf2117a9152e84, type: 3}
 --- !u!4 &631258992 stripped
 Transform:
@@ -80434,23 +80437,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HotbarUI
   slotPrefab: {fileID: 1984010084302557879, guid: 54dd7d19f5256d643b0365453fea4493, type: 3}
   container: {fileID: 802908679}
-  defaultSlots:
-  - toolType: 1
-    icon: {fileID: 0}
-    showCount: 0
-    hasDropdown: 0
-  - toolType: 2
-    icon: {fileID: 0}
-    showCount: 0
-    hasDropdown: 0
-  - toolType: 4
-    icon: {fileID: 0}
-    showCount: 0
-    hasDropdown: 0
-  - toolType: 3
-    icon: {fileID: 0}
-    showCount: 1
-    hasDropdown: 1
+  defaultSlots: []
   emptySeedSprite: {fileID: 21300000, guid: a22f6c7f38720cc4eb0e3d082411b60a, type: 3}
   normalColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.85}
   activeColor: {r: 0.75, g: 0.55, b: 0.1, a: 1}
@@ -160247,12 +160234,11 @@ Transform:
   m_GameObject: {fileID: 1671291794}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -831.1949, y: -518.62067, z: 520.9454}
-  m_LocalScale: {x: 1.6976126, y: 1.6976126, z: 1.6976126}
+  m_LocalPosition: {x: 75.87427, y: -13, z: 306.8694}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 549671841}
-  m_Father: {fileID: 2128791145}
+  m_Children: []
+  m_Father: {fileID: 2063807384}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1671291796
 MonoBehaviour:
@@ -181479,7 +181465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4598bcf9abc42d48a9bd0f694b93e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  startingMoney: 100
+  startingMoney: 1000
   startingSeeds:
   - plantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     amount: 10
@@ -195989,7 +195975,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2063807384}
   m_Layer: 0
-  m_Name: Manager
+  m_Name: Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -196025,6 +196011,8 @@ Transform:
   - {fileID: 789137276}
   - {fileID: 1334977211}
   - {fileID: 565722220}
+  - {fileID: 2114377374}
+  - {fileID: 1671291795}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2066485475
@@ -200527,6 +200515,26 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2103408214}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2104423898 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2308874968998033037, guid: 99695a40943fbed44adf2117a9152e84, type: 3}
+  m_PrefabInstance: {fileID: 631258991}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2104423899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104423898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 738154c4aff5b6c48bbc813dcdca70c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarClickHandler
+  destination: 0
+  sceneTransition: {fileID: 0}
+  maxRayDistance: 100
 --- !u!1001 &2107781156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -201818,6 +201826,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 666bdd4a2de488b4880237af7498eada, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneBlocker
+--- !u!1 &2114377373
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2114377374}
+  - component: {fileID: 2114377375}
+  m_Layer: 0
+  m_Name: FarmMarketSceneTransition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2114377374
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114377373}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 26.9156, y: 0, z: 10.51343}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2063807384}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2114377375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114377373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102b2578401d51b4397d52b117f9b6ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketSceneTransition
+  farmSceneName: SampleScene
+  marketSceneName: Marketplace
+  mainMenuSceneName: MainMenu
+  saveBeforeSceneChange: 1
 --- !u!1 &2114750341
 GameObject:
   m_ObjectHideFlags: 0
@@ -204001,13 +204057,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 549671841}
   - {fileID: 1392969694}
   - {fileID: 802908679}
   - {fileID: 1737835379}
   - {fileID: 183596938}
   - {fileID: 48251289}
   - {fileID: 609769676}
-  - {fileID: 1671291795}
   m_Father: {fileID: 615685701}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

@@ -38,6 +38,11 @@ public class HotbarUI : MonoBehaviour
         foreach (var config in defaultSlots)
             SpawnSlot(config);
 
+        SyncOwnedToolsToHotbar();
+
+        if (ToolRegistry.Instance != null)
+            ToolRegistry.Instance.OnOwnedToolsChanged += SyncOwnedToolsToHotbar;
+
         Hotbar.Instance.OnToolChanged += OnToolChanged;
         Hotbar.Instance.OnSeedChanged += _ => UpdateSeedSlot();
         PlayerInventory.Instance.OnSeedsChanged += (_, _) => UpdateSeedSlot();
@@ -53,6 +58,8 @@ public class HotbarUI : MonoBehaviour
             BuildModeManager.Instance.OnBuildModeChanged -= OnBuildModeChanged;
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
+        if (ToolRegistry.Instance != null)
+            ToolRegistry.Instance.OnOwnedToolsChanged -= SyncOwnedToolsToHotbar;
     }
 
     void Update()
@@ -84,6 +91,21 @@ public class HotbarUI : MonoBehaviour
         // Leertaste → Dropdown öffnen wenn Seed-Slot aktiv
         if (keyboard.spaceKey.wasPressedThisFrame && Hotbar.Instance.ActiveTool == ToolType.Seed)
             SeedDropdownUI.Instance?.Toggle();
+    }
+
+    /// <summary>Gibt zurück ob ein Tool bereits in der Hotbar ist.</summary>
+    public bool HasTool(ToolType tool) => slotConfigs.Exists(c => c.toolType == tool);
+
+    /// <summary>Fügt alle owned Tools aus ToolRegistry zur Hotbar hinzu die noch fehlen.</summary>
+    private void SyncOwnedToolsToHotbar()
+    {
+        if (ToolRegistry.Instance == null) return;
+        ToolType[] allTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed };
+        foreach (var tool in allTools)
+        {
+            if (ToolRegistry.Instance.IsOwned(tool) && !HasTool(tool))
+                SpawnSlot(new HotbarSlotConfig { toolType = tool, showCount = tool == ToolType.Seed, hasDropdown = tool == ToolType.Seed });
+        }
     }
 
     /// <summary>Vom Shop aufgerufen wenn ein neues Tool freigeschaltet wird.</summary>

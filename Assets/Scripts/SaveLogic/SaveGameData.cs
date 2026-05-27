@@ -16,6 +16,7 @@ public class SaveGameData
     public List<TileSaveData> tiles = new();
     public List<ZoneSaveData> zones = new();
     public List<ToolLevelSaveData> toolLevels = new();
+    public List<string> ownedTools = new();
 }
 
 [Serializable]

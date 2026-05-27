@@ -547,6 +547,12 @@ public class FarmSaveManager : MonoBehaviour
         Debug.Log($"[FarmSaveManager] Slot {slot} gelöscht: {path}");
     }
 
+    [ContextMenu("Debug: Aktiven Slot löschen")]
+    private void DebugDeleteActiveSlot()
+    {
+        DeleteSlot(activeSlot);
+    }
+
     public string GetSavePath(int slot)
     {
         return Path.Combine(Application.persistentDataPath, $"farm_save_slot_{slot}.json");
@@ -592,6 +598,8 @@ public class FarmSaveManager : MonoBehaviour
         {
             data.toolLevels.Clear();
             data.toolLevels.AddRange(ToolRegistry.Instance.GetSaveData());
+            data.ownedTools.Clear();
+            data.ownedTools.AddRange(ToolRegistry.Instance.GetOwnedToolsSaveData());
         }
 
         EnsureSaveLists(data);
@@ -698,6 +706,7 @@ public class FarmSaveManager : MonoBehaviour
     {
         if (ToolRegistry.Instance == null) return;
         ToolRegistry.Instance.ApplyLoadedData(data.toolLevels);
+        ToolRegistry.Instance.ApplyOwnedToolsData(data.ownedTools);
     }
 
     private void ApplyInventory(SaveGameData data)
@@ -760,6 +769,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.tiles == null) data.tiles = new List<TileSaveData>();
         if (data.zones == null) data.zones = new List<ZoneSaveData>();
         if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();
+        if (data.ownedTools == null) data.ownedTools = new List<string>();
     }
 
     private void OnApplicationQuit()
