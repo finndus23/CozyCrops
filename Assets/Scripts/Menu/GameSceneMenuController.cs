@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -86,7 +84,7 @@ public class GameSceneMenuController : MonoBehaviour
         if (saveBeforeReturningToMenu)
             SaveGame();
 
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneLoadingScreen.LoadScene(mainMenuSceneName);
     }
 
     public void QuitGame()

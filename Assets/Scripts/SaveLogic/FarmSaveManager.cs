@@ -171,18 +171,16 @@ public class FarmSaveManager : MonoBehaviour
 
         Debug.Log($"[FarmSaveManager] Slot {activeSlot} gewählt. Lade Scene '{gameSceneName}'. SaveExists={hasExistingSave}");
 
-        AsyncOperation operation = SceneManager.LoadSceneAsync(gameSceneName);
+        bool sceneLoaded = false;
+        yield return SceneLoadingScreen.LoadSceneRoutine(gameSceneName, success => sceneLoaded = success);
 
-        if (operation == null)
+        if (!sceneLoaded)
         {
             isLoading = false;
             allowSaveRequests = true;
             Debug.LogError($"[FarmSaveManager] Scene '{gameSceneName}' konnte nicht geladen werden. Ist sie in Build Settings eingetragen?");
             yield break;
         }
-
-        while (!operation.isDone)
-            yield return null;
 
         int waitFrames = Mathf.Max(1, framesToWaitAfterSceneLoad);
         for (int i = 0; i < waitFrames; i++)
@@ -485,17 +483,16 @@ public class FarmSaveManager : MonoBehaviour
         allowSaveRequests = false;
         saveRequested = false;
 
-        AsyncOperation operation = SceneManager.LoadSceneAsync(targetMainMenuSceneName);
-        if (operation == null)
+        bool sceneLoaded = false;
+        yield return SceneLoadingScreen.LoadSceneRoutine(targetMainMenuSceneName, success => sceneLoaded = success);
+
+        if (!sceneLoaded)
         {
             isLoading = false;
             allowSaveRequests = true;
             Debug.LogError($"[FarmSaveManager] MainMenu-Scene '{targetMainMenuSceneName}' konnte nicht geladen werden. Ist sie in Build Settings eingetragen?");
             yield break;
         }
-
-        while (!operation.isDone)
-            yield return null;
 
         yield return null;
 

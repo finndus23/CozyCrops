@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class FarmMarketSceneTransition : MonoBehaviour
 {
@@ -14,19 +13,19 @@ public class FarmMarketSceneTransition : MonoBehaviour
     public void GoToMarket()
     {
         SaveBeforeChange();
-        SceneManager.LoadScene(marketSceneName);
+        SceneLoadingScreen.LoadScene(marketSceneName);
     }
 
     public void GoToFarm()
     {
         SaveBeforeChange();
-        SceneManager.LoadScene(farmSceneName);
+        SceneLoadingScreen.LoadScene(farmSceneName);
     }
 
     public void GoToMainMenu()
     {
         SaveBeforeChange();
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneLoadingScreen.LoadScene(mainMenuSceneName);
     }
 
     private void SaveBeforeChange()
