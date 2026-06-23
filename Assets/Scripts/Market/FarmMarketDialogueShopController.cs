@@ -22,8 +22,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private Camera gameplayCamera;
     [SerializeField] private Camera dialogueCamera;
     [SerializeField] private bool autoPositionDialogueCamera = true;
+    [Tooltip("X = seitlicher Versatz nach rechts aus Kamerasicht, Y = Hoehe, Z = Abstand vor dem NPC. Das Vorzeichen von Z wird ignoriert.")]
     [SerializeField] private Vector3 cameraOffsetFromNpc = new Vector3(2.4f, 1.6f, -3.0f);
+    [SerializeField] private float dialogueSideOffsetFactor = 0.45f;
+    [SerializeField] private float dialogueFrontOffsetFactor = 1.15f;
     [SerializeField] private Vector3 cameraLookOffset = new Vector3(0.8f, 0.7f, 0f);
+    [SerializeField] private Vector2 npcViewportPosition = new Vector2(0.3f, 0.52f);
 
     [Header("Root UI")]
     [SerializeField] private GameObject dialogueRoot;
@@ -63,6 +67,8 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private float seedSellPriceFactor = 0.5f;
 
     private FarmMarketNpc currentNpc;
+    private AudioListener gameplayAudioListener;
+    private AudioListener dialogueAudioListener;
     private bool closeButtonsRegistered;
 
     public bool IsOpen { get; private set; }
@@ -107,6 +113,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         }
 
         currentNpc = npc;
+        currentNpc.BeginDialogue();
         IsOpen = true;
 
         if (dialogueRoot != null)
@@ -115,7 +122,10 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         RegisterCloseButtons();
 
         if (gameplayCamera != null)
+        {
             gameplayCamera.enabled = false;
+            SetAudioListenerEnabled(gameplayAudioListener, false);
+        }
 
         if (dialogueCamera != null)
         {
@@ -124,6 +134,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
             dialogueCamera.enabled = true;
             dialogueCamera.gameObject.SetActive(true);
+            SetAudioListenerEnabled(dialogueAudioListener, true);
         }
 
         if (npcNameText != null)
@@ -150,6 +161,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     public void CloseShop()
     {
         IsOpen = false;
+        if (currentNpc != null)
+            currentNpc.EndDialogue();
+
         currentNpc = null;
 
         ClearRows(buyContentRoot);
@@ -171,6 +185,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (dialogueCamera != null)
         {
             dialogueCamera.enabled = false;
+            SetAudioListenerEnabled(dialogueAudioListener, false);
             dialogueCamera.gameObject.SetActive(false);
         }
 
@@ -178,12 +193,16 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         {
             gameplayCamera.gameObject.SetActive(true);
             gameplayCamera.enabled = true;
+            SetAudioListenerEnabled(gameplayAudioListener, true);
         }
     }
 
     private void CloseInstant()
     {
         IsOpen = false;
+        if (currentNpc != null)
+            currentNpc.EndDialogue();
+
         currentNpc = null;
 
         ClearRows(buyContentRoot);
@@ -205,6 +224,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (dialogueCamera != null)
         {
             dialogueCamera.enabled = false;
+            SetAudioListenerEnabled(dialogueAudioListener, false);
             dialogueCamera.gameObject.SetActive(false);
         }
 
@@ -212,6 +232,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         {
             gameplayCamera.gameObject.SetActive(true);
             gameplayCamera.enabled = true;
+            SetAudioListenerEnabled(gameplayAudioListener, true);
         }
     }
 
@@ -220,8 +241,20 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (gameplayCamera == null)
             gameplayCamera = Camera.main;
 
+        if (gameplayCamera != null && gameplayAudioListener == null)
+            gameplayAudioListener = gameplayCamera.GetComponent<AudioListener>();
+
+        if (dialogueCamera != null && dialogueAudioListener == null)
+            dialogueAudioListener = dialogueCamera.GetComponent<AudioListener>();
+
         if (inventory == null)
             inventory = PlayerInventory.Instance;
+    }
+
+    private void SetAudioListenerEnabled(AudioListener listener, bool enabled)
+    {
+        if (listener != null)
+            listener.enabled = enabled;
     }
 
     private void RegisterCloseButtons()
@@ -284,8 +317,33 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         Vector3 focusPosition = focusTransform.position;
         Transform npcTransform = npc.transform;
 
-        dialogueCamera.transform.position = focusPosition + npcTransform.TransformDirection(cameraOffsetFromNpc);
-        dialogueCamera.transform.LookAt(focusPosition + npcTransform.TransformDirection(cameraLookOffset));
+        Vector3 cameraOffset =
+            -npcTransform.right * (cameraOffsetFromNpc.x * dialogueSideOffsetFactor) +
+            Vector3.up * cameraOffsetFromNpc.y +
+            npcTransform.forward * (Mathf.Abs(cameraOffsetFromNpc.z) * dialogueFrontOffsetFactor);
+
+        Vector3 lookPosition = focusPosition + npcTransform.TransformDirection(cameraLookOffset);
+
+        dialogueCamera.transform.position = focusPosition + cameraOffset;
+        dialogueCamera.transform.LookAt(lookPosition);
+        FrameWorldPointAtViewportPosition(lookPosition, npcViewportPosition);
+    }
+
+    private void FrameWorldPointAtViewportPosition(Vector3 worldPoint, Vector2 viewportPosition)
+    {
+        if (dialogueCamera == null)
+            return;
+
+        viewportPosition.x = Mathf.Clamp01(viewportPosition.x);
+        viewportPosition.y = Mathf.Clamp01(viewportPosition.y);
+
+        Vector3 viewportPoint = dialogueCamera.WorldToViewportPoint(worldPoint);
+        Vector3 desiredWorldPoint = dialogueCamera.ViewportToWorldPoint(new Vector3(
+            viewportPosition.x,
+            viewportPosition.y,
+            viewportPoint.z));
+
+        dialogueCamera.transform.position += worldPoint - desiredWorldPoint;
     }
 
     private void RefreshShop()

@@ -3,26 +3,14 @@ using UnityEngine.SceneManagement;
 
 public class MusicManager : MonoBehaviour
 {
-    private static MusicManager instance;
-    private AudioSource audioSource;
+    private AudioSource[] audioSources;
 
     [SerializeField] private string targetScene = "MainMenu";
 
     private void Awake()
     {
-        // Prüfen ob schon ein Manager existiert
-        if (instance != null && instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-
-        // Objekt zwischen Szenen behalten
-        DontDestroyOnLoad(gameObject);
-
-        audioSource = GetComponent<AudioSource>();
+        audioSources = GetComponents<AudioSource>();
+        UpdateAudioForScene(SceneManager.GetActiveScene().name);
     }
 
     private void OnEnable()
@@ -33,18 +21,52 @@ public class MusicManager : MonoBehaviour
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        StopAllAudio();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllAudio();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Nur in bestimmter Szene Musik abspielen
-        if (scene.name == targetScene)
-        {
-            audioSource.Play();
-        }
+        UpdateAudioForScene(scene.name);
+    }
+
+    private void UpdateAudioForScene(string sceneName)
+    {
+        if (sceneName == targetScene)
+            PlayAllAudio();
         else
+            StopAllAudio();
+    }
+
+    private void PlayAllAudio()
+    {
+        if (audioSources == null || audioSources.Length == 0)
+            audioSources = GetComponents<AudioSource>();
+
+        foreach (AudioSource source in audioSources)
         {
-            audioSource.Stop();
+            if (source == null || source.isPlaying)
+                continue;
+
+            source.Play();
+        }
+    }
+
+    private void StopAllAudio()
+    {
+        if (audioSources == null)
+            return;
+
+        foreach (AudioSource source in audioSources)
+        {
+            if (source == null)
+                continue;
+
+            source.Stop();
         }
     }
 }

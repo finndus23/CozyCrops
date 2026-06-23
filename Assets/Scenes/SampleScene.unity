@@ -76482,6 +76482,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlantDatabase
   allPlantTypes:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  - {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
+  - {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
   persistAcrossScenes: 1
 --- !u!114 &751597175
 MonoBehaviour:
@@ -151366,6 +151368,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlantDatabase
   allPlantTypes:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  - {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
+  - {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
   persistAcrossScenes: 1
 --- !u!114 &1572910676
 MonoBehaviour:

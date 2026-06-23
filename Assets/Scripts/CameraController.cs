@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
@@ -9,12 +10,15 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float maxZoom = 20f;
     [SerializeField] private float dragSpeed = 1f;
     [SerializeField] private float rotateSpeed = 0.3f;
+    [SerializeField] private string xAxisOnlySceneName = "Marketplace";
 
     private Camera cam;
+    private float lockedMarketplaceZ;
 
     void Start()
     {
         cam = GetComponent<Camera>();
+        lockedMarketplaceZ = transform.position.z;
     }
 
     void Update()
@@ -39,8 +43,12 @@ public class CameraController : MonoBehaviour
         Vector3 forward = new Vector3(transform.forward.x, 0, transform.forward.z).normalized;
         Vector3 right = new Vector3(transform.right.x, 0, transform.right.z).normalized;
 
-        Vector3 direction = forward * input.y + right * input.x;
+        Vector3 direction = IsXAxisOnlyScene()
+            ? Vector3.right * input.x
+            : forward * input.y + right * input.x;
+
         transform.position += direction * moveSpeed * Time.deltaTime;
+        LockMarketplaceZIfNeeded();
     }
 
     void HandleZoom()
@@ -57,7 +65,7 @@ public class CameraController : MonoBehaviour
     {
         var mouse = Mouse.current;
         if (mouse == null || !mouse.rightButton.isPressed) return;
-        if (BuildModeManager.Instance.IsActive) return;
+        if (BuildModeManager.Instance != null && BuildModeManager.Instance.IsActive) return;
 
         Vector2 delta = mouse.delta.ReadValue();
         float worldUnitsPerPixel = cam.orthographicSize * 2f / Screen.height;
@@ -65,11 +73,18 @@ public class CameraController : MonoBehaviour
         Vector3 forward = new Vector3(transform.forward.x, 0, transform.forward.z).normalized;
         Vector3 right = new Vector3(transform.right.x, 0, transform.right.z).normalized;
 
-        transform.position += (right * -delta.x + forward * -delta.y) * worldUnitsPerPixel * dragSpeed;
+        Vector3 dragDirection = IsXAxisOnlyScene()
+            ? Vector3.right * -delta.x
+            : right * -delta.x + forward * -delta.y;
+
+        transform.position += dragDirection * worldUnitsPerPixel * dragSpeed;
+        LockMarketplaceZIfNeeded();
     }
 
     void HandleRotate()
     {
+        if (IsXAxisOnlyScene()) return;
+
         var mouse = Mouse.current;
         if (mouse == null || !mouse.middleButton.isPressed) return;
 
@@ -84,5 +99,20 @@ public class CameraController : MonoBehaviour
             Vector3 pivot = ray.GetPoint(distance);
             transform.RotateAround(pivot, Vector3.up, deltaX * rotateSpeed);
         }
+    }
+
+    private bool IsXAxisOnlyScene()
+    {
+        return SceneManager.GetActiveScene().name == xAxisOnlySceneName;
+    }
+
+    private void LockMarketplaceZIfNeeded()
+    {
+        if (!IsXAxisOnlyScene())
+            return;
+
+        Vector3 position = transform.position;
+        position.z = lockedMarketplaceZ;
+        transform.position = position;
     }
 }
