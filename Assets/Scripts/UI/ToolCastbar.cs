@@ -87,14 +87,12 @@ public class ToolCastbar : MonoBehaviour
         if (iconImage == null) return;
 
         ToolType tool = Hotbar.Instance.ActiveTool;
+        Sprite sprite = tool == ToolType.Seed
+            ? Hotbar.Instance.SelectedSeed?.icon
+            : ToolRegistry.Instance?.GetData(tool)?.icon;
 
-        if (tool == ToolType.Seed)
-        {
-            iconImage.sprite = Hotbar.Instance.SelectedSeed?.icon;
-            return;
-        }
-
-        iconImage.sprite = ToolRegistry.Instance?.GetData(tool)?.icon;
+        iconImage.sprite = sprite;
+        iconImage.color = sprite != null ? Color.white : Color.clear;
     }
 
     private void SetVisible(bool visible)

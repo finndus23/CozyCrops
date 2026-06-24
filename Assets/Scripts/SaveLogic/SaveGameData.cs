@@ -17,6 +17,7 @@ public class SaveGameData
     public List<ZoneSaveData> zones = new();
     public List<ToolLevelSaveData> toolLevels = new();
     public List<string> ownedTools = new();
+    public List<MissionProgressSaveData> missionProgress = new();
 }
 
 [Serializable]

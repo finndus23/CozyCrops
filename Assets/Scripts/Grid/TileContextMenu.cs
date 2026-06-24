@@ -5,6 +5,8 @@ public class TileContextMenu : MonoBehaviour
 {
     public static TileContextMenu Instance { get; private set; }
 
+    public static event System.Action OnFarmTilePlacedStatic;
+
     [SerializeField] private Button farmLandButton;
     [SerializeField] private Button pathButton;
     [SerializeField] private Button grassButton;
@@ -46,5 +48,8 @@ public class TileContextMenu : MonoBehaviour
     {
         GridManager.Instance.ApplyToSelection(type);
         Hide();
+
+        if (type == TileType.FarmPlot)
+            OnFarmTilePlacedStatic?.Invoke();
     }
 }

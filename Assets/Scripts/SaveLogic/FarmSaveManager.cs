@@ -548,6 +548,14 @@ public class FarmSaveManager : MonoBehaviour
     private void DebugDeleteActiveSlot()
     {
         DeleteSlot(activeSlot);
+
+        // In-Memory-State aller Manager zurücksetzen
+        MissionManager.Instance?.ApplyLoadedData(new System.Collections.Generic.List<MissionProgressSaveData>());
+        TutorialManager.Instance?.ForceReset();
+
+        // Scene neu laden damit TutorialNpc.Start() erneut feuert (nur im Play-Modus)
+        if (Application.isPlaying)
+            SceneManager.LoadScene(defaultGameSceneName);
     }
 
     public string GetSavePath(int slot)
@@ -597,6 +605,12 @@ public class FarmSaveManager : MonoBehaviour
             data.toolLevels.AddRange(ToolRegistry.Instance.GetSaveData());
             data.ownedTools.Clear();
             data.ownedTools.AddRange(ToolRegistry.Instance.GetOwnedToolsSaveData());
+        }
+
+        if (MissionManager.Instance != null)
+        {
+            data.missionProgress.Clear();
+            data.missionProgress.AddRange(MissionManager.Instance.GetSaveData());
         }
 
         EnsureSaveLists(data);
@@ -692,6 +706,7 @@ public class FarmSaveManager : MonoBehaviour
             ApplyGrid(data);
             ApplyInventory(data);
             ApplyToolLevels(data);
+            ApplyMissions(data);
         }
         finally
         {
@@ -704,6 +719,12 @@ public class FarmSaveManager : MonoBehaviour
         if (ToolRegistry.Instance == null) return;
         ToolRegistry.Instance.ApplyLoadedData(data.toolLevels);
         ToolRegistry.Instance.ApplyOwnedToolsData(data.ownedTools);
+    }
+
+    private void ApplyMissions(SaveGameData data)
+    {
+        if (MissionManager.Instance == null) return;
+        MissionManager.Instance.ApplyLoadedData(data.missionProgress);
     }
 
     private void ApplyInventory(SaveGameData data)
@@ -767,6 +788,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.zones == null) data.zones = new List<ZoneSaveData>();
         if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();
         if (data.ownedTools == null) data.ownedTools = new List<string>();
+        if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
     }
 
     private void OnApplicationQuit()

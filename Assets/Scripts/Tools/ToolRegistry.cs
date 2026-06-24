@@ -97,14 +97,20 @@ public class ToolRegistry : MonoBehaviour
     /// <summary>Feuert wenn owned Tools sich ändern (Kauf oder Save-Load).</summary>
     public event System.Action OnOwnedToolsChanged;
 
+    /// <summary>Statisches Event für Mission-System — feuert nur beim Kauf, nicht beim Load.</summary>
+    public static event System.Action OnToolAcquiredStatic;
+
     public bool IsOwned(ToolType tool) => ownedTools.Contains(tool);
 
     public void OwnTool(ToolType tool)
     {
-        ownedTools.Add(tool);
+        bool wasNew = ownedTools.Add(tool);
         OnOwnedToolsChanged?.Invoke();
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
+
+        if (wasNew)
+            OnToolAcquiredStatic?.Invoke();
     }
 
     // ── Upgrade ───────────────────────────────────────────────────────────────

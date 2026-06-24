@@ -25,7 +25,7 @@ public class HotbarUI : MonoBehaviour
     [SerializeField] private Sprite emptySeedSprite;
 
     [Header("Farben")]
-    [SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 0.85f);
+    [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color activeColor  = new Color(0.75f, 0.55f, 0.1f, 1f);
 
     private readonly List<HotbarSlotConfig> slotConfigs = new();
@@ -141,9 +141,6 @@ public class HotbarUI : MonoBehaviour
         slotInstances.RemoveAt(slotInstances.Count - 1);
         slotInstances.Insert(index, newSlotUI);
 
-        // Key-Hints aktualisieren
-        for (int i = 0; i < slotInstances.Count; i++)
-            slotInstances[i].keyHint.text = (i + 1).ToString();
     }
 
     private void SelectSlot(int index)
@@ -158,12 +155,15 @@ public class HotbarUI : MonoBehaviour
         var slotUI = go.GetComponent<HotbarSlotUI>();
 
         int keyIndex = slotInstances.Count;
-        slotUI.keyHint.text = (keyIndex + 1).ToString();
         slotUI.background.color = normalColor;
 
         var slotIcon = ToolRegistry.Instance?.GetData(config.toolType)?.icon;
-        if (slotIcon != null)
-            slotUI.icon.sprite = slotIcon;
+        if (slotUI.icon != null)
+        {
+            if (slotIcon != null)
+                slotUI.icon.sprite = slotIcon;
+            slotUI.icon.color = slotIcon != null ? Color.white : Color.clear;
+        }
 
         slotUI.countLabel.gameObject.SetActive(config.showCount);
         if (config.showCount)

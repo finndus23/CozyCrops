@@ -7,9 +7,14 @@ using UnityEngine;
 /// </summary>
 public class BarnInteraction : MonoBehaviour, IClickable
 {
+    public static event System.Action OnBarnOpenedStatic;
+
     public void OnClick()
     {
         if (BuildModeManager.Instance.IsActive) return;
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.BarnAccess) == true) return;
+
         InventoryUI.Instance.Toggle();
+        OnBarnOpenedStatic?.Invoke();
     }
 }

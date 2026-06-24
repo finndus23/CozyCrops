@@ -9,6 +9,9 @@ public class BuildModeManager : MonoBehaviour
 
     public event Action<bool> OnBuildModeChanged;
 
+    public static event Action OnBuildModeEnteredStatic;
+    public static event Action OnBuildModeExitedStatic;
+
     void Awake() => Instance = this;
 
     void Update()
@@ -17,7 +20,10 @@ public class BuildModeManager : MonoBehaviour
         if (keyboard == null) return;
 
         if (keyboard.bKey.wasPressedThisFrame)
+        {
+            if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.BuildModeToggle) == true) return;
             SetActive(!IsActive);
+        }
     }
 
     public void SetActive(bool active)
@@ -26,5 +32,8 @@ public class BuildModeManager : MonoBehaviour
         if (!active)
             SelectionManager.Instance.ClearSelection();
         OnBuildModeChanged?.Invoke(active);
+
+        if (active) OnBuildModeEnteredStatic?.Invoke();
+        else        OnBuildModeExitedStatic?.Invoke();
     }
 }

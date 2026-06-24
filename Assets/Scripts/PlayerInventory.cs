@@ -30,6 +30,10 @@ public class PlayerInventory : MonoBehaviour
     public event Action<PlantType, int> OnSeedsChanged;
     public event Action<PlantType, int> OnCropsChanged;
 
+    // Statische Events für Mission-System
+    public static event Action<PlantType, int> OnCropSoldStatic;
+    public static event Action<PlantType, int> OnSeedBoughtStatic;
+
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -127,6 +131,7 @@ public class PlayerInventory : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnCropSoldStatic?.Invoke(type, amount);
         return true;
     }
 
@@ -197,6 +202,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (!TrySpendMoney(type.seedPrice * amount)) return false;
         AddSeed(type, amount);
+        OnSeedBoughtStatic?.Invoke(type, amount);
         return true;
     }
 }

@@ -10,5 +10,4 @@ public class HotbarSlotUI : MonoBehaviour
     public Image background;
     public Image icon;
     public TMP_Text countLabel;
-    public TMP_Text keyHint;
 }

@@ -16,6 +16,9 @@ public class CarClickHandler : MonoBehaviour
     [SerializeField] private FarmMarketSceneTransition sceneTransition;
     [SerializeField] private float maxRayDistance = 100f;
 
+    public static event System.Action OnTraveledToMarketStatic;
+    public static event System.Action OnTraveledToFarmStatic;
+
     private void Awake()
     {
         if (sceneTransition == null)
@@ -37,6 +40,8 @@ public class CarClickHandler : MonoBehaviour
         if (hit.collider.gameObject != gameObject && !hit.collider.transform.IsChildOf(transform))
             return;
 
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.CarTravel) == true) return;
+
         if (sceneTransition == null)
         {
             Debug.LogWarning("[CarClickHandler] Kein FarmMarketSceneTransition gefunden.");
@@ -44,8 +49,14 @@ public class CarClickHandler : MonoBehaviour
         }
 
         if (destination == Destination.ToMarket)
+        {
+            OnTraveledToMarketStatic?.Invoke();
             sceneTransition.GoToMarket();
+        }
         else
+        {
+            OnTraveledToFarmStatic?.Invoke();
             sceneTransition.GoToFarm();
+        }
     }
 }

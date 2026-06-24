@@ -59,7 +59,8 @@ public class GridInput : MonoBehaviour
         // Farm-Modus: AoEPreview übernimmt das Tile-Highlighting
         UpdateHover(false);
 
-        if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile)
+        if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile
+            && TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.FarmTools) != true)
         {
             // Während eines Casts auf dieselbe Tile gelockt bleiben
             if (!ToolUseHandler.Instance.IsCasting)
@@ -101,7 +102,8 @@ public class GridInput : MonoBehaviour
 
     void HandleContextMenu(Mouse mouse, Vector2 screenPos)
     {
-        if (mouse.rightButton.wasPressedThisFrame)
+        if (mouse.rightButton.wasPressedThisFrame
+            && TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.ContextMenu) != true)
             TileContextMenu.Instance?.Show(screenPos);
     }
 

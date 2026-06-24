@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,12 @@ using UnityEngine;
 public class PlantManager : MonoBehaviour
 {
     public static PlantManager Instance { get; private set; }
+
+    // --- Statische Events für Mission-System ---
+    public static event Action OnFieldTilled;
+    public static event Action<PlantType> OnSeedPlanted;
+    public static event Action<PlantType> OnPlantWatered;
+    public static event Action<PlantType> OnCropHarvested;
 
     // Alle aktiven Pflanzen mit ihrer Zelle
     private readonly Dictionary<GridCell, GameObject> plantVisuals = new();
@@ -36,6 +43,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnFieldTilled?.Invoke();
         return true;
     }
 
@@ -65,6 +73,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnSeedPlanted?.Invoke(type);
         return true;
     }
 
@@ -74,6 +83,7 @@ public class PlantManager : MonoBehaviour
         var cell = GridManager.Instance.GetCell(x, z);
         if (cell == null || cell.IsLocked || !cell.HasPlant) return false;
 
+        var wateredType = cell.Plant.Type;
         cell.Plant.Water();
         if (cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
             cell.TileVisual?.SetState(FarmTileState.Watered);
@@ -81,6 +91,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnPlantWatered?.Invoke(wateredType);
         return true;
     }
 
@@ -101,6 +112,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnCropHarvested?.Invoke(harvested.Type);
         return true;
     }
 
