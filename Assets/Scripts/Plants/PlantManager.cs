@@ -16,6 +16,12 @@ public class PlantManager : MonoBehaviour
     public static event Action<PlantType> OnPlantWatered;
     public static event Action<PlantType> OnCropHarvested;
 
+    // --- Wachstums-Events (gefeuert von TickGrowth) ---
+    /// <summary>Eine Pflanze hat eine Wachstumsstufe erreicht, ist aber noch nicht erntereif.</summary>
+    public static event Action<PlantType> OnPlantGrew;
+    /// <summary>Eine Pflanze ist vollständig gewachsen und erntereif.</summary>
+    public static event Action<PlantType> OnPlantFullyGrown;
+
     // Alle aktiven Pflanzen mit ihrer Zelle
     private readonly Dictionary<GridCell, GameObject> plantVisuals = new();
     private readonly List<GridCell> activePlants = new();
@@ -179,9 +185,17 @@ public class PlantManager : MonoBehaviour
             if (stageChanged)
             {
                 UpdateVisual(cell);
-                // Wässerung hat sich zurückgesetzt — Tile wieder auf Tilled
-                if (!cell.Plant.IsFullyGrown)
+
+                if (cell.Plant.IsFullyGrown)
+                {
+                    OnPlantFullyGrown?.Invoke(cell.Plant.Type);
+                }
+                else
+                {
+                    // Wässerung hat sich zurückgesetzt — Tile wieder auf Tilled
                     cell.TileVisual?.SetState(FarmTileState.Tilled);
+                    OnPlantGrew?.Invoke(cell.Plant.Type);
+                }
 
                 if (FarmSaveManager.Instance != null)
                     FarmSaveManager.Instance.RequestSave();

@@ -38,7 +38,7 @@ MonoBehaviour:
     description: 
   - type: 7
     targetPlantType: {fileID: 0}
-    requiredAmount: 1
+    requiredAmount: 10
     description: 
   - type: 13
     targetPlantType: {fileID: 0}
@@ -58,7 +58,7 @@ MonoBehaviour:
     description: 
   - type: 2
     targetPlantType: {fileID: 0}
-    requiredAmount: 1
+    requiredAmount: 2
     description: 
   - type: 3
     targetPlantType: {fileID: 0}
@@ -72,7 +72,10 @@ MonoBehaviour:
     targetPlantType: {fileID: 0}
     requiredAmount: 1
     description: 
-  rewardMoney: 0
+  rewards:
+  - type: 0
+    amount: 100
+    plant: {fileID: 0}
   isStoryMission: 0
   unlocks: []
   sequentialObjectives: 1

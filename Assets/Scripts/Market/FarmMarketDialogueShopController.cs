@@ -569,6 +569,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void BuyTool(ToolType tool)
     {
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.BuyTool) == true)
+        {
+            SetStatus("Tutorial: Schließe zuerst den aktuellen Schritt ab.");
+            return;
+        }
+
         if (ToolRegistry.Instance == null || inventory == null) return;
 
         ToolData data = ToolRegistry.Instance.GetData(tool);
@@ -591,6 +597,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void UpgradeTool(ToolType tool)
     {
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.UpgradeTool) == true)
+        {
+            SetStatus("Tutorial: Schließe zuerst den aktuellen Schritt ab.");
+            return;
+        }
+
         if (ToolRegistry.Instance == null || inventory == null) return;
 
         int cost = ToolRegistry.Instance.GetUpgradeCost(tool);
@@ -615,6 +627,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void BuySeed(PlantType plant, int amount)
     {
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.BuySeed) == true)
+        {
+            SetStatus("Tutorial: Schließe zuerst den aktuellen Schritt ab.");
+            return;
+        }
+
         if (inventory == null || plant == null || amount <= 0)
             return;
 
@@ -634,6 +652,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void SellCrop(PlantType plant, int amount)
     {
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.SellItem) == true)
+        {
+            SetStatus("Tutorial: Schließe zuerst den aktuellen Schritt ab.");
+            return;
+        }
+
         if (inventory == null || plant == null || amount <= 0)
             return;
 
@@ -659,6 +683,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
     private void SellSeed(PlantType plant, int amount)
     {
+        if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.SellItem) == true)
+        {
+            SetStatus("Tutorial: Schließe zuerst den aktuellen Schritt ab.");
+            return;
+        }
+
         if (inventory == null || plant == null || amount <= 0)
             return;
 

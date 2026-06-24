@@ -13,7 +13,7 @@ public class MissionData : ScriptableObject
     public MissionObjectiveData[] objectives;
 
     [Header("Belohnung")]
-    public int rewardMoney;
+    public MissionReward[] rewards;
 
     [Header("Kette")]
     [Tooltip("Wenn true, wird diese Mission als Teil der Story-Kette behandelt")]

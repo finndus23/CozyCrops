@@ -18,6 +18,6 @@ MonoBehaviour:
       du allerlei Sachen Kaufen oder verkaufen."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Klicke auf den Werkzeugh\xE4ndler und kaufe die Werkzeuge."
+    text: "Hier etwas Geld, suche den Werkzeugh\xE4ndler und kaufe dir Werkzeuge"
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

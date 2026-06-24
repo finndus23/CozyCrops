@@ -15,31 +15,107 @@ MonoBehaviour:
   tutorialMissionId: tutorial
   steps:
   - introDialogue: {fileID: 11400000, guid: 9a5bffafe73c87c43a03340303c20b7d, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 6f47c7d3d1f3cf342a22a9e5f4f9c476, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: dfeae80d80922754883b7ccfc1857595, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 460c53235cc5243449a845e07bfdc855, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards:
+    - type: 0
+      amount: 200
+      plant: {fileID: 0}
   - introDialogue: {fileID: 11400000, guid: 0e65f4eda6058684d97b93db9e62d68b, type: 2}
-    blockedDuring: 
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
+    blockedDuring: 060000000700000008000000
+    rewards:
+    - type: 0
+      amount: 30
+      plant: {fileID: 0}
   - introDialogue: {fileID: 11400000, guid: b092219e24391e543bf1c7bb61fb31d6, type: 2}
-    blockedDuring: 
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
+    blockedDuring: 050000000600000008000000
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 665ee0a4b95a40a4ea9d5d1c3fc7a749, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 4ffad935ebc24b547a6f73e82befd0ae, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 3693cfcdc3226fb4f8678d03ebb72480, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 2299e76fc316487418c141d5ce7dc936, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 64322be6a957d2d4e8e371c95b4de0bd, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 11400000, guid: 1e487657679513e438673b0082038f5d, type: 2}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: b353abbe88c74a1418ed873a93e657f6, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 1
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 01f415ae79b58d640aead202737fda16, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   - introDialogue: {fileID: 11400000, guid: 99f73bb597cc4e140bac8f2e6c3797c8, type: 2}
+    midDialogues: []
+    onPlantGrowDialogue: {fileID: 0}
+    onPlantFullyGrownDialogue: {fileID: 0}
+    delayIntroUntilPlantGrown: 0
     blockedDuring: 
+    rewards: []
   completionDialogue: {fileID: 11400000, guid: c2f65b37f939f0d43b51ef988b9bd2e8, type: 2}

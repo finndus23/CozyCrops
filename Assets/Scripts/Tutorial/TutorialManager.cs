@@ -25,6 +25,9 @@ public class TutorialManager : MonoBehaviour
     private bool tutorialActive = false;
     private readonly HashSet<TutorialBlockedAction> currentlyBlocked = new();
     private DialogueData pendingDialogue = null;
+    private bool plantGrowDialogueFired = false;
+    private bool plantFullyGrownDialogueFired = false;
+    private bool waitingForPlantGrown = false;
 
     public bool IsActive => tutorialActive;
     public MissionData TutorialMission => tutorialMission;
@@ -69,6 +72,8 @@ public class TutorialManager : MonoBehaviour
         if (DialogueManager.Instance != null)
             DialogueManager.Instance.OnDialogueEnded -= OnDialogueEnded;
 
+        PlantManager.OnPlantGrew -= OnPlantGrew;
+        PlantManager.OnPlantFullyGrown -= OnPlantFullyGrown;
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -98,6 +103,8 @@ public class TutorialManager : MonoBehaviour
         if (DialogueManager.Instance != null)
             DialogueManager.Instance.OnDialogueEnded += OnDialogueEnded;
 
+        PlantManager.OnPlantGrew += OnPlantGrew;
+        PlantManager.OnPlantFullyGrown += OnPlantFullyGrown;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -183,11 +190,21 @@ public class TutorialManager : MonoBehaviour
     {
         if (!tutorialActive) return;
         if (tutorialMission == null || data.missionId != tutorialMission.missionId) return;
-        if (current < required) return;
         if (objIdx != currentStepIndex) return;
 
+        if (current < required)
+        {
+            // Objective noch nicht fertig → Mid-Dialogue prüfen
+            TryFireMidDialogue(objIdx, current);
+            return;
+        }
+
+        // Objective abgeschlossen:
         // Spieler hat Aktion ausgeführt während Dialog noch offen → Dialog schließen
         DialogueManager.Instance?.ForceEnd();
+
+        // Rewards des abgeschlossenen Schritts auszahlen
+        GrantStepRewards(objIdx);
 
         // Schritt abgeschlossen → nächsten starten
         currentStepIndex++;
@@ -195,6 +212,68 @@ public class TutorialManager : MonoBehaviour
         if (currentStepIndex < sequence.steps.Length)
             ShowStepIntro(currentStepIndex);
         // Wenn alle durch → OnMissionCompleted folgt automatisch
+    }
+
+    private void OnPlantGrew(PlantType _)
+    {
+        if (!tutorialActive || plantGrowDialogueFired) return;
+        if (sequence == null || currentStepIndex >= sequence.steps.Length) return;
+
+        var dlg = sequence.steps[currentStepIndex].onPlantGrowDialogue;
+        if (dlg == null) return;
+
+        plantGrowDialogueFired = true;
+        DialogueManager.Instance?.ForceEnd();
+        pendingDialogue = dlg;
+        StartCoroutine(StartPendingDialogueNextFrame());
+    }
+
+    private void OnPlantFullyGrown(PlantType _)
+    {
+        if (!tutorialActive) return;
+        if (sequence == null || currentStepIndex >= sequence.steps.Length) return;
+
+        var step = sequence.steps[currentStepIndex];
+
+        // Fall 1: Dieser Schritt wartet auf Pflanzenwachstum → Intro jetzt spielen
+        if (waitingForPlantGrown && step.introDialogue != null)
+        {
+            waitingForPlantGrown = false;
+            plantFullyGrownDialogueFired = true;
+            DialogueManager.Instance?.ForceEnd();
+            pendingDialogue = step.introDialogue;
+            StartCoroutine(StartPendingDialogueNextFrame());
+            return;
+        }
+
+        // Fall 2: Normaler onPlantFullyGrownDialogue (mid-step, nur einmal)
+        if (!plantFullyGrownDialogueFired && step.onPlantFullyGrownDialogue != null)
+        {
+            plantFullyGrownDialogueFired = true;
+            DialogueManager.Instance?.ForceEnd();
+            pendingDialogue = step.onPlantFullyGrownDialogue;
+            StartCoroutine(StartPendingDialogueNextFrame());
+        }
+    }
+
+    private void TryFireMidDialogue(int stepIndex, int currentProgress)
+    {
+        if (sequence == null || stepIndex >= sequence.steps.Length) return;
+
+        var mids = sequence.steps[stepIndex].midDialogues;
+        if (mids == null) return;
+
+        foreach (var mid in mids)
+        {
+            if (mid.dialogue != null && mid.atProgress == currentProgress)
+            {
+                // Laufenden Dialog erst schließen, dann neuen starten
+                DialogueManager.Instance?.ForceEnd();
+                pendingDialogue = mid.dialogue;
+                StartCoroutine(StartPendingDialogueNextFrame());
+                return;
+            }
+        }
     }
 
     private void OnMissionCompleted(MissionData data)
@@ -237,6 +316,15 @@ public class TutorialManager : MonoBehaviour
         }
 
         var step = sequence.steps[stepIndex];
+
+        if (step.delayIntroUntilPlantGrown)
+        {
+            // Intro wird erst gespielt wenn OnPlantFullyGrown feuert
+            waitingForPlantGrown = true;
+            Debug.Log($"[TutorialManager] Schritt {stepIndex}: Intro wartet auf Pflanzenwachstum.");
+            return;
+        }
+
         if (step.introDialogue == null)
         {
             Debug.LogWarning($"[TutorialManager] ShowStepIntro({stepIndex}): introDialogue ist null — kein Dialog startet.");
@@ -279,6 +367,9 @@ public class TutorialManager : MonoBehaviour
     private void ApplyBlockingForStep(int stepIndex)
     {
         currentlyBlocked.Clear();
+        plantGrowDialogueFired = false;
+        plantFullyGrownDialogueFired = false;
+        waitingForPlantGrown = false;
 
         if (sequence == null || stepIndex >= sequence.steps.Length) return;
 
@@ -287,5 +378,28 @@ public class TutorialManager : MonoBehaviour
 
         foreach (var action in step.blockedDuring)
             currentlyBlocked.Add(action);
+    }
+
+    private void GrantStepRewards(int stepIndex)
+    {
+        if (sequence == null || stepIndex >= sequence.steps.Length) return;
+
+        var rewards = sequence.steps[stepIndex].rewards;
+        if (rewards == null) return;
+
+        foreach (var reward in rewards)
+        {
+            switch (reward.type)
+            {
+                case MissionReward.RewardType.Money:
+                    if (reward.amount > 0)
+                        PlayerInventory.Instance?.AddMoney(reward.amount);
+                    break;
+                case MissionReward.RewardType.Seed:
+                    if (reward.plant != null && reward.amount > 0)
+                        PlayerInventory.Instance?.AddSeed(reward.plant, reward.amount);
+                    break;
+            }
+        }
     }
 }

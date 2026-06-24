@@ -11610,6 +11610,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1428653452}
+  - {fileID: 2088089326}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -128023,7 +128024,7 @@ Transform:
   m_GameObject: {fileID: 1305319173}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 26.63544, y: 1, z: 10.36472}
+  m_LocalPosition: {x: 31.63544, y: 1, z: 15.36472}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -145790,7 +145791,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2088089326}
   - {fileID: 2128791145}
   - {fileID: 1364907674}
   - {fileID: 2052075548}
@@ -182342,10 +182342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4598bcf9abc42d48a9bd0f694b93e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  startingMoney: 1000
-  startingSeeds:
-  - plantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
-    amount: 10
+  startingMoney: 0
+  startingSeeds: []
 --- !u!1 &1904023034
 GameObject:
   m_ObjectHideFlags: 0
@@ -200154,11 +200152,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1806597763}
-  m_Father: {fileID: 1494620946}
+  m_Father: {fileID: 118623005}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 398.50244, y: 179.88885}
+  m_AnchoredPosition: {x: -459.74945, y: 215.96246}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2088089327

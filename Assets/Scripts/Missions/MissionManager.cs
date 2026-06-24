@@ -183,11 +183,26 @@ public class MissionManager : MonoBehaviour
         activeMissions.Remove(state);
         completedMissionIds.Add(state.Data.missionId);
 
-        if (state.Data.rewardMoney > 0 && PlayerInventory.Instance != null)
-            PlayerInventory.Instance.AddMoney(state.Data.rewardMoney);
+        if (state.Data.rewards != null)
+        {
+            foreach (var reward in state.Data.rewards)
+            {
+                switch (reward.type)
+                {
+                    case MissionReward.RewardType.Money:
+                        if (reward.amount > 0)
+                            PlayerInventory.Instance?.AddMoney(reward.amount);
+                        break;
+                    case MissionReward.RewardType.Seed:
+                        if (reward.plant != null && reward.amount > 0)
+                            PlayerInventory.Instance?.AddSeed(reward.plant, reward.amount);
+                        break;
+                }
+            }
+        }
 
         OnMissionCompleted?.Invoke(state.Data);
-        Debug.Log($"[MissionManager] Mission abgeschlossen: {state.Data.title} (+{state.Data.rewardMoney}G)");
+        Debug.Log($"[MissionManager] Mission abgeschlossen: {state.Data.title}");
 
         FarmSaveManager.Instance?.RequestSave();
 
