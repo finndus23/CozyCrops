@@ -16,6 +16,7 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private Image portrait;
     [SerializeField] private Button nextButton;
     [SerializeField] private Sprite panelSprite;
+    [SerializeField] private Sprite nextButtonSprite;
 
     private void Awake()
     {
@@ -179,8 +180,8 @@ public class DialogueUI : MonoBehaviour
             buttonRect.anchorMin = new Vector2(1f, 0f);
             buttonRect.anchorMax = new Vector2(1f, 0f);
             buttonRect.pivot = new Vector2(1f, 0f);
-            buttonRect.anchoredPosition = new Vector2(-78f, 71f);
-            buttonRect.sizeDelta = new Vector2(146f, 62f);
+            buttonRect.anchoredPosition = new Vector2(-50f, 50f);
+            buttonRect.sizeDelta = new Vector2(180f, 100f);
         }
 
         if (nextButton != null)
@@ -189,7 +190,12 @@ public class DialogueUI : MonoBehaviour
 
             Image buttonImage = nextButton.GetComponent<Image>();
             if (buttonImage != null)
-                buttonImage.color = Color.clear;
+            {
+                buttonImage.sprite = nextButtonSprite;
+                buttonImage.color = nextButtonSprite != null ? Color.white : Color.clear;
+                buttonImage.type = Image.Type.Simple;
+                buttonImage.preserveAspect = false;
+            }
 
             TextMeshProUGUI[] tmpTexts = nextButton.GetComponentsInChildren<TextMeshProUGUI>(true);
             foreach (TextMeshProUGUI text in tmpTexts)

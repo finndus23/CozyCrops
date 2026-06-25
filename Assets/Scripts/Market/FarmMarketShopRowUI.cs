@@ -31,6 +31,7 @@ public class FarmMarketShopRowUI : MonoBehaviour
         {
             iconImage.sprite = icon;
             iconImage.enabled = icon != null;
+            iconImage.preserveAspect = true;
         }
 
         if (nameText != null)
