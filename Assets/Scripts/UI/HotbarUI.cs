@@ -165,8 +165,12 @@ public class HotbarUI : MonoBehaviour
             slotUI.icon.color = slotIcon != null ? Color.white : Color.clear;
         }
 
-        slotUI.countLabel.gameObject.SetActive(config.showCount);
-        if (config.showCount)
+        if (slotUI.countRoot != null)
+            slotUI.countRoot.SetActive(config.showCount);
+        else if (slotUI.countLabel != null)
+            slotUI.countLabel.transform.parent.gameObject.SetActive(config.showCount);
+
+        if (slotUI.countLabel != null)
             slotUI.countLabel.text = "";
 
         var button = go.GetComponent<Button>();
@@ -213,12 +217,60 @@ public class HotbarUI : MonoBehaviour
             slotUI.icon.color = Color.white;
         }
 
-        // Count updaten
-        if (slotUI.countLabel != null)
+        int seedCount = selected != null && PlayerInventory.Instance != null
+            ? PlayerInventory.Instance.GetSeedCount(selected)
+            : 0;
+
+        UpdateSeedCountBadge(slotUI, selected != null, seedCount);
+    }
+
+    private void UpdateSeedCountBadge(HotbarSlotUI slotUI, bool show, int count)
+    {
+        if (slotUI == null) return;
+
+        GameObject countRoot = slotUI.countRoot != null
+            ? slotUI.countRoot
+            : slotUI.countLabel != null ? slotUI.countLabel.transform.parent.gameObject : null;
+
+        if (countRoot != null)
         {
-            int seedCount = selected != null ? PlayerInventory.Instance.GetSeedCount(selected) : 0;
-            slotUI.countLabel.text = selected != null ? $"x{seedCount}" : "";
+            countRoot.SetActive(show);
+
+            RectTransform rootRect = countRoot.transform as RectTransform;
+            if (rootRect != null)
+            {
+                rootRect.anchorMin = new Vector2(1f, 0f);
+                rootRect.anchorMax = new Vector2(1f, 0f);
+                rootRect.pivot = new Vector2(1f, 0f);
+                rootRect.anchoredPosition = new Vector2(-8f, 8f);
+                rootRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 28f);
+                rootRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20f);
+            }
+
+            Image badgeImage = countRoot.GetComponentInChildren<Image>(true);
+            if (badgeImage != null)
+            {
+                badgeImage.color = new Color(1f, 0.9f, 0.58f, 0.9f);
+                badgeImage.raycastTarget = false;
+            }
         }
+
+        if (slotUI.countLabel == null) return;
+
+        RectTransform labelRect = slotUI.countLabel.transform as RectTransform;
+        if (labelRect != null)
+        {
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+        }
+
+        slotUI.countLabel.text = show ? count.ToString() : "";
+        slotUI.countLabel.color = new Color(0.26f, 0.14f, 0.04f, 1f);
+        slotUI.countLabel.alignment = TMPro.TextAlignmentOptions.Center;
+        slotUI.countLabel.fontSize = 14f;
+        slotUI.countLabel.raycastTarget = false;
     }
 
     private void AddRightClickHandler(GameObject target, System.Action callback)

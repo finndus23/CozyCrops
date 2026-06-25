@@ -20,7 +20,7 @@ public class MainMenuController : MonoBehaviour
 
     [Header("Scene")]
     [Tooltip("Name deiner Farm/Game-Szene. Muss exakt so heißen wie in File > Build Settings > Scenes In Build.")]
-    [SerializeField] private string gameSceneName = "GameScene";
+    [SerializeField] private string gameSceneName = "SampleScene";
 
     [Header("Optional")]
     [SerializeField] private MainMenuSlotButton[] slotButtons;

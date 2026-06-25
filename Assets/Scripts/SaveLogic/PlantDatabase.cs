@@ -15,6 +15,7 @@ public class PlantDatabase : MonoBehaviour
 
     [Header("Database")]
     [SerializeField] private List<PlantType> allPlantTypes = new();
+    public IReadOnlyList<PlantType> AllPlantTypes => allPlantTypes;
 
     [Header("Lifetime")]
     [Tooltip("Empfohlen anlassen, wenn PlantDatabase auf dem SaveSystem im MainMenu liegt.")]

@@ -6,11 +6,13 @@ using UnityEngine.UI;
 
 public class SceneLoadingScreen : MonoBehaviour
 {
-    private const float DefaultMinimumDisplayTime = 0.35f;
+    private const float DefaultMinimumDisplayTime = 1.5f;
 
     private static SceneLoadingScreen instance;
 
     private GameObject overlay;
+    private Image loadingImage;
+    private LoadingScreenAssets assets;
     private bool isLoading;
 
     private static SceneLoadingScreen Instance
@@ -53,8 +55,12 @@ public class SceneLoadingScreen : MonoBehaviour
             yield break;
         }
 
+        string targetSceneName = ResolveSceneName(sceneName);
+        string sourceSceneName = ResolveSceneName(SceneManager.GetActiveScene().name);
+        Sprite loadingSprite = GetLoadingSprite(sourceSceneName, targetSceneName);
+
         isLoading = true;
-        Show();
+        Show(loadingSprite);
 
         float shownAt = Time.realtimeSinceStartup;
         yield return null;
@@ -63,11 +69,11 @@ public class SceneLoadingScreen : MonoBehaviour
 
         try
         {
-            operation = SceneManager.LoadSceneAsync(sceneName);
+            operation = SceneManager.LoadSceneAsync(targetSceneName);
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[SceneLoadingScreen] Scene '{sceneName}' konnte nicht geladen werden: {ex.Message}");
+            Debug.LogError($"[SceneLoadingScreen] Scene '{targetSceneName}' konnte nicht geladen werden: {ex.Message}");
         }
 
         if (operation == null)
@@ -90,13 +96,16 @@ public class SceneLoadingScreen : MonoBehaviour
         onComplete?.Invoke(true);
     }
 
-    private void Show()
+    private void Show(Sprite loadingSprite)
     {
         if (overlay != null)
         {
             overlay.SetActive(true);
+            SetLoadingImage(loadingSprite);
             return;
         }
+
+        assets = Resources.Load<LoadingScreenAssets>("LoadingScreenAssets");
 
         overlay = new GameObject("Loading Overlay");
         DontDestroyOnLoad(overlay);
@@ -105,7 +114,10 @@ public class SceneLoadingScreen : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = short.MaxValue;
 
-        overlay.AddComponent<CanvasScaler>();
+        CanvasScaler scaler = overlay.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
         overlay.AddComponent<GraphicRaycaster>();
 
         GameObject backgroundObject = new GameObject("Background");
@@ -120,23 +132,57 @@ public class SceneLoadingScreen : MonoBehaviour
         backgroundRect.offsetMin = Vector2.zero;
         backgroundRect.offsetMax = Vector2.zero;
 
+        GameObject imageObject = new GameObject("Loading Image");
+        imageObject.transform.SetParent(overlay.transform, false);
+
+        loadingImage = imageObject.AddComponent<Image>();
+        loadingImage.color = Color.white;
+        loadingImage.preserveAspect = false;
+        loadingImage.raycastTarget = false;
+
+        RectTransform imageRect = loadingImage.GetComponent<RectTransform>();
+        imageRect.anchorMin = Vector2.zero;
+        imageRect.anchorMax = Vector2.one;
+        imageRect.offsetMin = Vector2.zero;
+        imageRect.offsetMax = Vector2.zero;
+
+        GameObject logoObject = new GameObject("Cozy Crops Logo");
+        logoObject.transform.SetParent(overlay.transform, false);
+
+        Image logoImage = logoObject.AddComponent<Image>();
+        logoImage.sprite = assets != null ? assets.logo : null;
+        logoImage.preserveAspect = true;
+        logoImage.raycastTarget = false;
+        logoImage.color = logoImage.sprite != null ? Color.white : Color.clear;
+
+        RectTransform logoRect = logoImage.GetComponent<RectTransform>();
+        logoRect.anchorMin = new Vector2(0f, 1f);
+        logoRect.anchorMax = new Vector2(0f, 1f);
+        logoRect.pivot = new Vector2(0f, 1f);
+        logoRect.anchoredPosition = new Vector2(28f, -24f);
+        logoRect.sizeDelta = new Vector2(260f, 130f);
+
         GameObject textObject = new GameObject("Loading Text");
         textObject.transform.SetParent(overlay.transform, false);
 
         Text text = textObject.AddComponent<Text>();
         text.text = "Loading...";
-        text.alignment = TextAnchor.MiddleCenter;
-        text.fontSize = 44;
+        text.alignment = TextAnchor.LowerRight;
+        text.fontSize = 46;
+        text.fontStyle = FontStyle.Bold;
         text.color = Color.white;
         text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         if (text.font == null)
             text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
         RectTransform textRect = text.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMin = new Vector2(1f, 0f);
         textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
+        textRect.pivot = new Vector2(1f, 0f);
+        textRect.offsetMin = new Vector2(-420f, 26f);
+        textRect.offsetMax = new Vector2(-32f, 120f);
+
+        SetLoadingImage(loadingSprite);
     }
 
     private void Hide()
@@ -144,4 +190,49 @@ public class SceneLoadingScreen : MonoBehaviour
         if (overlay != null)
             overlay.SetActive(false);
     }
+
+    private Sprite GetLoadingSprite(string sourceSceneName, string targetSceneName)
+    {
+        if (assets == null)
+            assets = Resources.Load<LoadingScreenAssets>("LoadingScreenAssets");
+
+        if (assets == null)
+            return null;
+
+        if (IsScene(sourceSceneName, "Marketplace") && IsScene(targetSceneName, "SampleScene"))
+            return assets.toFarmImage;
+
+        if (IsScene(sourceSceneName, "SampleScene") && IsScene(targetSceneName, "Marketplace"))
+            return assets.toMarketImage;
+
+        if (IsScene(sourceSceneName, "MainMenu") && IsScene(targetSceneName, "SampleScene"))
+            return assets.homeToFarmImage;
+
+        return assets.homeToFarmImage != null ? assets.homeToFarmImage : assets.toFarmImage;
+    }
+
+    private void SetLoadingImage(Sprite sprite)
+    {
+        if (loadingImage == null) return;
+
+        loadingImage.sprite = sprite;
+        loadingImage.enabled = sprite != null;
+    }
+
+    private static string ResolveSceneName(string sceneName)
+    {
+        if (string.Equals(sceneName, "GameScene", StringComparison.OrdinalIgnoreCase))
+            return "SampleScene";
+
+        if (string.Equals(sceneName, "MarketScene", StringComparison.OrdinalIgnoreCase))
+            return "Marketplace";
+
+        return sceneName;
+    }
+
+    private static bool IsScene(string sceneName, string expected)
+    {
+        return string.Equals(ResolveSceneName(sceneName), expected, StringComparison.OrdinalIgnoreCase);
+    }
+
 }

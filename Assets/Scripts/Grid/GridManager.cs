@@ -242,15 +242,17 @@ public class GridManager : MonoBehaviour
         GridCell cell = cells[tileData.x, tileData.z];
 
         TileType loadedType = ParseTileType(tileData.tileType);
+        TileType previousType = cell.Type;
 
         cell.Type = loadedType;
         cell.IsLocked = tileData.isLocked;
         cell.IsTilled = loadedType == TileType.FarmPlot && tileData.isTilled;
         cell.ClearLoadedPlant();
 
-        // Für den F6-Test absichtlich immer neu bauen.
-        // Dadurch kann kein falsches Scene-Prefab oder alter Marker den sichtbaren Load-Zustand blockieren.
-        ReplaceTile(tileData.x, tileData.z, GetPrefabForType(loadedType), loadedType);
+        if (tileObjects[tileData.x, tileData.z] == null || previousType != loadedType)
+            ReplaceTile(tileData.x, tileData.z, GetPrefabForType(loadedType), loadedType);
+        else
+            EnsureMarker(tileObjects[tileData.x, tileData.z], loadedType);
 
         if (loadedType == TileType.FarmPlot && tileData.hasPlant)
             ApplyLoadedPlant(cell, tileData);

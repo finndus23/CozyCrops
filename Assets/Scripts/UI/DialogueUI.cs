@@ -3,9 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Dialogue-Panel. Singleton + DontDestroyOnLoad — überlebt Scenewechsel.
-/// Das Canvas auf dem dieses Script sitzt muss ein eigenes Root-GO sein (kein Parent).
-/// Setup: Panel GO + SpeakerName TMP + DialogueText TMP + Next Button + optional Portrait Image.
+/// Dialogue panel. Singleton + DontDestroyOnLoad, survives scene changes.
 /// </summary>
 public class DialogueUI : MonoBehaviour
 {
@@ -17,6 +15,7 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dialogueText;
     [SerializeField] private Image portrait;
     [SerializeField] private Button nextButton;
+    [SerializeField] private Sprite panelSprite;
 
     private void Awake()
     {
@@ -25,13 +24,16 @@ public class DialogueUI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
-        // Root-Canvas (PersistentUI) szenenübergreifend erhalten
         DontDestroyOnLoad(transform.root.gameObject);
+        ApplyPanelStyle();
     }
 
     private void Start()
     {
+        ApplyPanelStyle();
+
         if (panel != null) panel.SetActive(false);
         if (nextButton != null) nextButton.onClick.AddListener(OnNextClicked);
 
@@ -41,7 +43,6 @@ public class DialogueUI : MonoBehaviour
             DialogueManager.Instance.OnLineChanged += OnLineChanged;
             DialogueManager.Instance.OnDialogueEnded += OnDialogueEnded;
 
-            // Falls Dialogue schon aktiv ist wenn UI in die Scene kommt (Scene-Reload)
             if (DialogueManager.Instance.IsActive)
             {
                 OnDialogueStarted();
@@ -53,6 +54,7 @@ public class DialogueUI : MonoBehaviour
     private void OnDestroy()
     {
         if (DialogueManager.Instance == null) return;
+
         DialogueManager.Instance.OnDialogueStarted -= OnDialogueStarted;
         DialogueManager.Instance.OnLineChanged -= OnLineChanged;
         DialogueManager.Instance.OnDialogueEnded -= OnDialogueEnded;
@@ -85,5 +87,117 @@ public class DialogueUI : MonoBehaviour
     private void OnNextClicked()
     {
         DialogueManager.Instance?.NextLine();
+    }
+
+    private void ApplyPanelStyle()
+    {
+        if (panel == null)
+            panel = gameObject;
+
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        if (panelRect != null)
+        {
+            panelRect.anchorMin = new Vector2(0.5f, 0f);
+            panelRect.anchorMax = new Vector2(0.5f, 0f);
+            panelRect.pivot = new Vector2(0.5f, 0f);
+            panelRect.anchoredPosition = new Vector2(0f, 26f);
+            panelRect.sizeDelta = new Vector2(1040f, 347f);
+        }
+
+        Image panelImage = panel.GetComponent<Image>();
+        if (panelImage != null)
+        {
+            panelImage.sprite = panelSprite;
+            panelImage.color = Color.white;
+            panelImage.type = Image.Type.Simple;
+            panelImage.preserveAspect = false;
+        }
+
+        RectTransform portraitRect = portrait != null ? portrait.GetComponent<RectTransform>() : null;
+        if (portraitRect != null)
+        {
+            portraitRect.anchorMin = new Vector2(0f, 0.5f);
+            portraitRect.anchorMax = new Vector2(0f, 0.5f);
+            portraitRect.pivot = new Vector2(0.5f, 0.5f);
+            portraitRect.anchoredPosition = new Vector2(154f, 42f);
+            portraitRect.sizeDelta = new Vector2(166f, 166f);
+        }
+
+        if (portrait != null)
+        {
+            portrait.preserveAspect = true;
+            portrait.raycastTarget = false;
+        }
+
+        RectTransform speakerRect = speakerNameText != null ? speakerNameText.GetComponent<RectTransform>() : null;
+        if (speakerRect != null)
+        {
+            speakerRect.anchorMin = new Vector2(0f, 0.5f);
+            speakerRect.anchorMax = new Vector2(0f, 0.5f);
+            speakerRect.pivot = new Vector2(0.5f, 0.5f);
+            speakerRect.anchoredPosition = new Vector2(154f, -68f);
+            speakerRect.sizeDelta = new Vector2(205f, 34f);
+        }
+
+        if (speakerNameText != null)
+        {
+            speakerNameText.alignment = TextAlignmentOptions.Center;
+            speakerNameText.fontSize = 40f;
+            speakerNameText.enableAutoSizing = true;
+            speakerNameText.fontSizeMin = 13f;
+            speakerNameText.fontSizeMax = 20f;
+            speakerNameText.color = new Color(0.22f, 0.12f, 0.04f, 1f);
+            speakerNameText.raycastTarget = false;
+        }
+
+        RectTransform textRect = dialogueText != null ? dialogueText.GetComponent<RectTransform>() : null;
+        if (textRect != null)
+        {
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.offsetMin = new Vector2(332f, 95f);
+            textRect.offsetMax = new Vector2(-120f, -94f);
+        }
+
+        if (dialogueText != null)
+        {
+            dialogueText.alignment = TextAlignmentOptions.TopLeft;
+            dialogueText.fontSize = 26f;
+            dialogueText.enableAutoSizing = true;
+            dialogueText.fontSizeMin = 18f;
+            dialogueText.fontSizeMax = 26f;
+            dialogueText.color = new Color(0.22f, 0.12f, 0.04f, 1f);
+            dialogueText.textWrappingMode = TextWrappingModes.Normal;
+            dialogueText.overflowMode = TextOverflowModes.Ellipsis;
+            dialogueText.raycastTarget = false;
+        }
+
+        RectTransform buttonRect = nextButton != null ? nextButton.GetComponent<RectTransform>() : null;
+        if (buttonRect != null)
+        {
+            buttonRect.anchorMin = new Vector2(1f, 0f);
+            buttonRect.anchorMax = new Vector2(1f, 0f);
+            buttonRect.pivot = new Vector2(1f, 0f);
+            buttonRect.anchoredPosition = new Vector2(-78f, 71f);
+            buttonRect.sizeDelta = new Vector2(146f, 62f);
+        }
+
+        if (nextButton != null)
+        {
+            nextButton.transition = Selectable.Transition.None;
+
+            Image buttonImage = nextButton.GetComponent<Image>();
+            if (buttonImage != null)
+                buttonImage.color = Color.clear;
+
+            TextMeshProUGUI[] tmpTexts = nextButton.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (TextMeshProUGUI text in tmpTexts)
+                text.color = Color.clear;
+
+            Text[] legacyTexts = nextButton.GetComponentsInChildren<Text>(true);
+            foreach (Text text in legacyTexts)
+                text.color = Color.clear;
+        }
     }
 }

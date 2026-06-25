@@ -3,8 +3,8 @@ using UnityEngine;
 public class FarmMarketSceneTransition : MonoBehaviour
 {
     [Header("Scene Names")]
-    [SerializeField] private string farmSceneName = "GameScene";
-    [SerializeField] private string marketSceneName = "MarketScene";
+    [SerializeField] private string farmSceneName = "SampleScene";
+    [SerializeField] private string marketSceneName = "Marketplace";
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Save")]

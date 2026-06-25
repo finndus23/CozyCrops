@@ -26,7 +26,7 @@ public class FarmSaveManager : MonoBehaviour
 
     [Header("Scenes")]
     [Tooltip("Name deiner Farm/Game-Szene. Muss in File > Build Settings > Scenes In Build eingetragen sein.")]
-    [SerializeField] private string defaultGameSceneName = "GameScene";
+    [SerializeField] private string defaultGameSceneName = "SampleScene";
 
     [Tooltip("Name deiner Hauptmenü-Szene. Wird für 'Zurück ins Menü' benutzt.")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
@@ -565,11 +565,15 @@ public class FarmSaveManager : MonoBehaviour
 
     private SaveGameData BuildCurrentSaveData()
     {
-        SaveGameData data;
+        SaveGameData data = null;
 
         // Wenn wir im Marktplatz sind, gibt es keinen GridManager.
         // Dann laden wir die vorhandene Save-Datei als Basis und ersetzen nur Geld/Inventar.
-        if (!TryReadSlotData(activeSlot, out data) || data == null)
+        bool preserveExistingFarmData = GridManager.Instance == null;
+        if (preserveExistingFarmData)
+            TryReadSlotData(activeSlot, out data);
+
+        if (data == null)
             data = new SaveGameData();
 
         EnsureSaveLists(data);
@@ -755,25 +759,19 @@ public class FarmSaveManager : MonoBehaviour
     private void ApplyZones(SaveGameData data)
     {
         GridZone[] zones = FindObjectsByType<GridZone>(FindObjectsSortMode.None);
+        Dictionary<string, bool> savedZoneStates = new();
+
+        foreach (ZoneSaveData zoneData in data.zones)
+        {
+            if (zoneData == null || string.IsNullOrEmpty(zoneData.zoneId)) continue;
+            savedZoneStates[zoneData.zoneId] = zoneData.isUnlocked;
+        }
 
         foreach (GridZone zone in zones)
         {
             if (zone == null) continue;
 
-            bool found = false;
-            bool unlocked = false;
-
-            foreach (ZoneSaveData zoneData in data.zones)
-            {
-                if (zoneData == null) continue;
-                if (zoneData.zoneId != zone.SaveId) continue;
-
-                found = true;
-                unlocked = zoneData.isUnlocked;
-                break;
-            }
-
-            if (found)
+            if (savedZoneStates.TryGetValue(zone.SaveId, out bool unlocked))
                 zone.ApplyLoadedState(unlocked);
         }
     }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
@@ -16,6 +17,7 @@ public class MissionsUI : MonoBehaviour
     [SerializeField] private GameObject panel;
     [SerializeField] private Transform contentRoot;
     [SerializeField] private GameObject missionEntryPrefab;
+    [SerializeField] private Sprite panelSprite;
 
     private readonly Dictionary<string, MissionEntryUI> entries = new();
 
@@ -24,10 +26,13 @@ public class MissionsUI : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(transform.root.gameObject);
+        ApplyPanelStyle();
     }
 
     private void Start()
     {
+        ApplyPanelStyle();
+
         if (MissionManager.Instance == null) return;
 
         MissionManager.Instance.OnMissionStarted += OnMissionStarted;
@@ -101,7 +106,66 @@ public class MissionsUI : MonoBehaviour
 
     private void RefreshEmpty()
     {
+        if (panel == null)
+            panel = gameObject;
+
         if (panel != null)
             panel.SetActive(entries.Count > 0);
+    }
+
+    private void ApplyPanelStyle()
+    {
+        if (panel == null)
+            panel = gameObject;
+
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        if (panelRect != null)
+        {
+            panelRect.anchorMin = new Vector2(0f, 1f);
+            panelRect.anchorMax = new Vector2(0f, 1f);
+            panelRect.pivot = new Vector2(0f, 1f);
+            panelRect.anchoredPosition = new Vector2(18f, -78f);
+            panelRect.sizeDelta = new Vector2(300f, 400f);
+        }
+
+        Image panelImage = panel.GetComponent<Image>();
+        if (panelImage != null)
+        {
+            panelImage.sprite = panelSprite;
+            panelImage.color = Color.white;
+            panelImage.type = Image.Type.Simple;
+            panelImage.preserveAspect = false;
+        }
+
+        ContentSizeFitter fitter = panel.GetComponent<ContentSizeFitter>();
+        if (fitter != null)
+            fitter.enabled = false;
+
+        VerticalLayoutGroup panelLayout = panel.GetComponent<VerticalLayoutGroup>();
+        if (panelLayout != null)
+            panelLayout.enabled = false;
+
+        if (contentRoot == null) return;
+
+        RectTransform contentRect = contentRoot as RectTransform;
+        if (contentRect != null)
+        {
+            contentRect.anchorMin = Vector2.zero;
+            contentRect.anchorMax = Vector2.one;
+            contentRect.pivot = new Vector2(0.5f, 0.5f);
+            contentRect.offsetMin = new Vector2(62f, 66f);
+            contentRect.offsetMax = new Vector2(-34f, -132f);
+        }
+
+        VerticalLayoutGroup contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
+        if (contentLayout != null)
+        {
+            contentLayout.padding = new RectOffset(0, 0, 0, 0);
+            contentLayout.spacing = 8f;
+            contentLayout.childControlWidth = true;
+            contentLayout.childControlHeight = true;
+            contentLayout.childForceExpandWidth = true;
+            contentLayout.childForceExpandHeight = false;
+        }
     }
 }

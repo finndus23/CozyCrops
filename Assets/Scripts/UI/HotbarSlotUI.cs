@@ -9,5 +9,6 @@ public class HotbarSlotUI : MonoBehaviour
 {
     public Image background;
     public Image icon;
+    public GameObject countRoot;
     public TMP_Text countLabel;
 }

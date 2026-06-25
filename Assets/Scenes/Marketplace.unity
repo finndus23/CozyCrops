@@ -18942,7 +18942,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketSceneTransition
   farmSceneName: SampleScene
-  marketSceneName: MarketScene
+  marketSceneName: Marketplace
   mainMenuSceneName: MainMenu
   saveBeforeSceneChange: 1
 --- !u!4 &1630942437

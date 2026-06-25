@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3496cd4380399864f9b1ac39c4b9e708, type: 3}
+  m_Name: cauliflower
+  m_EditorClassIdentifier: Assembly-CSharp::PlantType
+  saveId: cauliflower
+  plantName: Cauliflower
+  icon: {fileID: 21300000, guid: ba4366ba2e0ca344284d38bcc9ca4c9b, type: 3}
+  seedPrice: 35
+  sellPrice: 65
+  growthStages:
+  - stageName: 1
+    prefab: {fileID: 3177982295653799335, guid: d8449dba764bea44ab90269de06a50d0, type: 3}
+    timeToNextStage: 8
+  - stageName: 2
+    prefab: {fileID: 6421724360372590781, guid: 37774da3967f68340b832156ac4a51c8, type: 3}
+    timeToNextStage: 8
+  - stageName: 3
+    prefab: {fileID: 2515096759070014954, guid: 8208b668c3b954947be70fc9690eeb2a, type: 3}
+    timeToNextStage: 8
+  requiresWatering: 1
+  wateringsPerStage: 1
