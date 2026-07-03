@@ -112,7 +112,7 @@ public class PlantManager : MonoBehaviour
         PlayerInventory.Instance.AddCrop(harvested.Type, 1 + yieldBonus);
 
         cell.TileVisual?.SetState(FarmTileState.Dry);
-        RemoveVisual(cell);
+        PlayHarvestVisual(cell);
         activePlants.Remove(cell);
 
         if (FarmSaveManager.Instance != null)
@@ -216,6 +216,11 @@ public class PlantManager : MonoBehaviour
 
         var pos = GridManager.Instance.GridToWorld(cell.X, cell.Z);
         var go = Instantiate(prefab, pos, Quaternion.identity);
+
+        // Feel-Good-Polish: Pop-In-Animation beim Spawnen/Stage-Wechsel (siehe PlantGrowthFx.Start()).
+        if (!go.TryGetComponent<PlantGrowthFx>(out _))
+            go.AddComponent<PlantGrowthFx>();
+
         plantVisuals[cell] = go;
     }
 
@@ -233,6 +238,33 @@ public class PlantManager : MonoBehaviour
         {
             if (go != null)
                 Destroy(go);
+
+            plantVisuals.Remove(cell);
+        }
+    }
+
+    /// <summary>
+    /// Entfernt das Pflanzen-Visual bei der Ernte: die Crop fliegt in die Scheune
+    /// (siehe PlantGrowthFx.PlayHarvestFlyTo()). Ist keine Scheune in der Szene,
+    /// schrumpft sie an Ort und Stelle weg.
+    /// </summary>
+    private void PlayHarvestVisual(GridCell cell)
+    {
+        if (cell == null) return;
+
+        if (plantVisuals.TryGetValue(cell, out var go) && go != null)
+        {
+            if (go.TryGetComponent<PlantGrowthFx>(out var fx))
+            {
+                if (BarnInteraction.Instance != null)
+                    fx.PlayHarvestFlyTo(BarnInteraction.Instance.CollectPoint);
+                else
+                    fx.PlayHarvestAndDestroy();
+            }
+            else
+            {
+                Destroy(go); // Fallback, falls das Visual doch mal ohne Fx-Component unterwegs ist
+            }
 
             plantVisuals.Remove(cell);
         }

@@ -357,6 +357,11 @@ public class GridManager : MonoBehaviour
 
         cells[x, z].TileVisual = null;
         SpawnTile(x, z, prefab, type);
+
+        // Feel-Good-Polish: Tile poppt beim Wechseln (Farmland/Path/Gras) rein statt hart zu erscheinen.
+        var newTile = tileObjects[x, z];
+        if (newTile != null && !newTile.TryGetComponent<PopInFx>(out _))
+            newTile.AddComponent<PopInFx>();
     }
 
     private void EnsureMarker(GameObject go, TileType type)

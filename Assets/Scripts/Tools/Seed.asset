@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Seed
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 3
-  displayName: Seed
+  displayName: Seeder
   icon: {fileID: 21300000, guid: a22f6c7f38720cc4eb0e3d082411b60a, type: 3}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1
   durationReductionPerLevel: 0.03
   minDuration: 0.1
+  buyPrice: 50
   baseCost: 50
   costScalingPerLevel: 10
   milestones: []

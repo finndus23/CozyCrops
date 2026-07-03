@@ -20,6 +20,7 @@ MonoBehaviour:
   baseDuration: 1
   durationReductionPerLevel: 0.03
   minDuration: 0.1
+  buyPrice: 50
   baseCost: 10
   costScalingPerLevel: 10
   milestones:
