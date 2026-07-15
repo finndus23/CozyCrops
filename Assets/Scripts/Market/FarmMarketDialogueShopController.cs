@@ -57,6 +57,11 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private Transform upgradeContentRoot;
     [SerializeField] private FarmMarketShopRowUI rowPrefab;
 
+    [Header("Seed UI Icons")]
+    [SerializeField] private Sprite carrotSeedSprite;
+    [SerializeField] private Sprite cauliflowerSeedSprite;
+    [SerializeField] private Sprite sunflowerSeedSprite;
+
     [Header("Data")]
     [SerializeField] private PlayerInventory inventory;
 
@@ -403,7 +408,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
             FarmMarketShopRowUI row = Instantiate(rowPrefab, buyContentRoot);
             row.Setup(
-                plant.icon,
+                GetSeedUiSprite(plant) ?? plant.icon,
                 displayName,
                 $"Besitzt: {inventory.GetSeedCount(plant)}",
                 $"Preis: {buyPrice}",
@@ -484,7 +489,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, sellContentRoot);
                 row.Setup(
-                    plant.icon,
+                    GetSeedUiSprite(plant) ?? plant.icon,
                     displayName,
                     $"Besitzt: {amount}",
                     $"Verkauf: {sellPrice}",
@@ -762,6 +767,18 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     {
         if (statusText != null)
             statusText.text = text;
+    }
+
+    private Sprite GetSeedUiSprite(PlantType plant)
+    {
+        if (plant == null) return null;
+        return plant.plantName switch
+        {
+            "Carrot" => carrotSeedSprite,
+            "Cauliflower" => cauliflowerSeedSprite,
+            "Sunflower" => sunflowerSeedSprite,
+            _ => null
+        };
     }
 
     private void ClearRows(Transform root)

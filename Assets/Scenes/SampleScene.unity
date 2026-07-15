@@ -5613,8 +5613,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 204, y: -24}
-  m_SizeDelta: {x: 160, y: 70}
+  m_AnchoredPosition: {x: 106, y: -24}
+  m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &48251290
 MonoBehaviour:
@@ -5638,9 +5638,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
+    m_PressedColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
+    m_SelectedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -5692,9 +5692,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cab84ee9337b3534a8b96b261d4ea598, type: 3}
+  m_Sprite: {fileID: 1988383392, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -14628,7 +14628,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &157556998
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17547,7 +17547,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 24, y: -24}
-  m_SizeDelta: {x: 160, y: 70}
+  m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &183596939
 MonoBehaviour:
@@ -17571,9 +17571,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
+    m_PressedColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
+    m_SelectedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -17595,7 +17595,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2143615813}
         m_TargetAssemblyTypeName: GameSceneMenuController, Assembly-CSharp
-        m_MethodName: BackToMainMenu
+        m_MethodName: RequestBackToMainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17625,9 +17625,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cab84ee9337b3534a8b96b261d4ea598, type: 3}
+  m_Sprite: {fileID: -1255873342, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -56541,7 +56541,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 198}
+  m_AnchoredPosition: {x: 0, y: 145}
   m_SizeDelta: {x: 380, y: 110}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &549671842
@@ -56559,14 +56559,21 @@ MonoBehaviour:
   panel: {fileID: 1610093808}
   entryContainer: {fileID: 91725726}
   blocker: {fileID: 1459832563}
-  entrySprite: {fileID: 21300000, guid: 08ca71d989ecdaf44814dcf643fa43b2, type: 3}
+  entrySprite: {fileID: 1314813036, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  entryHighlightedSprite: {fileID: 182193013, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  entryPressedSprite: {fileID: -732351689, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  entryDisabledSprite: {fileID: 1717610881, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  countBadgeSprite: {fileID: -2143079887, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   panelBackgroundSprite: {fileID: 21300000, guid: cab84ee9337b3534a8b96b261d4ea598, type: 3}
+  carrotSeedSprite: {fileID: -570651779, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  sunflowerSeedSprite: {fileID: 1835215168, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
   fallbackSeedTypes:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
   - {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
   - {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
   entrySize: {x: 82, y: 92}
-  entrySpacing: -2
+  entrySpacing: 5
   panelPadding: {x: 18, y: 18}
 --- !u!114 &549671843
 MonoBehaviour:
@@ -59516,7 +59523,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &576548309
 RectTransform:
   m_ObjectHideFlags: 0
@@ -62692,7 +62699,10 @@ MonoBehaviour:
   container: {fileID: 1937395481}
   iconImage: {fileID: 889453393}
   fillImage: {fileID: 721537731}
-  offset: {x: 32, y: 32}
+  carrotSeedSprite: {fileID: -570651779, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  sunflowerSeedSprite: {fileID: 1835215168, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  offset: {x: 22, y: -22}
 --- !u!1 &611449009
 GameObject:
   m_ObjectHideFlags: 0
@@ -73587,7 +73597,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 76, y: 76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &721537731
 MonoBehaviour:
@@ -73603,20 +73613,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 2030932812, guid: 1e1a5e960aad54b46bec5f9ee4bb2e3f, type: 3}
   m_Type: 3
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
-  m_FillMethod: 1
-  m_FillAmount: 1
+  m_FillMethod: 4
+  m_FillAmount: 0
   m_FillClockwise: 1
-  m_FillOrigin: 0
+  m_FillOrigin: 2
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!222 &721537732
@@ -80748,8 +80758,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 24}
-  m_SizeDelta: {x: 720, y: 160}
+  m_AnchoredPosition: {x: 0, y: 28}
+  m_SizeDelta: {x: 420, y: 123}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &802908680
 MonoBehaviour:
@@ -80766,7 +80776,27 @@ MonoBehaviour:
   slotPrefab: {fileID: 1984010084302557879, guid: 54dd7d19f5256d643b0365453fea4493, type: 3}
   container: {fileID: 802908679}
   defaultSlots: []
-  emptySeedSprite: {fileID: 21300000, guid: a22f6c7f38720cc4eb0e3d082411b60a, type: 3}
+  emptySeedSprite: {fileID: 491442892, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  normalSlotSprite: {fileID: 1314813036, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  highlightedSlotSprite: {fileID: 182193013, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  pressedSlotSprite: {fileID: -732351689, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  disabledSlotSprite: {fileID: 1717610881, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  hoeIconSprite: {fileID: 748555280, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  wateringCanIconSprite: {fileID: 1276768196, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  scytheIconSprite: {fileID: -306484, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  seedIconSprite: {fileID: 491442892, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  shortcutSprites:
+  - {fileID: -758738751, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  - {fileID: -755850565, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  - {fileID: -316111439, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  - {fileID: -512211639, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  carrotSeedSprite: {fileID: -570651779, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  sunflowerSeedSprite: {fileID: 1835215168, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  hammerIconSprite: {fileID: -2058292229, guid: ba3a272d1fcb1bb49b290f2dbf21bc84, type: 3}
+  grassTileIconSprite: {fileID: 1645164095, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
+  pathTileIconSprite: {fileID: 914201417, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
+  farmTileIconSprite: {fileID: -931367903, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   activeColor: {r: 1, g: 0.86, b: 0.42, a: 1}
 --- !u!114 &802908681
@@ -80782,12 +80812,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 150
-    m_Right: 150
-    m_Top: 30
-    m_Bottom: 45
+    m_Left: 13
+    m_Right: 12
+    m_Top: 18
+    m_Bottom: 19
   m_ChildAlignment: 4
-  m_Spacing: 10
+  m_Spacing: 17
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -80802,7 +80832,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802908678}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -80815,7 +80845,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7c7697e72c3b01e4f8998db783a28f5e, type: 3}
+  m_Sprite: {fileID: -619648298, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -88792,7 +88822,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 58, y: 58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &889453393
 MonoBehaviour:
@@ -88808,7 +88838,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -88816,7 +88846,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 0}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -124244,7 +124274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1272674391
 RectTransform:
   m_ObjectHideFlags: 0
@@ -124262,7 +124292,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 82, y: 82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1272674392
 MonoBehaviour:
@@ -131591,8 +131621,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -72.8, y: -134.8}
-  m_SizeDelta: {x: 70, y: 70}
+  m_AnchoredPosition: {x: -38, y: -38}
+  m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1351851962
 MonoBehaviour:
@@ -131616,9 +131646,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
+    m_PressedColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
+    m_SelectedColor: {r: 0.82, g: 0.82, b: 0.82, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -131663,16 +131693,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: 2115449574, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -133139,9 +133169,12 @@ MonoBehaviour:
   panel: {fileID: 1737835378}
   listText: {fileID: 1890623865}
   title: Scheune
-  slotSprite: {fileID: 21300000, guid: 08ca71d989ecdaf44814dcf643fa43b2, type: 3}
-  cardSize: {x: 145, y: 125}
-  cardSpacing: 18
+  slotSprite: {fileID: -596479276, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
+  carrotSeedSprite: {fileID: -570651779, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  sunflowerSeedSprite: {fileID: 1835215168, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
+  cardSize: {x: 170, y: 165}
+  cardSpacing: 14
 --- !u!4 &1364907674
 Transform:
   m_ObjectHideFlags: 0
@@ -135869,7 +135902,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoneyDisplay
   moneyText: {fileID: 1392969696}
-  backgroundSprite: {fileID: 21300000, guid: a8cdc4fd314f90647bf480bfa0ecc1bf, type: 3}
+  backgroundSprite: {fileID: -46314298, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
+  coinSprite: {fileID: 386036518, guid: 68ce50f17ac0b104fa4fa8c88a6dd396, type: 3}
   minSize: {x: 220, y: 70}
   horizontalPadding: 64
   backgroundHeight: 70
@@ -156189,7 +156223,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1610093808}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -167239,7 +167273,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 724, y: 543}
+  m_SizeDelta: {x: 650, y: 535}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1737835380
 MonoBehaviour:
@@ -167261,9 +167295,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2160a30d27db6754892c387944bda881, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 1
+  m_Sprite: {fileID: 21300000, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -167386,7 +167420,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -170787,7 +170821,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1767201479
 RectTransform:
   m_ObjectHideFlags: 0
@@ -181425,7 +181459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -181441,7 +181475,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0.21960784, g: 0.12156863, b: 0.05882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -181525,10 +181559,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1737835379}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -105.5, y: 132}
-  m_SizeDelta: {x: -575.5116, y: -496.8303}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -42}
+  m_SizeDelta: {x: 360, y: 52}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1892735194
 PrefabInstance:
@@ -185363,7 +185397,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 82, y: 82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1938913538
 GameObject:
@@ -206770,6 +206804,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneMenuController
   pausePanel: {fileID: 0}
+  hudCanvas: {fileID: 2128791144}
+  confirmationPanelSprite: {fileID: 21300000, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  normalButtonSprite: {fileID: 21300002, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  confirmButtonSprite: {fileID: 21300004, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
   mainMenuSceneName: MainMenu
   saveBeforeReturningToMenu: 1
   pauseWithEscape: 1

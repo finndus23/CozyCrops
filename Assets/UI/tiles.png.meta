@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 08ca71d989ecdaf44814dcf643fa43b2
+guid: c4587a83dc622ea4eb069fe966e29064
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,17 +110,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slot_Blank
-      rect: {serializedVersion: 2, x: 234, y: 252, width: 786, height: 780}
+      name: tiles_0
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 16
+        width: 290
+        height: 250
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 70, y: 70, z: 70, w: 70}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 73a00000000000000000000000000001
-      internalID: 21300000
+      spriteID: 04f74725ab008ba4786541cce0b2828c
+      internalID: 1645164095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tiles_1
+      rect:
+        serializedVersion: 2
+        x: 502
+        y: 16
+        width: 292
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c54667656678b9446b8aa4dad2f98a16
+      internalID: 914201417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tiles_2
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 17
+        width: 287
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4fa8ca6e184c1f24e80f286124a2b3da
+      internalID: -931367903
       vertices: []
       indices: 
       edges: []
@@ -129,7 +179,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 6a24e1984456dc3428841d380408acb8
     internalID: 0
     vertices: []
     indices: 
@@ -137,9 +187,13 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Slot_Blank: 21300000
+      tiles_0: 1645164095
+      tiles_1: 914201417
+      tiles_2: -931367903
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

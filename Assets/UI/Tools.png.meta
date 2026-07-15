@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 08ca71d989ecdaf44814dcf643fa43b2
+guid: 9da78f0a6e0127644b5f4ca486ac7fed
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,17 +110,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slot_Blank
-      rect: {serializedVersion: 2, x: 234, y: 252, width: 786, height: 780}
+      name: Tools_0
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 321
+        width: 336
+        height: 297
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 70, y: 70, z: 70, w: 70}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 73a00000000000000000000000000001
-      internalID: 21300000
+      spriteID: 7c6b0e2803369bb408f2d77a37844c16
+      internalID: 748555280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tools_1
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 312
+        width: 366
+        height: 316
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d442d4faf5bc4a49b6570a230b1381f
+      internalID: 1276768196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tools_2
+      rect:
+        serializedVersion: 2
+        x: 1057
+        y: 311
+        width: 207
+        height: 305
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39a7a15e8a5fa044eaa60da259f9c3c4
+      internalID: -306484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tools_4
+      rect:
+        serializedVersion: 2
+        x: 1450
+        y: 309
+        width: 257
+        height: 304
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d5e86778b716544ea80b657c454c997
+      internalID: 491442892
       vertices: []
       indices: 
       edges: []
@@ -129,7 +201,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: e37f8b02027d4ed43bb8dd33ae95900b
     internalID: 0
     vertices: []
     indices: 
@@ -137,9 +209,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Slot_Blank: 21300000
+      Tools_0: 748555280
+      Tools_1: 1276768196
+      Tools_2: -306484
+      Tools_3: -1982664884
+      Tools_4: 491442892
+      Tools_5: -1346420467
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

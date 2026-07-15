@@ -49,6 +49,11 @@ public class TileContextMenu : MonoBehaviour
         GridManager.Instance.ApplyToSelection(type);
         Hide();
 
+        NotifyTilePlaced(type);
+    }
+
+    public static void NotifyTilePlaced(TileType type)
+    {
         if (type == TileType.FarmPlot)
             OnFarmTilePlacedStatic?.Invoke();
     }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 08ca71d989ecdaf44814dcf643fa43b2
+guid: 45a18983637384d4c9ea05063fdde5a8
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,17 +110,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slot_Blank
-      rect: {serializedVersion: 2, x: 234, y: 252, width: 786, height: 780}
+      name: Seeds_1
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 262
+        width: 450
+        height: 568
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 70, y: 70, z: 70, w: 70}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 73a00000000000000000000000000001
-      internalID: 21300000
+      spriteID: e31336adb2941514bbc9b2221028fe8b
+      internalID: -522709909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Seeds_4
+      rect:
+        serializedVersion: 2
+        x: 532
+        y: 240
+        width: 450
+        height: 568
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66d07f04a0c0fff4abb67ce26da9634a
+      internalID: 1835215168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Seeds_7
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 240
+        width: 450
+        height: 568
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cf1c39f8a229184998d30688b4a2b55
+      internalID: -570651779
       vertices: []
       indices: 
       edges: []
@@ -129,7 +179,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 78f80767ae2e1ed4c983c9bc714a0c53
     internalID: 0
     vertices: []
     indices: 
@@ -137,9 +187,21 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      - key: SpriteEditor.SliceOnImport
+        value: False
     nameFileIdTable:
-      Slot_Blank: 21300000
+      Seeds_0: 942028793
+      Seeds_1: -522709909
+      Seeds_2: 58539265
+      Seeds_3: -944098188
+      Seeds_4: 1835215168
+      Seeds_5: -2105372720
+      Seeds_6: 243611217
+      Seeds_7: -570651779
+      Seeds_8: -1800165202
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

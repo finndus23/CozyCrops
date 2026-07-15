@@ -65,7 +65,6 @@ public class CameraController : MonoBehaviour
     {
         var mouse = Mouse.current;
         if (mouse == null || !mouse.rightButton.isPressed) return;
-        if (BuildModeManager.Instance != null && BuildModeManager.Instance.IsActive) return;
 
         Vector2 delta = mouse.delta.ReadValue();
         float worldUnitsPerPixel = cam.orthographicSize * 2f / Screen.height;

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 08ca71d989ecdaf44814dcf643fa43b2
+guid: 2f951536906385442930511fb7dcdb04
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,17 +110,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slot_Blank
-      rect: {serializedVersion: 2, x: 234, y: 252, width: 786, height: 780}
+      name: HotbarSheet2_0
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 38
+        width: 261
+        height: 257
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 70, y: 70, z: 70, w: 70}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 73a00000000000000000000000000001
-      internalID: 21300000
+      spriteID: 4a20ef9e225dc264ca749ef474ff4711
+      internalID: -649820051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HotbarSheet2_1
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 38
+        width: 262
+        height: 257
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f66bd09786ec3fd4fabeea1f6b2ba1a7
+      internalID: 601264342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HotbarSheet2_2
+      rect:
+        serializedVersion: 2
+        x: 647
+        y: 38
+        width: 262
+        height: 257
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff71f3271f9ae454da3f955392f1819b
+      internalID: 1181984610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HotbarSheet2_3
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 38
+        width: 262
+        height: 257
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e028c9cd73ec4e94b83317cd265b4c4e
+      internalID: -120608596
       vertices: []
       indices: 
       edges: []
@@ -129,7 +201,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 76bdaa91957af2b46a2350419bd20739
     internalID: 0
     vertices: []
     indices: 
@@ -137,9 +209,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Slot_Blank: 21300000
+      HotbarSheet2_0: -649820051
+      HotbarSheet2_1: 601264342
+      HotbarSheet2_2: 1181984610
+      HotbarSheet2_3: -120608596
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

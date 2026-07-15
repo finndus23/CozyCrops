@@ -12,7 +12,14 @@ public class SeedDropdownUI : MonoBehaviour
     [SerializeField] private Transform entryContainer;
     [SerializeField] private Button blocker;
     [SerializeField] private Sprite entrySprite;
+    [SerializeField] private Sprite entryHighlightedSprite;
+    [SerializeField] private Sprite entryPressedSprite;
+    [SerializeField] private Sprite entryDisabledSprite;
+    [SerializeField] private Sprite countBadgeSprite;
     [SerializeField] private Sprite panelBackgroundSprite;
+    [SerializeField] private Sprite carrotSeedSprite;
+    [SerializeField] private Sprite cauliflowerSeedSprite;
+    [SerializeField] private Sprite sunflowerSeedSprite;
     [SerializeField] private List<PlantType> fallbackSeedTypes = new();
 
     [Header("Layout")]
@@ -184,26 +191,40 @@ public class SeedDropdownUI : MonoBehaviour
         bool hasSeeds = count > 0;
         bool isSelected = hasSeeds && Hotbar.Instance.SelectedSeed == type;
 
-        bg.color = isSelected
-            ? new Color(1f, 0.88f, 0.42f, 1f)
-            : hasSeeds ? Color.white : new Color(1f, 1f, 1f, 0.55f);
+        bg.sprite = !hasSeeds && entryDisabledSprite != null
+            ? entryDisabledSprite
+            : isSelected && entryHighlightedSprite != null ? entryHighlightedSprite : entrySprite;
+        bg.color = Color.white;
 
         Button btn = go.AddComponent<Button>();
         btn.targetGraphic = bg;
         btn.interactable = hasSeeds;
+        if (entryHighlightedSprite != null)
+        {
+            SpriteState states = btn.spriteState;
+            states.highlightedSprite = entryHighlightedSprite;
+            states.selectedSprite = entryHighlightedSprite;
+            states.pressedSprite = entryPressedSprite != null ? entryPressedSprite : entryHighlightedSprite;
+            states.disabledSprite = entryDisabledSprite;
+            btn.spriteState = states;
+            btn.transition = Selectable.Transition.SpriteSwap;
+        }
         btn.onClick.AddListener(() => SelectEntry(type));
 
         Image iconImg = CreateChildImage(go.transform, "Icon", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-            new Vector2(0.5f, 1f), new Vector2(0, -18), new Vector2(40, 40));
-        iconImg.color = type.icon != null
+            new Vector2(0.5f, 1f), new Vector2(0, -8), new Vector2(58, 58));
+        Sprite seedSprite = GetSeedUiSprite(type) ?? type.icon;
+        iconImg.color = seedSprite != null
             ? hasSeeds ? Color.white : new Color(1f, 1f, 1f, 0.45f)
             : new Color(0.4f, 0.4f, 0.4f, 1f);
         iconImg.preserveAspect = true;
-        if (type.icon != null)
-            iconImg.sprite = type.icon;
+        if (seedSprite != null)
+            iconImg.sprite = seedSprite;
 
         Image countBadge = CreateChildImage(go.transform, "CountBadge", new Vector2(1f, 1f), new Vector2(1f, 1f),
             new Vector2(1f, 1f), new Vector2(-10, -10), new Vector2(28, 20));
+        countBadge.sprite = countBadgeSprite;
+        countBadge.type = countBadgeSprite != null ? Image.Type.Sliced : Image.Type.Simple;
         countBadge.color = hasSeeds ? new Color(1f, 0.9f, 0.58f, 0.9f) : new Color(1f, 0.9f, 0.58f, 0.45f);
 
         TextMeshProUGUI countText = CreateChildText(countBadge.transform, "Count", Vector2.zero, Vector2.one,
@@ -332,6 +353,18 @@ public class SeedDropdownUI : MonoBehaviour
 
         Hotbar.Instance.SetSeed(type);
         Close();
+    }
+
+    private Sprite GetSeedUiSprite(PlantType seed)
+    {
+        if (seed == null) return null;
+        return seed.plantName switch
+        {
+            "Carrot" => carrotSeedSprite,
+            "Cauliflower" => cauliflowerSeedSprite,
+            "Sunflower" => sunflowerSeedSprite,
+            _ => null
+        };
     }
 
     private UnityEngine.InputSystem.Controls.KeyControl GetDigitKey(Keyboard keyboard, int digit) => digit switch

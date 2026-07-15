@@ -6,6 +6,7 @@ public class MoneyDisplay : MonoBehaviour
 {
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private Sprite backgroundSprite;
+    [SerializeField] private Sprite coinSprite;
 
     [Header("Layout")]
     [SerializeField] private Vector2 minSize = new(180f, 70f);
@@ -14,6 +15,7 @@ public class MoneyDisplay : MonoBehaviour
 
     private RectTransform textRect;
     private RectTransform backgroundRect;
+    private RectTransform coinRect;
 
     void Start()
     {
@@ -33,7 +35,7 @@ public class MoneyDisplay : MonoBehaviour
     {
         if (moneyText == null) return;
 
-        moneyText.text = $"{amount} G";
+        moneyText.text = amount.ToString("N0");
         ResizeToFitText();
     }
 
@@ -62,11 +64,34 @@ public class MoneyDisplay : MonoBehaviour
         moneyText.raycastTarget = false;
         moneyText.color = new Color(0.26f, 0.14f, 0.04f, 1f);
         moneyText.alignment = TextAlignmentOptions.Center;
+        moneyText.margin = new Vector4(58f, 0f, 12f, 0f);
         moneyText.enableAutoSizing = true;
         moneyText.fontSizeMin = 18f;
         moneyText.fontSizeMax = 30f;
         moneyText.textWrappingMode = TextWrappingModes.NoWrap;
         moneyText.overflowMode = TextOverflowModes.Ellipsis;
+
+        CreateCoinIcon();
+    }
+
+    private void CreateCoinIcon()
+    {
+        if (coinSprite == null || moneyText == null) return;
+
+        GameObject coin = new("MoneyCoinIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        coin.transform.SetParent(transform, false);
+
+        coinRect = coin.GetComponent<RectTransform>();
+        coinRect.anchorMin = new Vector2(0f, 0.5f);
+        coinRect.anchorMax = new Vector2(0f, 0.5f);
+        coinRect.pivot = new Vector2(0.5f, 0.5f);
+        coinRect.anchoredPosition = new Vector2(34f, 0f);
+        coinRect.sizeDelta = new Vector2(44f, 44f);
+
+        Image image = coin.GetComponent<Image>();
+        image.sprite = coinSprite;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
     }
 
     private void ResizeToFitText()
