@@ -162,7 +162,8 @@ public class FarmSaveManager : MonoBehaviour
     {
         SetActiveSlot(slot);
 
-        bool hasExistingSave = SaveExists(activeSlot);
+        bool hasExistingSave = TryReadSlotData(activeSlot, out SaveGameData slotData)
+            && (slotData.isInitialized || slotData.version < 2);
 
         isLoading = true;
         allowSaveRequests = false;
@@ -558,6 +559,30 @@ public class FarmSaveManager : MonoBehaviour
             SceneManager.LoadScene(defaultGameSceneName);
     }
 
+    public bool CreateSlot(int slot, string playerName, int startingMoney = 100)
+    {
+        slot = Mathf.Clamp(slot, 1, 3);
+        playerName = string.IsNullOrWhiteSpace(playerName) ? "Farm" : playerName.Trim();
+
+        if (SaveExists(slot))
+            return false;
+
+        SaveGameData data = new SaveGameData
+        {
+            version = 2,
+            slotIndex = slot,
+            playerName = playerName,
+            money = startingMoney,
+            savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            isInitialized = false
+        };
+
+        string path = GetSavePath(slot);
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        File.WriteAllText(path, JsonUtility.ToJson(data, true));
+        return true;
+    }
+
     public string GetSavePath(int slot)
     {
         return Path.Combine(Application.persistentDataPath, $"farm_save_slot_{slot}.json");
@@ -566,11 +591,12 @@ public class FarmSaveManager : MonoBehaviour
     private SaveGameData BuildCurrentSaveData()
     {
         SaveGameData data = null;
+        TryReadSlotData(activeSlot, out data);
 
         // Wenn wir im Marktplatz sind, gibt es keinen GridManager.
         // Dann laden wir die vorhandene Save-Datei als Basis und ersetzen nur Geld/Inventar.
         bool preserveExistingFarmData = GridManager.Instance == null;
-        if (preserveExistingFarmData)
+        if (preserveExistingFarmData && data == null)
             TryReadSlotData(activeSlot, out data);
 
         if (data == null)
@@ -578,9 +604,10 @@ public class FarmSaveManager : MonoBehaviour
 
         EnsureSaveLists(data);
 
-        data.version = 1;
+        data.version = 2;
         data.slotIndex = activeSlot;
         data.savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        data.isInitialized = true;
 
         data.seeds.Clear();
         data.crops.Clear();

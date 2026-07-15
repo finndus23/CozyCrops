@@ -1,0 +1,150 @@
+fileFormatVersion: 2
+guid: 3ca97a10af17e6a449e500907dc77e8c
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 1
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - {serializedVersion: 2, name: MenuClean_Panel, rect: {serializedVersion: 2, x: 30, y: 320, width: 430, height: 354}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 34, y: 34, z: 34, w: 34}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000001, internalID: 21300000, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_NormalButton, rect: {serializedVersion: 2, x: 1132, y: 476, width: 265, height: 103}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 30, y: 25, z: 30, w: 25}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000002, internalID: 21300002, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_GreenButton, rect: {serializedVersion: 2, x: 1437, y: 476, width: 271, height: 103}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 30, y: 25, z: 30, w: 25}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000003, internalID: 21300004, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_Delete, rect: {serializedVersion: 2, x: 1775, y: 489, width: 87, height: 88}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 0, y: 0, z: 0, w: 0}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000004, internalID: 21300006, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_Input, rect: {serializedVersion: 2, x: 34, y: 135, width: 338, height: 87}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 26, y: 22, z: 26, w: 22}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000005, internalID: 21300008, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_SliderBackground, rect: {serializedVersion: 2, x: 424, y: 156, width: 347, height: 52}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 22, y: 18, z: 22, w: 18}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000006, internalID: 21300010, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_SliderFill, rect: {serializedVersion: 2, x: 814, y: 157, width: 313, height: 49}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 22, y: 16, z: 22, w: 16}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000007, internalID: 21300012, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_SliderHandle, rect: {serializedVersion: 2, x: 1192, y: 132, width: 94, height: 96}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 0, y: 0, z: 0, w: 0}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000008, internalID: 21300014, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_Selector, rect: {serializedVersion: 2, x: 1354, y: 127, width: 360, height: 100}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 25, y: 22, z: 25, w: 22}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a00000000000000000000000000009, internalID: 21300016, vertices: [], indices: , edges: [], weights: []}
+    - {serializedVersion: 2, name: MenuClean_Coin, rect: {serializedVersion: 2, x: 1765, y: 129, width: 105, height: 108}, alignment: 0, pivot: {x: 0.5, y: 0.5}, border: {x: 0, y: 0, z: 0, w: 0}, outline: [], physicsShape: [], tessellationDetail: 0, bones: [], spriteID: 71a0000000000000000000000000000a, internalID: 21300018, vertices: [], indices: , edges: [], weights: []}
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      MenuClean_Panel: 21300000
+      MenuClean_NormalButton: 21300002
+      MenuClean_GreenButton: 21300004
+      MenuClean_Delete: 21300006
+      MenuClean_Input: 21300008
+      MenuClean_SliderBackground: 21300010
+      MenuClean_SliderFill: 21300012
+      MenuClean_SliderHandle: 21300014
+      MenuClean_Selector: 21300016
+      MenuClean_Coin: 21300018
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
