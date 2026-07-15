@@ -20,10 +20,13 @@ public class TutorialNpc : MonoBehaviour, IClickable
 
         if (FarmSaveManager.Instance == null || TutorialManager.Instance == null) yield break;
 
-        bool saveExists = FarmSaveManager.Instance.SaveExists(FarmSaveManager.Instance.ActiveSlot);
-        Debug.Log($"[TutorialNpc] SaveExists={saveExists}, ActiveSlot={FarmSaveManager.Instance.ActiveSlot}");
+        // Nicht SaveExists() nehmen: seit CreateSlot() existiert die Datei schon beim
+        // Anlegen eines neuen Spiels (isInitialized=false). Tutorial soll aber genau dann
+        // starten. Deshalb auf "echtes, initialisiertes Spiel" prüfen.
+        bool hasInitializedSave = FarmSaveManager.Instance.HasInitializedSave(FarmSaveManager.Instance.ActiveSlot);
+        Debug.Log($"[TutorialNpc] HasInitializedSave={hasInitializedSave}, ActiveSlot={FarmSaveManager.Instance.ActiveSlot}");
 
-        if (!saveExists)
+        if (!hasInitializedSave)
             TutorialManager.Instance.BeginTutorial();
     }
 

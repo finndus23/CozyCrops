@@ -162,8 +162,7 @@ public class FarmSaveManager : MonoBehaviour
     {
         SetActiveSlot(slot);
 
-        bool hasExistingSave = TryReadSlotData(activeSlot, out SaveGameData slotData)
-            && (slotData.isInitialized || slotData.version < 2);
+        bool hasExistingSave = HasInitializedSave(activeSlot);
 
         isLoading = true;
         allowSaveRequests = false;
@@ -299,6 +298,16 @@ public class FarmSaveManager : MonoBehaviour
             }
 
             EnsureSaveLists(data);
+
+            // Frisch per CreateSlot() angelegter, aber noch nicht bespielter Slot:
+            // Die Datei existiert zwar, enthält aber nur Defaults. Würde man sie laden,
+            // überschriebe ApplySaveData u.a. die gerade von TutorialNpc gestartete
+            // Tutorial-Mission mit leeren Daten (activeMissions → 0). Also nichts laden.
+            if (!IsInitializedSave(data))
+            {
+                Debug.Log($"[FarmSaveManager] Slot {activeSlot} existiert, ist aber noch nicht initialisiert → nichts zu laden, Default-Farm bleibt aktiv.");
+                return false;
+            }
 
             if (deferLoadByOneFrame && Application.isPlaying)
                 StartCoroutine(ApplySaveDataRoutine(data, path));
@@ -506,6 +515,27 @@ public class FarmSaveManager : MonoBehaviour
     {
         return File.Exists(GetSavePath(slot));
     }
+
+    /// <summary>
+    /// True nur wenn der Slot ein *echtes, initialisiertes* Spiel enthält.
+    /// Ein frisch per CreateSlot() angelegter Slot existiert zwar als Datei,
+    /// gilt aber erst nach dem ersten echten Save (isInitialized) als bespielt.
+    /// Altsaves (version &lt; 2) kannten das Flag nicht → zählen als initialisiert.
+    /// </summary>
+    public bool HasInitializedSave(int slot)
+    {
+        return TryReadSlotData(slot, out SaveGameData data)
+            && IsInitializedSave(data);
+    }
+
+    /// <summary>
+    /// True wenn diese Save-Daten ein echtes, bespieltes Spiel darstellen.
+    /// Ein frisch per CreateSlot() angelegter Slot hat isInitialized=false und gilt nicht.
+    /// Altsaves (version &lt; 2) kannten das Flag nicht → zählen als initialisiert.
+    /// Single source of truth für diese Unterscheidung.
+    /// </summary>
+    private static bool IsInitializedSave(SaveGameData data)
+        => data != null && (data.isInitialized || data.version < 2);
 
     public bool TryReadSlotData(int slot, out SaveGameData data)
     {
