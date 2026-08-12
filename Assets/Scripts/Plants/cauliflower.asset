@@ -15,8 +15,8 @@ MonoBehaviour:
   saveId: cauliflower
   plantName: Cauliflower
   icon: {fileID: 21300000, guid: ba4366ba2e0ca344284d38bcc9ca4c9b, type: 3}
-  seedPrice: 35
-  sellPrice: 65
+  seedPrice: 7
+  sellPrice: 22
   growthStages:
   - stageName: 1
     prefab: {fileID: 3177982295653799335, guid: d8449dba764bea44ab90269de06a50d0, type: 3}

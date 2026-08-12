@@ -34,6 +34,9 @@ public class PlayerInventory : MonoBehaviour
     public static event Action<PlantType, int> OnCropSoldStatic;
     public static event Action<PlantType, int> OnSeedBoughtStatic;
 
+    /// <summary>Betrag, der dem Spieler gutgeschrieben wurde. Quelle für EarnMoney-Objectives.</summary>
+    public static event Action<int> OnMoneyEarnedStatic;
+
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -72,6 +75,11 @@ public class PlayerInventory : MonoBehaviour
     {
         money += amount;
         OnMoneyChanged?.Invoke(money);
+
+        // Nur echte Einnahmen melden. Der MissionObjectiveType EarnMoney hatte bisher
+        // gar keine Quelle — Missionen mit "Verdiene X Gold" wären nie fertig geworden.
+        if (amount > 0)
+            OnMoneyEarnedStatic?.Invoke(amount);
 
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();

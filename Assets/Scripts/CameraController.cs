@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
@@ -12,13 +14,41 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float rotateSpeed = 0.3f;
     [SerializeField] private string xAxisOnlySceneName = "Marketplace";
 
+    [Header("Schatten")]
+    [Tooltip("Koppelt die Shadow Distance an den Zoom. Ein fester Wert kann nicht beides: " +
+             "nah gestochen scharf UND weit rausgezoomt vollständig.")]
+    [SerializeField] private bool zoomDrivenShadowDistance = true;
+    [Tooltip("Shadow Distance = orthographicSize * dieser Faktor + Offset.")]
+    [SerializeField] private float shadowDistancePerZoom = 4f;
+    [SerializeField] private float shadowDistanceOffset = 10f;
+    [SerializeField] private float minShadowDistance = 25f;
+    [SerializeField] private float maxShadowDistance = 120f;
+
     private Camera cam;
     private float lockedMarketplaceZ;
+
+    private UniversalRenderPipelineAsset urpAsset;
+    private float originalShadowDistance;
+    private float lastAppliedShadowDistance = -1f;
 
     void Start()
     {
         cam = GetComponent<Camera>();
         lockedMarketplaceZ = transform.position.z;
+
+        urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+        if (urpAsset != null)
+            originalShadowDistance = urpAsset.shadowDistance;
+
+        ApplyShadowDistance();
+    }
+
+    void OnDisable()
+    {
+        // Das URP-Asset ist ein Projekt-Asset, kein Szenen-Objekt. Ohne Zurücksetzen würde
+        // der zuletzt im Playmode gesetzte Wert im Editor hängenbleiben und ins Asset wandern.
+        if (urpAsset != null)
+            urpAsset.shadowDistance = originalShadowDistance;
     }
 
     void Update()
@@ -27,6 +57,36 @@ public class CameraController : MonoBehaviour
         HandleZoom();
         HandleDrag();
         HandleRotate();
+        ApplyShadowDistance();
+    }
+
+    /// <summary>
+    /// Schatten-Reichweite folgt dem Zoom.
+    ///
+    /// Hintergrund: Die Shadow Distance stand fest auf 30 Units — berechnet für
+    /// orthographicSize 5. Der Zoom geht aber bis 20, und bei size 20 sieht man entlang
+    /// der Blickachse gut 55+ Units Boden. Alles dahinter verlor die Schatten mitten im
+    /// Bild, mit sichtbarer Kante.
+    ///
+    /// Ein fester hoher Wert ist aber auch keine Lösung: die Shadowmap wird über die
+    /// gesamte Distanz verteilt, weit heißt also überall matschig. Deshalb mitwachsen
+    /// lassen — nah bleibt die Texel-Dichte hoch, weit sind die Schatten vollständig.
+    /// </summary>
+    private void ApplyShadowDistance()
+    {
+        if (!zoomDrivenShadowDistance || urpAsset == null || cam == null) return;
+
+        float target = Mathf.Clamp(
+            cam.orthographicSize * shadowDistancePerZoom + shadowDistanceOffset,
+            minShadowDistance,
+            maxShadowDistance);
+
+        // Nur bei echter Änderung schreiben — das URP-Asset ist ein ScriptableObject,
+        // jedes Set markiert es als dirty.
+        if (Mathf.Abs(target - lastAppliedShadowDistance) < 0.5f) return;
+
+        lastAppliedShadowDistance = target;
+        urpAsset.shadowDistance = target;
     }
 
     void HandleMovement()

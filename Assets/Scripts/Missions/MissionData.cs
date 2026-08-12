@@ -22,6 +22,25 @@ public class MissionData : ScriptableObject
     [Tooltip("Missionen die nach Abschluss dieser Mission freigeschaltet werden")]
     public MissionData[] unlocks;
 
+    [Tooltip("IDs von Missionen die vorher abgeschlossen sein müssen. Leer = sofort verfügbar.\n" +
+             "Greift auch für Neben-Missionen — dadurch kann eine Nebenmission an einem " +
+             "Story-Fortschritt hängen, ohne selbst Teil der Kette zu sein.")]
+    public string[] requiredMissionIds;
+
+    [Tooltip("Mindestanzahl abgeschlossener Missionen bevor diese verfügbar wird. " +
+             "Grober Gatekeeper für Nebenmissionen, wenn eine exakte ID-Abhängigkeit zu starr wäre.")]
+    public int requiredCompletedCount;
+
+    [Tooltip("Nur für Neben-Missionen: startet automatisch sobald die Voraussetzungen erfüllt sind.\n" +
+             "Aus = die Mission muss aktiv vergeben werden (z.B. über einen NPC-Dialog).")]
+    public bool autoStartWhenAvailable;
+
+    [Header("Anzeige")]
+    [Tooltip("Kurzer Hinweis wohin der Spieler als Nächstes soll. Wird in der Missions-UI " +
+             "angezeigt wenn gerade keine Mission aktiv ist.")]
+    [TextArea(1, 3)]
+    public string nextStepHint;
+
     [Header("Verhalten")]
     [Tooltip("Objectives müssen in Reihenfolge abgeschlossen werden (nur das erste unvollständige ist aktiv)")]
     public bool sequentialObjectives;

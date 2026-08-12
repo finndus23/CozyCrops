@@ -15,8 +15,8 @@ MonoBehaviour:
   saveId: sunflower
   plantName: Sunflower
   icon: {fileID: 21300000, guid: 8209bd20a658f9d4b84cd3bd50ce0a4f, type: 3}
-  seedPrice: 90
-  sellPrice: 170
+  seedPrice: 17
+  sellPrice: 52
   growthStages:
   - stageName: 1
     prefab: {fileID: 7894121702400547446, guid: 0078b9131652b014992393af8523ccbc, type: 3}

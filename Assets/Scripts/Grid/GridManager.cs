@@ -15,8 +15,20 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject pathTilePrefab;
     [SerializeField] private GameObject borderTilePrefab;
 
+    [Header("Feel-Good")]
+    [Tooltip("Radius in Tiles, in dem Nachbarn beim Umwandeln mithüpfen. 0 = aus.")]
+    [SerializeField] private int tileRippleRadius = 2;
+    [Tooltip("Zusätzliche Verzögerung pro Tile Abstand — erzeugt die auslaufende Welle.")]
+    [SerializeField] private float tileRippleDelayPerTile = 0.035f;
+
     private GridCell[,] cells;
     private GameObject[,] tileObjects;
+
+    /// <summary>
+    /// Unterdrückt Tile-Animationen. Muss beim Aufbau des Grids und beim Laden eines
+    /// Spielstands gesetzt sein — sonst fährt beim Spielstart das komplette Feld hoch.
+    /// </summary>
+    private bool suppressTileFx;
 
     public int Width => width;
     public int Height => height;
@@ -202,6 +214,10 @@ public class GridManager : MonoBehaviour
         int skippedCount = 0;
         int loadedPlantCount = 0;
 
+        // Ein Save kann hunderte Tiles neu setzen — ohne das würde beim Laden
+        // das ganze Feld gleichzeitig hochfahren und rippeln.
+        suppressTileFx = true;
+
         foreach (TileSaveData tileData in savedTiles)
         {
             if (tileData == null)
@@ -222,6 +238,8 @@ public class GridManager : MonoBehaviour
             if (tileData.hasPlant)
                 loadedPlantCount++;
         }
+
+        suppressTileFx = false;
 
         // Nach dem Wiederherstellen aller Cell-Daten baut der PlantManager seine interne Liste neu auf.
         PlantManager.Instance?.RebuildLoadedPlantsFromGrid();
@@ -372,10 +390,62 @@ public class GridManager : MonoBehaviour
         cells[x, z].TileVisual = null;
         SpawnTile(x, z, prefab, type);
 
-        // Feel-Good-Polish: Tile poppt beim Wechseln (Farmland/Path/Gras) rein statt hart zu erscheinen.
         var newTile = tileObjects[x, z];
-        if (newTile != null && !newTile.TryGetComponent<PopInFx>(out _))
-            newTile.AddComponent<PopInFx>();
+        if (newTile == null) return;
+
+        // Beim Laden eines Spielstands laufen hier hunderte Tiles durch — die dürfen
+        // nicht alle gleichzeitig hochfahren.
+        if (suppressTileFx)
+            return;
+
+        TileConvertFx.Ensure(newTile)?.PlayConvert(0f);
+        RippleNeighbours(x, z);
+    }
+
+    /// <summary>
+    /// Lässt die umliegenden Tiles zeitversetzt kurz mithüpfen.
+    /// Die Verzögerung wächst mit der Distanz — dadurch läuft eine Welle nach außen
+    /// statt dass alles gleichzeitig zuckt.
+    /// </summary>
+    private void RippleNeighbours(int x, int z)
+    {
+        if (tileRippleRadius <= 0) return;
+
+        for (int dx = -tileRippleRadius; dx <= tileRippleRadius; dx++)
+        {
+            for (int dz = -tileRippleRadius; dz <= tileRippleRadius; dz++)
+            {
+                if (dx == 0 && dz == 0) continue;
+
+                int nx = x + dx;
+                int nz = z + dz;
+                if (!IsInBounds(nx, nz)) continue;
+
+                // Kreisförmig statt quadratisch — eine quadratische Welle sieht
+                // auf einem Grid sofort nach Raster aus.
+                float distance = Mathf.Sqrt(dx * dx + dz * dz);
+                if (distance > tileRippleRadius) continue;
+
+                var neighbour = tileObjects[nx, nz];
+                if (neighbour == null) continue;
+
+                TileConvertFx.Ensure(neighbour)?.PlayNudge(distance * tileRippleDelayPerTile);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Treffer-Feedback wenn ein Tool auf einer Tile fertig wird (Hacken, Gießen, Ernten).
+    /// Wird vom ToolUseHandler aufgerufen.
+    /// </summary>
+    public void PlayTileImpact(int x, int z)
+    {
+        if (suppressTileFx || !IsInBounds(x, z)) return;
+
+        var tile = tileObjects[x, z];
+        if (tile == null) return;
+
+        TileConvertFx.Ensure(tile)?.PlayNudge(0f);
     }
 
     private void EnsureMarker(GameObject go, TileType type)

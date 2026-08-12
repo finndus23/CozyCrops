@@ -70,15 +70,17 @@ public class GridInput : MonoBehaviour
         if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile
             && TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.FarmTools) != true)
         {
-            // Während eines Casts auf dieselbe Tile gelockt bleiben
-            if (!ToolUseHandler.Instance.IsCasting)
+            // Mit Queueing darf während einer laufenden Aktion weiter markiert werden —
+            // die neuen Felder landen in der Warteschlange statt verworfen zu werden.
+            // Ohne Queueing bleibt das alte Verhalten: solange ein Cast läuft, passiert nichts.
+            bool acceptsInput = GameSettings.ActionQueueingEnabled
+                                || !ToolUseHandler.Instance.IsCasting;
+
+            if (acceptsInput && (hoveredX != lastToolX || hoveredZ != lastToolZ))
             {
-                if (hoveredX != lastToolX || hoveredZ != lastToolZ)
-                {
-                    lastToolX = hoveredX;
-                    lastToolZ = hoveredZ;
-                    ToolUseHandler.Instance.TryStartUse(hoveredX, hoveredZ, Hotbar.Instance.ActiveTool);
-                }
+                lastToolX = hoveredX;
+                lastToolZ = hoveredZ;
+                ToolUseHandler.Instance.TryStartUse(hoveredX, hoveredZ, Hotbar.Instance.ActiveTool);
             }
         }
 
@@ -86,8 +88,26 @@ public class GridInput : MonoBehaviour
         {
             lastToolX = -1;
             lastToolZ = -1;
-            // Cast läuft immer bis zum Ende — kein Cancel bei Maus-Release
+            // Eingereihte Aktionen laufen immer bis zum Ende — kein Cancel bei Maus-Release
         }
+
+        HandleQueueCancel();
+    }
+
+    /// <summary>
+    /// Leert die Warteschlange. Bewusst NICHT auf Escape: das öffnet bereits das
+    /// Pausenmenü (GameSceneMenuController), man würde die Queue also jedes Mal beim
+    /// Pausieren mit wegwerfen.
+    ///
+    /// Laufende Aktionen bleiben stehen — die sind schon angefangen, ein Abbruch
+    /// mittendrin fühlt sich nach Verlust an.
+    /// </summary>
+    void HandleQueueCancel()
+    {
+        var keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.qKey.wasPressedThisFrame) return;
+
+        ToolUseHandler.Instance?.ClearQueue();
     }
 
     void HandleBuildPlacement(Mouse mouse)

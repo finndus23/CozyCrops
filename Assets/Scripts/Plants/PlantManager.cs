@@ -89,6 +89,11 @@ public class PlantManager : MonoBehaviour
         var cell = GridManager.Instance.GetCell(x, z);
         if (cell == null || cell.IsLocked || !cell.HasPlant) return false;
 
+        // Ohne diese Prüfung ließ sich Gießen endlos spammen: Water() selbst ist zwar
+        // gedeckelt, TryWater meldete aber trotzdem Erfolg — das löste jedes Mal ein
+        // OnPlantWatered aus (Missions-Fortschritt gratis) und einen Save.
+        if (!cell.Plant.NeedsWatering) return false;
+
         var wateredType = cell.Plant.Type;
         cell.Plant.Water();
         if (cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)

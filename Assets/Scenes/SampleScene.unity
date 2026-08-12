@@ -16194,7 +16194,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9900244c1a644074d9fb129310a0542b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -34
+      value: 13.4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 9900244c1a644074d9fb129310a0542b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -32405,6 +32405,11 @@ MonoBehaviour:
   dragSpeed: 1
   rotateSpeed: 0.3
   xAxisOnlySceneName: Marketplace
+  zoomDrivenShadowDistance: 1
+  shadowDistancePerZoom: 4
+  shadowDistanceOffset: 10
+  minShadowDistance: 25
+  maxShadowDistance: 120
 --- !u!1 &331512841
 GameObject:
   m_ObjectHideFlags: 0
@@ -58699,11 +58704,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc1a907e1572b144fa3d84a090f66eaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AoEPreview
-  overlayPrefab: {fileID: 667211287605720601, guid: b3d0cc7ad62d90d4ab665cc49b3afb80, type: 3}
-  heightOffset: -3
+  overlayPrefab: {fileID: 6512834190275510001, guid: 9a2d5c73e18b4f60ac934e7b25d1f8a3, type: 3}
+  heightOffset: 0.01
   tileSize: 1
-  hoverColor: {r: 1, g: 1, b: 1, a: 0.3}
-  castColor: {r: 1, g: 0.85, b: 0.2, a: 0.45}
+  indicatorColor: {r: 1, g: 1, b: 1, a: 0.9}
+  queuedColor: {r: 0.122167915, g: 0, b: 0.4264151, a: 1}
+  popInDuration: 0.1
+  popInFromScale: 0.75
 --- !u!4 &565722220
 Transform:
   m_ObjectHideFlags: 0
@@ -58713,7 +58720,7 @@ Transform:
   m_GameObject: {fileID: 565722218}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21.27988, y: 0, z: 9.25068}
+  m_LocalPosition: {x: 21.27988, y: 1.92, z: 9.25068}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -62831,6 +62838,8 @@ MonoBehaviour:
   cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
   sunflowerSeedSprite: {fileID: 1835215168, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
   offset: {x: 22, y: -22}
+  hideSystemCursorWithTool: 0
+  cursorSortingOrder: 30000
 --- !u!1 &611449009
 GameObject:
   m_ObjectHideFlags: 0
@@ -130465,6 +130474,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a65f8ac7f4cf21f4581d8ba37449f7b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolUseHandler
+  maxParallelJobs: 1
+  maxQueuedJobs: 24
 --- !u!4 &1334977211
 Transform:
   m_ObjectHideFlags: 0
@@ -198849,6 +198860,8 @@ MonoBehaviour:
   farmPlotPrefab: {fileID: 6023751674650765824, guid: c0208682fab71cf499fa3d149c2943d5, type: 3}
   pathTilePrefab: {fileID: 3199415762879224910, guid: af28fc435bc9c6d4ea16577e844c3ba5, type: 3}
   borderTilePrefab: {fileID: 6023751674650765824, guid: e95829df5d608a04abbe2f361da43789, type: 3}
+  tileRippleRadius: 2
+  tileRippleDelayPerTile: 0.035
 --- !u!4 &2084970582
 Transform:
   m_ObjectHideFlags: 0

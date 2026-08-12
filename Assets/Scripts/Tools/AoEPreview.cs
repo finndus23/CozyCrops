@@ -1,13 +1,20 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// Zeigt beim Hovern und während eines Casts die betroffenen Tiles an.
+/// Zeichnet alle Tile-Overlays im Farm-Modus:
+/// - Hover-/AoE-Vorschau unter dem Cursor
+/// - Status der Tool-Warteschlange (wartend / laufend mit Fortschrittsring)
+///
+/// Beides liegt bewusst in einer Klasse: es teilt sich Prefab, Pool und Farblogik,
+/// und die beiden Ebenen müssen sich absprechen — auf einer Tile die schon in der
+/// Warteschlange steht darf nicht zusätzlich das Hover-Overlay liegen, sonst
+/// überlagern sich zwei Rahmen.
 ///
 /// Setup:
-/// - overlayPrefab → flaches Quad-Prefab (Plane/Quad, kein Collider, transparentes Material)
-///   Empfehlung: einfaches Quad mit einem Unlit/Color-Material, halbtransparent
-/// - heightOffset  → wie weit über dem Grid die Overlays erscheinen (z.B. 0.02)
+/// - overlayPrefab → "Tile Indicator"-Prefab (Quad mit CozyCrops/TileIndicator-Shader)
+/// - heightOffset  → kleiner Abstand über der Tile-Oberkante (nicht absolut!)
 /// </summary>
 public class AoEPreview : MonoBehaviour
 {
@@ -17,132 +24,320 @@ public class AoEPreview : MonoBehaviour
     [SerializeField] private GameObject overlayPrefab;
 
     [Header("Einstellungen")]
-    [SerializeField] private float heightOffset = 0.02f;
+    [Tooltip("Abstand ÜBER der Tile-Oberkante — kein absoluter Welt-Y-Wert.\n" +
+             "Klein halten (0.005–0.02): der Shader hat einen Tiefen-Bias, der Indikator " +
+             "gewinnt den Tiefentest auch ohne echten Abstand.")]
+    [SerializeField] private float heightOffset = 0.01f;
     [Tooltip("Sollte der cellSize des GridManagers entsprechen.")]
     [SerializeField] private float tileSize = 1f;
-    [SerializeField] private Color hoverColor = new(1f, 1f, 1f, 0.3f);
-    [SerializeField] private Color castColor  = new(1f, 0.85f, 0.2f, 0.45f);
 
-    private readonly List<GameObject> pool   = new();
-    private readonly List<GameObject> active = new();
+    [Header("Farben")]
+    [Tooltip("Einheitliche Farbe für den Hover-/AoE-Indikator — unabhängig von Tool und " +
+             "Gültigkeit. Welches Werkzeug aktiv ist, zeigt bereits der Cursor.")]
+    [SerializeField] private Color indicatorColor = new(1f, 1f, 1f, 0.9f);
 
-    private int   lastPreviewX = -999, lastPreviewZ = -999;
-    private int   lastPreviewAo = -1;
-    private bool  isCasting;
+    [Tooltip("Tiles die in der Warteschlange stehen oder gerade bearbeitet werden.\n" +
+             "Wartend und laufend teilen sich diese Farbe und unterscheiden sich über die " +
+             "Form: wartend zeigt Eckklammern, laufend einen sich schließenden Ring.")]
+    [SerializeField] private Color queuedColor = new(1f, 0.78f, 0.25f, 0.95f);
+
+    [Header("Animation")]
+    [SerializeField] private float popInDuration = 0.16f;
+    [SerializeField] private float popInFromScale = 0.55f;
+
+    private readonly List<GameObject> pool = new();
+    private readonly Dictionary<Vector2Int, GameObject> hoverOverlays = new();
+    private readonly Dictionary<Vector2Int, GameObject> jobOverlays = new();
+
+    // Wiederverwendet — im Gegensatz zu renderer.material erzeugt ein
+    // MaterialPropertyBlock keine Material-Instanz pro Overlay.
+    private MaterialPropertyBlock propertyBlock;
+    private static readonly int BaseColorId    = Shader.PropertyToID("_BaseColor");
+    private static readonly int FillId         = Shader.PropertyToID("_Fill");
+    private static readonly int CornerLengthId = Shader.PropertyToID("_CornerLength");
+
+    // Eckklammern für Hover, geschlossener Rahmen für den Fortschrittsring —
+    // ein Ring aus vier losen Ecken wäre als Ladeanzeige nicht lesbar.
+    private const float HoverCornerLength = 0.34f;
+    private const float RingCornerLength  = 1f;
+
+    private readonly List<Vector2Int> staleKeys = new();
+    private readonly List<Vector2Int> desiredJobTiles = new();
+
+    private int lastPreviewX = -999, lastPreviewZ = -999;
+    private int lastPreviewAo = -1;
+    private ToolType lastPreviewTool = ToolType.None;
+    private bool lastPreviewBuildMode;
 
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
-    }
-
-    void Start()
-    {
-        if (ToolUseHandler.Instance == null) return;
-        ToolUseHandler.Instance.OnCastStarted   += OnCastStarted;
-        ToolUseHandler.Instance.OnCastCompleted += OnCastEnded;
-        ToolUseHandler.Instance.OnCastCancelled += OnCastEnded;
-    }
-
-    void OnDestroy()
-    {
-        if (ToolUseHandler.Instance == null) return;
-        ToolUseHandler.Instance.OnCastStarted   -= OnCastStarted;
-        ToolUseHandler.Instance.OnCastCompleted -= OnCastEnded;
-        ToolUseHandler.Instance.OnCastCancelled -= OnCastEnded;
+        propertyBlock = new MaterialPropertyBlock();
     }
 
     void Update()
     {
-        if (BuildModeManager.Instance.IsActive)
-        {
-            HideAll();
-            return;
-        }
+        UpdateJobOverlays();
+        UpdateHoverOverlay();
+    }
 
-        // Während eines Casts bleibt das Preview stehen — Update macht nichts
-        if (isCasting) return;
+    // ── Hover ─────────────────────────────────────────────────────────────────
 
+    private void UpdateHoverOverlay()
+    {
         if (!GridInput.IsHoveringGrid)
         {
-            HideAll();
+            HideAllHover();
+            InvalidateHoverCache();
             return;
         }
 
-        ToolType tool  = Hotbar.Instance.ActiveTool;
-        int x          = GridInput.HoveredX;
-        int z          = GridInput.HoveredZ;
-        // Kein Tool aktiv → nur die einzelne Tile zeigen
-        int aoSize     = tool != ToolType.None && ToolRegistry.Instance != null
-                            ? ToolRegistry.Instance.GetAoSize(tool)
-                            : 1;
+        // Im Baumodus wird immer genau eine Tile gesetzt — dort gibt es keine AoE,
+        // egal welches Werkzeug in der Hotbar liegt.
+        bool buildMode = BuildModeManager.Instance != null && BuildModeManager.Instance.IsActive;
 
-        // Nur neu berechnen wenn sich Position oder AoE-Größe geändert hat
-        if (x == lastPreviewX && z == lastPreviewZ && aoSize == lastPreviewAo) return;
+        ToolType tool = buildMode || Hotbar.Instance == null
+                            ? ToolType.None
+                            : Hotbar.Instance.ActiveTool;
 
-        lastPreviewX  = x;
-        lastPreviewZ  = z;
-        lastPreviewAo = aoSize;
+        int x = GridInput.HoveredX;
+        int z = GridInput.HoveredZ;
+        int aoSize = !buildMode && tool != ToolType.None && ToolRegistry.Instance != null
+                        ? ToolRegistry.Instance.GetAoSize(tool)
+                        : 1;
 
-        ShowTiles(ToolUseHandler.CalculateAoTiles(x, z, aoSize), hoverColor);
-    }
+        // Tool gehört mit in den Vergleich: ein Tool-Wechsel ändert die AoE-Größe,
+        // auch ohne dass sich der Cursor bewegt.
+        bool unchanged = x == lastPreviewX && z == lastPreviewZ
+                         && aoSize == lastPreviewAo && tool == lastPreviewTool
+                         && buildMode == lastPreviewBuildMode;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+        // Bei laufender Warteschlange trotzdem neu auswerten: eine Tile kann gerade
+        // freigeworden oder belegt worden sein, ohne dass sich der Cursor bewegt hat.
+        bool queueActive = ToolUseHandler.Instance != null
+                           && (ToolUseHandler.Instance.RunningJobs.Count > 0
+                               || ToolUseHandler.Instance.QueuedJobs.Count > 0);
 
-    private void OnCastStarted(IReadOnlyList<Vector2Int> tiles)
-    {
-        isCasting = true;
-        ShowTiles(tiles, castColor);
-    }
+        if (unchanged && !queueActive) return;
 
-    private void OnCastEnded()
-    {
-        isCasting      = false;
-        lastPreviewX   = -999;
-        lastPreviewZ   = -999;
-        lastPreviewAo  = -1;
-        HideAll();
-    }
+        lastPreviewX         = x;
+        lastPreviewZ         = z;
+        lastPreviewAo        = aoSize;
+        lastPreviewTool      = tool;
+        lastPreviewBuildMode = buildMode;
 
-    // ── Overlays verwalten ────────────────────────────────────────────────────
+        var tiles = ToolUseHandler.CalculateAoTiles(x, z, aoSize);
 
-    private void ShowTiles(IReadOnlyList<Vector2Int> tiles, Color color)
-    {
-        HideAll();
-
-        if (overlayPrefab == null || GridManager.Instance == null) return;
+        staleKeys.Clear();
+        foreach (var kvp in hoverOverlays)
+        {
+            if (!tiles.Contains(kvp.Key) || jobOverlays.ContainsKey(kvp.Key))
+                staleKeys.Add(kvp.Key);
+        }
+        foreach (var key in staleKeys)
+        {
+            Release(hoverOverlays[key]);
+            hoverOverlays.Remove(key);
+        }
 
         foreach (var tile in tiles)
         {
-            var cell = GridManager.Instance.GetCell(tile.x, tile.y);
-            if (cell == null) continue;
+            // Warteschlangen-Overlay hat Vorrang
+            if (jobOverlays.ContainsKey(tile)) continue;
+            if (GridManager.Instance == null || GridManager.Instance.GetCell(tile.x, tile.y) == null) continue;
 
-            var go = GetFromPool();
-            var worldPos = GridManager.Instance.GridToWorld(tile.x, tile.y);
-            // Y absolut setzen — GridToWorld enthält die GridManager-Y die nicht der Boden-Y entspricht
-            go.transform.position = new Vector3(worldPos.x, heightOffset, worldPos.z);
-
-            // Farbe auf dem Renderer setzen
-            var rend = go.GetComponentInChildren<Renderer>();
-            if (rend != null)
+            if (hoverOverlays.TryGetValue(tile, out var existing))
             {
-                // Material-Instanz damit sich Overlays nicht gegenseitig beeinflussen
-                rend.material.color = color;
+                Apply(existing, indicatorColor, 1f, HoverCornerLength);
+                continue;
             }
 
-            go.SetActive(true);
-            active.Add(go);
+            var go = Acquire(tile);
+            if (go == null) continue;
+
+            Apply(go, indicatorColor, 1f, HoverCornerLength);
+            PlayPopIn(go);
+            hoverOverlays[tile] = go;
         }
     }
 
-    private void HideAll()
+    // ── Warteschlange ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Ein Overlay pro Tile in der Warteschlange, alle in derselben Farbe.
+    /// Wartend und laufend unterscheiden sich über die FORM, nicht über den Farbton:
+    /// - wartend: Eckklammern wie beim Hover, nur in der Queue-Farbe → "eingeplant"
+    /// - laufend: geschlossener Rahmen der sich im Uhrzeigersinn füllt → "läuft gerade"
+    ///
+    /// Läuft jeden Frame, weil sich der Fortschritt kontinuierlich ändert — die
+    /// Overlays selbst werden aber gediffed, es wird nur umgefärbt statt neu gebaut.
+    /// </summary>
+    private void UpdateJobOverlays()
     {
-        foreach (var go in active)
+        var handler = ToolUseHandler.Instance;
+        if (handler == null)
         {
-            go.SetActive(false);
-            pool.Add(go);
+            HideAllJobs();
+            return;
         }
-        active.Clear();
+
+        desiredJobTiles.Clear();
+
+        foreach (var job in handler.RunningJobs)
+        {
+            foreach (var tile in job.Tiles)
+            {
+                if (desiredJobTiles.Contains(tile)) continue;
+                desiredJobTiles.Add(tile);
+                ShowJobTile(tile, job.Progress, RingCornerLength);
+            }
+        }
+
+        foreach (var job in handler.QueuedJobs)
+        {
+            foreach (var tile in job.Tiles)
+            {
+                if (desiredJobTiles.Contains(tile)) continue;
+                desiredJobTiles.Add(tile);
+                ShowJobTile(tile, 1f, HoverCornerLength);
+            }
+        }
+
+        staleKeys.Clear();
+        foreach (var kvp in jobOverlays)
+        {
+            if (!desiredJobTiles.Contains(kvp.Key))
+                staleKeys.Add(kvp.Key);
+        }
+        foreach (var key in staleKeys)
+        {
+            Release(jobOverlays[key]);
+            jobOverlays.Remove(key);
+        }
+    }
+
+    private void ShowJobTile(Vector2Int tile, float fill, float cornerLength)
+    {
+        if (jobOverlays.TryGetValue(tile, out var existing))
+        {
+            Apply(existing, queuedColor, fill, cornerLength);
+            return;
+        }
+
+        // Eine Tile kann vom Hover zur Warteschlange wechseln — dann das Hover-Overlay
+        // freigeben, sonst liegen zwei Rahmen übereinander.
+        if (hoverOverlays.TryGetValue(tile, out var hover))
+        {
+            Release(hover);
+            hoverOverlays.Remove(tile);
+        }
+
+        var go = Acquire(tile);
+        if (go == null) return;
+
+        Apply(go, queuedColor, fill, cornerLength);
+        PlayPopIn(go);
+        jobOverlays[tile] = go;
+    }
+
+    // ── Overlay-Verwaltung ────────────────────────────────────────────────────
+
+    private GameObject Acquire(Vector2Int tile)
+    {
+        if (overlayPrefab == null || GridManager.Instance == null) return null;
+
+        var go = GetFromPool();
+        var worldPos = GridManager.Instance.GridToWorld(tile.x, tile.y);
+        go.transform.position = new Vector3(worldPos.x, ResolveSurfaceY(tile), worldPos.z);
+        go.SetActive(true);
+        return go;
+    }
+
+    /// <summary>
+    /// Höhe der Tile-Oberkante plus kleiner Abstand.
+    ///
+    /// Vorher war das ein absoluter Welt-Y-Wert im Inspector — ein Magic Number, der zur
+    /// Bodenhöhe passen musste. Die Boden-Tiles liegen auf y=0 mit Scale 0.1, ihre Oberkante
+    /// also bei 0.05: bei kleineren Werten steckte das Overlay im Tile und verlor den
+    /// Tiefentest (unsichtbar), bei größeren schwebte es sichtbar darüber.
+    ///
+    /// Jetzt kommt die Höhe aus den echten Renderer-Bounds. Das überlebt Tiles anderer
+    /// Höhe (die geplante Höhenvariation!) und funktioniert in jeder Szene ohne Nachstellen.
+    /// </summary>
+    private float ResolveSurfaceY(Vector2Int tile)
+    {
+        var tileObj = GridManager.Instance.GetTileObject(tile.x, tile.y);
+
+        if (tileObj != null)
+        {
+            // Renderer kann auf dem Tile selbst oder auf einem Kind liegen
+            var rend = tileObj.GetComponentInChildren<Renderer>();
+            if (rend != null)
+                return rend.bounds.max.y + heightOffset;
+        }
+
+        // Fallback wenn die Tile (noch) kein Objekt hat
+        return GridManager.Instance.GridToWorld(tile.x, tile.y).y + heightOffset;
+    }
+
+    private void Apply(GameObject go, Color color, float fill, float cornerLength)
+    {
+        var rend = go.GetComponentInChildren<Renderer>();
+        if (rend == null) return;
+
+        rend.GetPropertyBlock(propertyBlock);
+        propertyBlock.SetColor(BaseColorId, color);
+        propertyBlock.SetFloat(FillId, fill);
+        propertyBlock.SetFloat(CornerLengthId, cornerLength);
+        rend.SetPropertyBlock(propertyBlock);
+    }
+
+    private void PlayPopIn(GameObject go)
+    {
+        var t = go.transform;
+        t.DOKill();
+
+        var target = new Vector3(tileSize, tileSize, tileSize);
+        t.localScale = target * popInFromScale;
+        t.DOScale(target, popInDuration).SetEase(Ease.OutBack);
+    }
+
+    private void HideAllHover()
+    {
+        if (hoverOverlays.Count == 0) return;
+
+        foreach (var kvp in hoverOverlays)
+            Release(kvp.Value);
+
+        hoverOverlays.Clear();
+    }
+
+    private void HideAllJobs()
+    {
+        if (jobOverlays.Count == 0) return;
+
+        foreach (var kvp in jobOverlays)
+            Release(kvp.Value);
+
+        jobOverlays.Clear();
+    }
+
+    private void InvalidateHoverCache()
+    {
+        lastPreviewX    = -999;
+        lastPreviewZ    = -999;
+        lastPreviewAo   = -1;
+        lastPreviewTool = ToolType.None;
+    }
+
+    private void Release(GameObject go)
+    {
+        if (go == null) return;
+
+        go.transform.DOKill();
+        go.SetActive(false);
+        pool.Add(go);
     }
 
     private GameObject GetFromPool()

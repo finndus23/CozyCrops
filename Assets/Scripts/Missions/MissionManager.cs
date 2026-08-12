@@ -16,6 +16,11 @@ public class MissionManager : MonoBehaviour
     [Header("Optionale Neben-Missionen")]
     [SerializeField] private MissionData[] sideMissions;
 
+    [Header("Verhalten")]
+    [Tooltip("Startet nach dem Laden automatisch die nächste offene Story-Mission. " +
+             "Aus = die Kette muss von außen angestoßen werden (Dialog, Tutorial-Ende).")]
+    [SerializeField] private bool autoStartStoryChain = true;
+
     private readonly List<MissionState> activeMissions = new();
     private readonly HashSet<string> completedMissionIds = new();
 
@@ -51,6 +56,7 @@ public class MissionManager : MonoBehaviour
         BarnInteraction.OnBarnOpenedStatic += HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic += HandleToolAcquired;
         PlayerInventory.OnSeedBoughtStatic += HandleSeedBought;
+        PlayerInventory.OnMoneyEarnedStatic += HandleMoneyEarned;
         Hotbar.OnToolSelectedStatic += HandleToolSelected;
     }
 
@@ -70,6 +76,7 @@ public class MissionManager : MonoBehaviour
         BarnInteraction.OnBarnOpenedStatic -= HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic -= HandleToolAcquired;
         PlayerInventory.OnSeedBoughtStatic -= HandleSeedBought;
+        PlayerInventory.OnMoneyEarnedStatic -= HandleMoneyEarned;
         Hotbar.OnToolSelectedStatic -= HandleToolSelected;
     }
 
@@ -80,6 +87,11 @@ public class MissionManager : MonoBehaviour
         if (data == null) return;
         if (completedMissionIds.Contains(data.missionId)) return;
         if (activeMissions.Exists(m => m.Data.missionId == data.missionId)) return;
+        if (!ArePrerequisitesMet(data))
+        {
+            Debug.Log($"[MissionManager] '{data.missionId}' übersprungen — Voraussetzungen noch offen.");
+            return;
+        }
 
         var state = new MissionState(data);
         activeMissions.Add(state);
@@ -90,20 +102,90 @@ public class MissionManager : MonoBehaviour
         FarmSaveManager.Instance?.RequestSave();
     }
 
+    /// <summary>
+    /// Sind alle Vorbedingungen einer Mission erfüllt?
+    /// Ohne das war die Reihenfolge nur die Array-Position in storyChain — Nebenmissionen
+    /// konnten sich nicht an den Story-Fortschritt hängen.
+    /// </summary>
+    public bool ArePrerequisitesMet(MissionData data)
+    {
+        if (data == null) return false;
+        if (completedMissionIds.Count < data.requiredCompletedCount) return false;
+
+        if (data.requiredMissionIds != null)
+        {
+            foreach (var id in data.requiredMissionIds)
+            {
+                if (string.IsNullOrWhiteSpace(id)) continue;
+                if (!completedMissionIds.Contains(id)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Die nächste Story-Mission die dran wäre — auch wenn sie noch nicht gestartet ist.
+    /// Damit kann die UI immer anzeigen was als Nächstes kommt, statt bei "keine Mission
+    /// aktiv" leer zu bleiben. Genau da riss der rote Faden bisher.
+    /// </summary>
+    public MissionData NextStoryMission
+    {
+        get
+        {
+            if (storyChain == null) return null;
+
+            foreach (var mission in storyChain)
+            {
+                if (mission == null) continue;
+                if (completedMissionIds.Contains(mission.missionId)) continue;
+                return mission;
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>Läuft gerade eine Story-Mission?</summary>
+    public bool HasActiveStoryMission => activeMissions.Exists(m => m.Data.isStoryMission);
+
     /// <summary>Nächste noch nicht abgeschlossene Story-Mission starten, falls keine aktiv ist.</summary>
     public void AdvanceStoryChain()
     {
         if (storyChain == null) return;
-
-        bool storyActive = activeMissions.Exists(m => m.Data.isStoryMission);
-        if (storyActive) return;
+        if (HasActiveStoryMission) return;
 
         foreach (var mission in storyChain)
         {
             if (mission == null) continue;
             if (completedMissionIds.Contains(mission.missionId)) continue;
+
+            // Nicht überspringen wenn die Voraussetzungen fehlen — die Kette ist
+            // geordnet, ein Loch darin soll auffallen statt still den nächsten
+            // Schritt vorzuziehen.
+            if (!ArePrerequisitesMet(mission)) return;
+
             StartMission(mission);
             return;
+        }
+    }
+
+    /// <summary>
+    /// Prüft alle Nebenmissionen und startet die, deren Voraussetzungen jetzt erfüllt sind.
+    /// </summary>
+    public void RefreshAvailableSideMissions()
+    {
+        if (sideMissions == null) return;
+
+        foreach (var mission in sideMissions)
+        {
+            if (mission == null) continue;
+            if (completedMissionIds.Contains(mission.missionId)) continue;
+            if (activeMissions.Exists(m => m.Data.missionId == mission.missionId)) continue;
+            if (!mission.autoStartWhenAvailable) continue;
+            if (!ArePrerequisitesMet(mission)) continue;
+
+            StartMission(mission);
         }
     }
 
@@ -132,6 +214,7 @@ public class MissionManager : MonoBehaviour
     private void HandleBarnOpened()       => ReportProgress(MissionObjectiveType.OpenBarn, null, 1);
     private void HandleToolAcquired()     => ReportProgress(MissionObjectiveType.AcquireTool, null, 1);
     private void HandleSeedBought(PlantType type, int amount) => ReportProgress(MissionObjectiveType.BuySeed, type, amount);
+    private void HandleMoneyEarned(int amount) => ReportProgress(MissionObjectiveType.EarnMoney, null, amount);
     private void HandleToolSelected(ToolType tool)
     {
         Debug.Log($"[MissionManager] HandleToolSelected({tool}) → ReportProgress SelectTool");
@@ -186,19 +269,7 @@ public class MissionManager : MonoBehaviour
         if (state.Data.rewards != null)
         {
             foreach (var reward in state.Data.rewards)
-            {
-                switch (reward.type)
-                {
-                    case MissionReward.RewardType.Money:
-                        if (reward.amount > 0)
-                            PlayerInventory.Instance?.AddMoney(reward.amount);
-                        break;
-                    case MissionReward.RewardType.Seed:
-                        if (reward.plant != null && reward.amount > 0)
-                            PlayerInventory.Instance?.AddSeed(reward.plant, reward.amount);
-                        break;
-                }
-            }
+                GrantReward(reward);
         }
 
         OnMissionCompleted?.Invoke(state.Data);
@@ -213,9 +284,63 @@ public class MissionManager : MonoBehaviour
                 StartMission(next);
         }
 
-        // Story-Kette weiterführen
-        if (state.Data.isStoryMission)
+        // Story-Kette weiterführen — bewusst nach JEDEM Abschluss, nicht nur nach
+        // Story-Missionen. Das Tutorial ist keine Story-Mission; mit der alten Bedingung
+        // blieb die Kette direkt nach dem Tutorial stehen, also genau an der Stelle wo
+        // der Spieler zum ersten Mal alleine dasteht.
+        if (autoStartStoryChain)
             AdvanceStoryChain();
+
+        // Jeder Abschluss kann Nebenmissionen freischalten — auch der einer Nebenmission.
+        RefreshAvailableSideMissions();
+    }
+
+    private void GrantReward(MissionReward reward)
+    {
+        if (reward == null) return;
+
+        switch (reward.type)
+        {
+            case MissionReward.RewardType.Money:
+                if (reward.amount > 0)
+                    PlayerInventory.Instance?.AddMoney(reward.amount);
+                break;
+
+            case MissionReward.RewardType.Seed:
+                if (reward.plant != null && reward.amount > 0)
+                    PlayerInventory.Instance?.AddSeed(reward.plant, reward.amount);
+                break;
+
+            case MissionReward.RewardType.Tool:
+                if (reward.tool != ToolType.None)
+                    ToolRegistry.Instance?.OwnTool(reward.tool);
+                break;
+
+            case MissionReward.RewardType.UnlockZone:
+                UnlockZoneByName(reward.zoneName);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Schaltet eine Zone frei, ohne Gold abzuziehen — deshalb direkt zone.Unlock()
+    /// statt ZoneManager.TryUnlockZone(): die Zone ist hier die Belohnung, nicht der Kauf.
+    /// </summary>
+    private void UnlockZoneByName(string zoneName)
+    {
+        if (string.IsNullOrWhiteSpace(zoneName)) return;
+
+        var zones = FindObjectsByType<GridZone>(FindObjectsSortMode.None);
+        foreach (var zone in zones)
+        {
+            if (zone == null || zone.IsUnlocked) continue;
+            if (zone.SaveId != zoneName && zone.gameObject.name != zoneName) continue;
+
+            zone.Unlock();
+            return;
+        }
+
+        Debug.LogWarning($"[MissionManager] Zone '{zoneName}' für Missions-Belohnung nicht gefunden.");
     }
 
     // --- Save / Load ---
@@ -286,6 +411,15 @@ public class MissionManager : MonoBehaviour
             OnMissionStarted?.Invoke(state.Data);
 
         Debug.Log($"[MissionManager] {activeMissions.Count} aktive Mission(en), {completedMissionIds.Count} abgeschlossen geladen.");
+
+        // Der eigentliche Bruch im roten Faden: AdvanceStoryChain() wurde bisher NUR nach
+        // Abschluss einer Story-Mission aufgerufen. Es gab keinen Einstieg — war die erste
+        // Story-Mission nie gestartet (oder ein Save älter als die Kette), stand der Spieler
+        // nach dem Tutorial ohne jede Mission da und die Kette lief nie an.
+        if (autoStartStoryChain)
+            AdvanceStoryChain();
+
+        RefreshAvailableSideMissions();
     }
 
     private List<MissionData> GetAllMissions()

@@ -19,7 +19,37 @@ public class MissionsUI : MonoBehaviour
     [SerializeField] private GameObject missionEntryPrefab;
     [SerializeField] private Sprite panelSprite;
 
+    [Header("Panel-Größe")]
+    [Tooltip("Skaliert das GESAMTE Panel — Rahmen, Schrift und Abstände gleichermaßen.\n" +
+             "Ein Regler statt Breite, Padding, borderScale und die Schriftgrößen im " +
+             "MissionEntry-Prefab einzeln aufeinander abstimmen zu müssen.")]
+    [SerializeField] private float panelScale = 1.3f;
+
+    [Tooltip("Position der oberen linken Ecke. Unabhängig von panelScale, " +
+             "weil der Pivot oben links sitzt.")]
+    [SerializeField] private Vector2 panelPosition = new(18f, -78f);
+    [Tooltip("Feste Breite. Die Höhe ergibt sich aus dem Inhalt.")]
+    [SerializeField] private float panelWidth = 430f;
+    [Tooltip("Mindesthöhe — darunter sähe der Rahmen gestaucht aus, " +
+             "weil Kopfbanner und Fußleiste zusammen schon Platz brauchen.")]
+    [SerializeField] private float minPanelHeight = 230f;
+
+    [Header("Innenabstände (Rahmen freihalten)")]
+    [Tooltip("Muss zur gerenderten Breite der Rahmen-Grafik passen. " +
+             "Oben ist am größten, da sitzt das Holz-Kopfbanner.")]
+    [SerializeField] private float padLeft = 68f;
+    [SerializeField] private float padRight = 68f;
+    [SerializeField] private float padTop = 122f;
+    [SerializeField] private float padBottom = 80f;
+    [SerializeField] private float entrySpacing = 10f;
+
+    [Tooltip("Verkleinert die 9-Slice-Ränder. 1 = Originalgröße der Grafik (viel zu wuchtig), " +
+             "höher = feinerer Rahmen.")]
+    [SerializeField] private float borderScale = 3f;
+
     private readonly Dictionary<string, MissionEntryUI> entries = new();
+
+    private const string BackgroundName = "PanelBackground";
 
     private void Awake()
     {
@@ -113,7 +143,36 @@ public class MissionsUI : MonoBehaviour
             panel.SetActive(entries.Count > 0);
     }
 
-    private void ApplyPanelStyle()
+    /// <summary>
+    /// Im Editor per Rechtsklick auf den Kopf der MissionsUI-Komponente aufrufbar.
+    ///
+    /// Das Layout wird sonst ausschließlich zur Laufzeit gesetzt (Awake/Start) — im
+    /// Scene-View sieht man von den Inspector-Werten also nichts, und ob eine Einstellung
+    /// überhaupt greift, merkt man erst im Playtest. Der Menüpunkt wendet alles sofort an
+    /// und schreibt das Ergebnis in die Konsole.
+    /// </summary>
+    [ContextMenu("Panel-Layout jetzt anwenden")]
+    private void ApplyPanelStyleFromMenu() => ApplyPanelStyle(true);
+
+    private void ApplyPanelStyle() => ApplyPanelStyle(false);
+
+    /// <summary>
+    /// Baut das Panel so auf, dass die Höhe dem Inhalt folgt.
+    ///
+    /// Vorher stand hier eine feste Größe (300×400) und ContentSizeFitter sowie
+    /// VerticalLayoutGroup wurden aktiv <c>enabled = false</c> gesetzt — das Panel konnte
+    /// also gar nicht mitwachsen, und von den 300 Breite blieben nach den Rahmen-Insets
+    /// nur ~200 nutzbar.
+    ///
+    /// Jetzt: das Panel hat eine VerticalLayoutGroup (Padding hält den gemalten Rahmen frei)
+    /// und einen ContentSizeFitter auf PreferredSize in der Höhe. Die Kette ist
+    /// Eintrag → contentRoot → Panel: jede Ebene meldet ihre Wunschhöhe nach oben.
+    ///
+    /// Voraussetzung dafür ist das 9-Slicing der Rahmengrafik (Border im Import gesetzt):
+    /// Kopfbanner, Fußleiste und Ecken bleiben in Originalgröße, nur die Mitte wird
+    /// gestreckt. Ohne das würde das Holzschild oben bei jeder Höhenänderung mitverzerren.
+    /// </summary>
+    private void ApplyPanelStyle(bool verbose)
     {
         if (panel == null)
             panel = gameObject;
@@ -121,51 +180,136 @@ public class MissionsUI : MonoBehaviour
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         if (panelRect != null)
         {
+            // Pivot oben links: das Panel wächst nach unten, die Kopfzeile bleibt liegen.
             panelRect.anchorMin = new Vector2(0f, 1f);
             panelRect.anchorMax = new Vector2(0f, 1f);
             panelRect.pivot = new Vector2(0f, 1f);
-            panelRect.anchoredPosition = new Vector2(18f, -78f);
-            panelRect.sizeDelta = new Vector2(300f, 400f);
+            panelRect.anchoredPosition = panelPosition;
+            panelRect.sizeDelta = new Vector2(panelWidth, panelRect.sizeDelta.y);
+            // Skalierung statt größerer Werte: so bleiben Rahmenstärke, Schrift und
+            // Innenabstände in genau dem Verhältnis zueinander, das jetzt passt.
+            panelRect.localScale = Vector3.one * Mathf.Max(0.1f, panelScale);
         }
 
-        Image panelImage = panel.GetComponent<Image>();
-        if (panelImage != null)
-        {
-            panelImage.sprite = panelSprite;
-            panelImage.color = Color.white;
-            panelImage.type = Image.Type.Simple;
-            panelImage.preserveAspect = false;
-        }
+        Image panelImage = EnsureBackgroundImage();
 
-        ContentSizeFitter fitter = panel.GetComponent<ContentSizeFitter>();
-        if (fitter != null)
-            fitter.enabled = false;
+        var panelLayout = GetOrAdd<VerticalLayoutGroup>(panel);
+        panelLayout.enabled = true;
+        panelLayout.padding = new RectOffset(
+            Mathf.RoundToInt(padLeft), Mathf.RoundToInt(padRight),
+            Mathf.RoundToInt(padTop), Mathf.RoundToInt(padBottom));
+        panelLayout.spacing = 0f;
+        panelLayout.childAlignment = TextAnchor.UpperLeft;
+        panelLayout.childControlWidth = true;
+        panelLayout.childControlHeight = true;
+        panelLayout.childForceExpandWidth = true;
+        panelLayout.childForceExpandHeight = false;
 
-        VerticalLayoutGroup panelLayout = panel.GetComponent<VerticalLayoutGroup>();
-        if (panelLayout != null)
-            panelLayout.enabled = false;
+        // Mindesthöhe: ContentSizeFitter kennt keine Untergrenze, LayoutUtility nimmt
+        // aber das Maximum aus minHeight und preferredHeight.
+        var panelElement = GetOrAdd<LayoutElement>(panel);
+        panelElement.minHeight = minPanelHeight;
+        panelElement.preferredHeight = -1f;
+
+        var fitter = GetOrAdd<ContentSizeFitter>(panel);
+        fitter.enabled = true;
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained; // Breite bleibt fest
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;   // Höhe folgt dem Inhalt
 
         if (contentRoot == null) return;
 
-        RectTransform contentRect = contentRoot as RectTransform;
-        if (contentRect != null)
-        {
-            contentRect.anchorMin = Vector2.zero;
-            contentRect.anchorMax = Vector2.one;
-            contentRect.pivot = new Vector2(0.5f, 0.5f);
-            contentRect.offsetMin = new Vector2(62f, 66f);
-            contentRect.offsetMax = new Vector2(-34f, -132f);
-        }
+        // contentRoot wird jetzt von der Layout-Group des Panels positioniert und
+        // vermessen. Die alten Anker-/Offset-Werte dürfen dem nicht mehr reinreden.
+        var contentLayout = GetOrAdd<VerticalLayoutGroup>(contentRoot.gameObject);
+        contentLayout.enabled = true;
+        contentLayout.padding = new RectOffset(0, 0, 0, 0);
+        contentLayout.spacing = entrySpacing;
+        contentLayout.childAlignment = TextAnchor.UpperLeft;
+        contentLayout.childControlWidth = true;
+        contentLayout.childControlHeight = true;
+        contentLayout.childForceExpandWidth = true;
+        contentLayout.childForceExpandHeight = false;
 
-        VerticalLayoutGroup contentLayout = contentRoot.GetComponent<VerticalLayoutGroup>();
-        if (contentLayout != null)
+        // Layout sofort neu rechnen, sonst greift die neue Größe erst im nächsten Frame —
+        // im Editor (kein Frame) gar nicht.
+        if (panelRect != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(panelRect);
+
+        if (verbose)
         {
-            contentLayout.padding = new RectOffset(0, 0, 0, 0);
-            contentLayout.spacing = 8f;
-            contentLayout.childControlWidth = true;
-            contentLayout.childControlHeight = true;
-            contentLayout.childForceExpandWidth = true;
-            contentLayout.childForceExpandHeight = false;
+            Vector2 raw = panelRect != null ? panelRect.rect.size : Vector2.zero;
+            Debug.Log($"[MissionsUI] Panel='{panel.name}' auf {raw} gesetzt, " +
+                      $"×{panelScale} skaliert = {raw * panelScale} auf dem Bildschirm " +
+                      $"(Breite {panelWidth}, minHöhe {minPanelHeight}). " +
+                      $"Image={(panelImage != null ? panelImage.sprite?.name ?? "kein Sprite" : "FEHLT")}, " +
+                      $"Border={panelImage?.sprite?.border}, " +
+                      $"contentRoot='{contentRoot.name}' mit {contentRoot.childCount} Einträgen.", panel);
         }
     }
+
+    /// <summary>
+    /// Legt die Rahmengrafik auf ein eigenes Hintergrund-Kind statt auf das Panel selbst.
+    ///
+    /// Das ist der Grund, warum die Höhe vorher auf 540 festhing: <see cref="Image"/> ist
+    /// selbst ein ILayoutElement und meldet bei 9-Slice die Summe seiner Ränder als
+    /// preferredHeight (hier 330 oben + 210 unten). Der ContentSizeFitter nimmt das
+    /// Maximum über alle Layout-Elemente am selben Objekt — das Sprite hat also immer
+    /// gegen den Inhalt gewonnen, und das Panel konnte nie kleiner werden als sein Rahmen.
+    ///
+    /// Liegt der Hintergrund auf einem Kind, taucht er in dieser Rechnung nicht mehr auf.
+    /// Das Image auf dem Root wird nur deaktiviert, nicht zerstört: LayoutUtility
+    /// überspringt deaktivierte Behaviours, und so bleibt die Szene reparierbar.
+    /// </summary>
+    private Image EnsureBackgroundImage()
+    {
+        var rootImage = panel.GetComponent<Image>();
+        if (rootImage != null)
+            rootImage.enabled = false;
+
+        var panelTransform = panel.transform;
+        Transform existing = panelTransform.Find(BackgroundName);
+
+        RectTransform bgRect;
+        if (existing != null)
+        {
+            bgRect = existing as RectTransform;
+        }
+        else
+        {
+            var go = new GameObject(BackgroundName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            bgRect = go.GetComponent<RectTransform>();
+            bgRect.SetParent(panelTransform, false);
+        }
+
+        if (bgRect == null) return null;
+
+        // Ganz nach hinten, damit der Rahmen hinter den Missions-Einträgen liegt.
+        bgRect.SetAsFirstSibling();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.pivot = new Vector2(0.5f, 0.5f);
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+
+        // Die VerticalLayoutGroup des Panels darf den Hintergrund nicht wie einen
+        // Eintrag einsortieren — er soll die volle Fläche füllen.
+        var ignore = GetOrAdd<LayoutElement>(bgRect.gameObject);
+        ignore.ignoreLayout = true;
+
+        var image = GetOrAdd<Image>(bgRect.gameObject);
+        image.enabled = true;
+        image.sprite = panelSprite;
+        image.color = Color.white;
+        image.type = Image.Type.Sliced;
+        image.preserveAspect = false;
+        image.raycastTarget = false;
+        // Die Grafik ist 1086×1448 — bei Originalgröße wäre allein der Rahmen
+        // breiter als das ganze Panel.
+        image.pixelsPerUnitMultiplier = Mathf.Max(0.01f, borderScale);
+
+        return image;
+    }
+
+    private static T GetOrAdd<T>(GameObject go) where T : Component =>
+        go.TryGetComponent<T>(out var existing) ? existing : go.AddComponent<T>();
 }

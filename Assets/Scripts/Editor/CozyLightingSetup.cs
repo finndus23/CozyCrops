@@ -50,12 +50,19 @@ namespace CozyCrops.EditorTools
         const float FillYaw = 145f;
 
         // Schatten-Qualität.
-        // ShadowDistance ist der wichtigste Wert: die 2048er Shadowmap wird über
-        // diese Distanz verteilt. 50 Units bei einer Ortho-Kamera mit size 5
-        // (= ~10 sichtbare Tiles) verschwendet den Großteil der Auflösung auf
-        // Bereiche die man nie sieht — daher runter.
-        const float ShadowDistance = 30f;
-        const int ShadowCascades = 2;
+        //
+        // Korrektur 2026-08-12: ShadowDistance stand auf 30, berechnet für orthographicSize 5.
+        // Der CameraController zoomt aber bis size 20 — dort sieht man entlang der Blickachse
+        // ~55 Units Boden, die Schatten brachen also mitten im Bild ab.
+        //
+        // Der Wert hier ist nur noch die Grundlinie (greift z.B. in der Marketplace-Szene).
+        // Im Spiel überschreibt CameraController.ApplyShadowDistance() ihn zoomabhängig.
+        // Deshalb wieder 4 Kaskaden: die Splits sind Bruchteile der Distanz, die nächste
+        // Kaskade bleibt dadurch bei jedem Zoom-Level eng. Shadowmap auf 4096 — bei diesem
+        // Low-Poly-Umfang kostet das praktisch nichts und gibt die Dichte zurück.
+        const float ShadowDistance = 45f;
+        const int ShadowCascades = 4;
+        const int ShadowmapResolution = 4096;
         const float ShadowDepthBias = 0.05f;
         const float ShadowNormalBias = 0.15f;
 
@@ -389,6 +396,9 @@ namespace CozyCrops.EditorTools
             var cascades = so.FindProperty("m_ShadowCascadeCount");
             if (cascades != null) cascades.intValue = ShadowCascades;
 
+            var shadowRes = so.FindProperty("m_MainLightShadowmapResolution");
+            if (shadowRes != null) shadowRes.intValue = ShadowmapResolution;
+
             // Hoher Normal Bias schiebt Schatten von ihrem Caster weg und lässt
             // kleine Objekte (Pflanzen!) fast schattenlos aussehen. 0.5 war zu viel.
             var depthBias = so.FindProperty("m_ShadowDepthBias");
@@ -401,7 +411,8 @@ namespace CozyCrops.EditorTools
             EditorUtility.SetDirty(rp);
 
             Debug.Log($"[CozyLighting] Pipeline '{rp.name}': HDR-Grading, MSAA 4x, " +
-                      $"Shadow Distance {ShadowDistance}, Bias {ShadowDepthBias}/{ShadowNormalBias}");
+                      $"Shadow Distance {ShadowDistance} ({ShadowCascades} Kaskaden, " +
+                      $"{ShadowmapResolution}px), Bias {ShadowDepthBias}/{ShadowNormalBias}");
 
             ApplySsao();
         }
