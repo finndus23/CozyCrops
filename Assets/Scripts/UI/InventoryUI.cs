@@ -11,15 +11,19 @@ using UnityEngine.UI;
 public class InventoryUI : MonoBehaviour
 {
     public static InventoryUI Instance { get; private set; }
+    public bool IsOpen => panel != null && panel.activeSelf;
 
     [SerializeField] private GameObject panel;
     [SerializeField] private TMP_Text listText;
     [SerializeField] private string title = "Scheune";
     [SerializeField] private Sprite slotSprite;
+    [SerializeField] private Sprite carrotSeedSprite;
+    [SerializeField] private Sprite cauliflowerSeedSprite;
+    [SerializeField] private Sprite sunflowerSeedSprite;
 
     [Header("Layout")]
-    [SerializeField] private Vector2 cardSize = new(145f, 125f);
-    [SerializeField] private float cardSpacing = 18f;
+    [SerializeField] private Vector2 cardSize = new(170f, 165f);
+    [SerializeField] private float cardSpacing = 14f;
 
     private RectTransform itemContainer;
     private readonly List<GameObject> spawnedItems = new();
@@ -29,6 +33,10 @@ public class InventoryUI : MonoBehaviour
     void Start()
     {
         PlayerInventory.Instance.OnCropsChanged += (_, _) =>
+        {
+            if (panel.activeSelf) Refresh();
+        };
+        PlayerInventory.Instance.OnSeedsChanged += (_, _) =>
         {
             if (panel.activeSelf) Refresh();
         };
@@ -51,6 +59,12 @@ public class InventoryUI : MonoBehaviour
 
     private void SetVisible(bool visible)
     {
+        if (visible)
+        {
+            ToolUseHandler.Instance?.CancelCast();
+            SeedDropdownUI.Instance?.Close();
+        }
+
         panel.SetActive(visible);
         if (visible) Refresh();
     }
@@ -67,8 +81,21 @@ public class InventoryUI : MonoBehaviour
         if (listText != null)
             listText.text = title;
 
+        int cropSlots = 0;
         foreach (PlantType crop in GetKnownCrops())
+        {
+            if (cropSlots >= 3) break;
             spawnedItems.Add(CreateCropCard(crop, PlayerInventory.Instance.GetCropCount(crop)));
+            cropSlots++;
+        }
+
+        int seedSlots = 0;
+        foreach (PlantType seed in GetKnownCrops())
+        {
+            if (seedSlots >= 3) break;
+            spawnedItems.Add(CreateSeedCard(seed, PlayerInventory.Instance.GetSeedCount(seed)));
+            seedSlots++;
+        }
     }
 
     private void ConfigureText()
@@ -93,16 +120,15 @@ public class InventoryUI : MonoBehaviour
         itemContainer.anchorMin = new Vector2(0.5f, 0.5f);
         itemContainer.anchorMax = new Vector2(0.5f, 0.5f);
         itemContainer.pivot = new Vector2(0.5f, 0.5f);
-        itemContainer.anchoredPosition = new Vector2(0f, -12f);
-        itemContainer.sizeDelta = new Vector2(500f, 150f);
+        itemContainer.anchoredPosition = new Vector2(0f, -30f);
+        itemContainer.sizeDelta = new Vector2(560f, 360f);
 
-        HorizontalLayoutGroup layout = go.AddComponent<HorizontalLayoutGroup>();
-        layout.spacing = cardSpacing;
+        GridLayoutGroup layout = go.AddComponent<GridLayoutGroup>();
+        layout.cellSize = cardSize;
+        layout.spacing = new Vector2(cardSpacing, cardSpacing);
         layout.childAlignment = TextAnchor.MiddleCenter;
-        layout.childControlWidth = false;
-        layout.childControlHeight = false;
-        layout.childForceExpandWidth = false;
-        layout.childForceExpandHeight = false;
+        layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        layout.constraintCount = 3;
     }
 
     private IEnumerable<PlantType> GetKnownCrops()
@@ -140,13 +166,13 @@ public class InventoryUI : MonoBehaviour
         bg.color = Color.white;
 
         Image icon = CreateChildImage(go.transform, "Icon", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-            new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(58f, 58f));
+            new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(78f, 78f));
         icon.preserveAspect = true;
         icon.color = crop.icon != null ? Color.white : Color.clear;
         icon.sprite = crop.icon;
 
         TextMeshProUGUI countText = CreateChildText(go.transform, "Count", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(100f, 28f));
+            new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(130f, 30f));
         countText.text = $"x{count}";
         countText.fontSize = 22f;
         countText.color = new Color(0.26f, 0.14f, 0.04f, 1f);
@@ -156,8 +182,8 @@ public class InventoryUI : MonoBehaviour
         TextMeshProUGUI nameText = CreateChildText(go.transform, "Name", Vector2.zero, new Vector2(1f, 0f),
             new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
         RectTransform nameRect = nameText.GetComponent<RectTransform>();
-        nameRect.offsetMin = new Vector2(10f, 38f);
-        nameRect.offsetMax = new Vector2(-10f, 60f);
+        nameRect.offsetMin = new Vector2(10f, 45f);
+        nameRect.offsetMax = new Vector2(-10f, 70f);
         nameText.text = crop.plantName;
         nameText.fontSize = 14f;
         nameText.color = new Color(0.26f, 0.14f, 0.04f, 1f);
@@ -166,6 +192,45 @@ public class InventoryUI : MonoBehaviour
         nameText.overflowMode = TextOverflowModes.Ellipsis;
 
         return go;
+    }
+
+    private GameObject CreateSeedCard(PlantType seed, int count)
+    {
+        GameObject go = CreateCropCard(seed, count);
+        go.name = seed.plantName + " Seeds";
+
+        TMP_Text nameText = go.transform.Find("Name")?.GetComponent<TMP_Text>();
+        if (nameText != null)
+            nameText.text = seed.plantName + " Saat";
+
+        TMP_Text countText = go.transform.Find("Count")?.GetComponent<TMP_Text>();
+        if (countText != null)
+            countText.text = $"x{count}";
+
+        Image icon = go.transform.Find("Icon")?.GetComponent<Image>();
+        if (icon != null)
+        {
+            Sprite seedSprite = GetSeedUiSprite(seed);
+            if (seedSprite != null)
+                icon.sprite = seedSprite;
+            icon.preserveAspect = true;
+            icon.rectTransform.anchoredPosition = new Vector2(0f, -16f);
+            icon.rectTransform.sizeDelta = new Vector2(96f, 86f);
+        }
+
+        return go;
+    }
+
+    private Sprite GetSeedUiSprite(PlantType seed)
+    {
+        if (seed == null) return null;
+        return seed.plantName switch
+        {
+            "Carrot" => carrotSeedSprite,
+            "Cauliflower" => cauliflowerSeedSprite,
+            "Sunflower" => sunflowerSeedSprite,
+            _ => null
+        };
     }
 
     private static Image CreateChildImage(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax,

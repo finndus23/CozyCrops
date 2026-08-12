@@ -24,12 +24,34 @@ public class HotbarUI : MonoBehaviour
     [Header("Seed-Slot")]
     [SerializeField] private Sprite emptySeedSprite;
 
+    [Header("Scene Hotbar Sprites")]
+    [SerializeField] private Sprite normalSlotSprite;
+    [SerializeField] private Sprite highlightedSlotSprite;
+    [SerializeField] private Sprite pressedSlotSprite;
+    [SerializeField] private Sprite disabledSlotSprite;
+    [SerializeField] private Sprite hoeIconSprite;
+    [SerializeField] private Sprite wateringCanIconSprite;
+    [SerializeField] private Sprite scytheIconSprite;
+    [SerializeField] private Sprite seedIconSprite;
+    [SerializeField] private Sprite[] shortcutSprites;
+    [SerializeField] private Sprite carrotSeedSprite;
+    [SerializeField] private Sprite cauliflowerSeedSprite;
+    [SerializeField] private Sprite sunflowerSeedSprite;
+    [SerializeField] private Sprite hammerIconSprite;
+    [SerializeField] private Sprite grassTileIconSprite;
+    [SerializeField] private Sprite pathTileIconSprite;
+    [SerializeField] private Sprite farmTileIconSprite;
+
     [Header("Farben")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color activeColor  = new Color(0.75f, 0.55f, 0.1f, 1f);
 
     private readonly List<HotbarSlotConfig> slotConfigs = new();
     private readonly List<HotbarSlotUI> slotInstances = new();
+    private readonly List<HotbarSlotUI> buildSlotInstances = new();
+    private readonly TileType[] buildTileTypes = { TileType.FarmPlot, TileType.Path, TileType.Grass };
+    private GameObject buildToggleSlot;
+    private HotbarSlotUI buildToggleSlotUI;
 
     void Awake() => Instance = this;
 
@@ -39,6 +61,8 @@ public class HotbarUI : MonoBehaviour
             SpawnSlot(config);
 
         SyncOwnedToolsToHotbar();
+        SpawnBuildToggleSlot();
+        SpawnBuildSlots();
 
         if (ToolRegistry.Instance != null)
             ToolRegistry.Instance.OnOwnedToolsChanged += SyncOwnedToolsToHotbar;
@@ -47,6 +71,7 @@ public class HotbarUI : MonoBehaviour
         Hotbar.Instance.OnSeedChanged += _ => UpdateSeedSlot();
         PlayerInventory.Instance.OnSeedsChanged += (_, _) => UpdateSeedSlot();
         BuildModeManager.Instance.OnBuildModeChanged += OnBuildModeChanged;
+        BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
 
         UpdateHighlight(Hotbar.Instance.ActiveTool);
         UpdateSeedSlot();
@@ -55,7 +80,10 @@ public class HotbarUI : MonoBehaviour
     void OnDestroy()
     {
         if (BuildModeManager.Instance != null)
+        {
             BuildModeManager.Instance.OnBuildModeChanged -= OnBuildModeChanged;
+            BuildModeManager.Instance.OnSelectedTileChanged -= UpdateBuildHighlight;
+        }
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
         if (ToolRegistry.Instance != null)
@@ -64,8 +92,11 @@ public class HotbarUI : MonoBehaviour
 
     void Update()
     {
-        // Im Build-Modus kein Tool-Input
-        if (BuildModeManager.Instance != null && BuildModeManager.Instance.IsActive) return;
+        if (BuildModeManager.Instance != null && BuildModeManager.Instance.IsActive)
+        {
+            HandleBuildHotkeys();
+            return;
+        }
 
         // Dropdown schluckt alle Inputs (auch wenn es gerade in diesem Frame geschlossen wurde)
         if (SeedDropdownUI.Instance != null &&
@@ -155,9 +186,12 @@ public class HotbarUI : MonoBehaviour
         var slotUI = go.GetComponent<HotbarSlotUI>();
 
         int keyIndex = slotInstances.Count;
-        slotUI.background.color = normalColor;
+        slotUI.background.color = Color.white;
+        if (normalSlotSprite != null)
+            slotUI.background.sprite = normalSlotSprite;
 
-        var slotIcon = ToolRegistry.Instance?.GetData(config.toolType)?.icon;
+        var slotIcon = GetSceneToolIcon(config.toolType)
+            ?? ToolRegistry.Instance?.GetData(config.toolType)?.icon;
         if (slotUI.icon != null)
         {
             if (slotIcon != null)
@@ -174,6 +208,17 @@ public class HotbarUI : MonoBehaviour
             slotUI.countLabel.text = "";
 
         var button = go.GetComponent<Button>();
+        ApplyButtonSpriteStates(button);
+        if (slotUI.shortcutBadge != null)
+        {
+            bool hasShortcut = shortcutSprites != null
+                && keyIndex >= 0
+                && keyIndex < shortcutSprites.Length
+                && shortcutSprites[keyIndex] != null;
+            slotUI.shortcutBadge.gameObject.SetActive(hasShortcut);
+            if (hasShortcut)
+                slotUI.shortcutBadge.sprite = shortcutSprites[keyIndex];
+        }
         int captured = keyIndex;
         button.onClick.AddListener(() => SelectSlot(captured));
 
@@ -186,11 +231,148 @@ public class HotbarUI : MonoBehaviour
 
     private void OnBuildModeChanged(bool buildModeActive)
     {
-        container.gameObject.SetActive(!buildModeActive);
+        foreach (var slot in slotInstances)
+            slot.gameObject.SetActive(!buildModeActive);
+
+        foreach (var slot in buildSlotInstances)
+            slot.gameObject.SetActive(buildModeActive);
+
+        if (buildToggleSlot != null)
+        {
+            Sprite toggleIcon = buildModeActive ? hoeIconSprite : hammerIconSprite;
+            if (buildToggleSlotUI != null && buildToggleSlotUI.icon != null)
+            {
+                buildToggleSlotUI.icon.sprite = toggleIcon;
+                buildToggleSlotUI.icon.color = toggleIcon != null ? Color.white : Color.clear;
+            }
+        }
+
         if (buildModeActive)
         {
             SeedDropdownUI.Instance?.Close();
             Hotbar.Instance.SetTool(ToolType.None);
+        }
+
+        UpdateBuildHighlight(BuildModeManager.Instance.SelectedTileType);
+    }
+
+    private void SpawnBuildToggleSlot()
+    {
+        Transform fixedUiParent = container.parent != null ? container.parent : container;
+        buildToggleSlot = Instantiate(slotPrefab, fixedUiParent);
+        buildToggleSlot.name = "BuildModeButton";
+
+        buildToggleSlotUI = buildToggleSlot.GetComponent<HotbarSlotUI>();
+        ConfigureVisualSlot(buildToggleSlotUI, hammerIconSprite, false);
+
+        RectTransform rect = buildToggleSlot.transform as RectTransform;
+        if (rect != null)
+        {
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(1f, 0f);
+            rect.anchoredPosition = new Vector2(-24f, 24f);
+            rect.sizeDelta = new Vector2(86f, 86f);
+        }
+
+        Button button = buildToggleSlot.GetComponent<Button>();
+        ApplyButtonSpriteStates(button);
+        button.onClick.AddListener(() => BuildModeManager.Instance?.Toggle());
+    }
+
+    private void SpawnBuildSlots()
+    {
+        for (int i = 0; i < buildTileTypes.Length; i++)
+        {
+            GameObject go = Instantiate(slotPrefab, container);
+            go.name = $"BuildSlot_{buildTileTypes[i]}";
+
+            HotbarSlotUI slotUI = go.GetComponent<HotbarSlotUI>();
+            ConfigureVisualSlot(slotUI, GetBuildTileIcon(buildTileTypes[i]), false);
+            ConfigureShortcutBadge(slotUI, i);
+
+            TileType capturedType = buildTileTypes[i];
+            Button button = go.GetComponent<Button>();
+            ApplyButtonSpriteStates(button);
+            button.onClick.AddListener(() => BuildModeManager.Instance?.SelectTile(capturedType));
+
+            go.SetActive(false);
+            buildSlotInstances.Add(slotUI);
+        }
+    }
+
+    private Sprite GetBuildTileIcon(TileType type) => type switch
+    {
+        TileType.Grass => grassTileIconSprite,
+        TileType.Path => pathTileIconSprite,
+        TileType.FarmPlot => farmTileIconSprite,
+        _ => null
+    };
+
+    private void ConfigureShortcutBadge(HotbarSlotUI slotUI, int shortcutIndex)
+    {
+        if (slotUI == null || slotUI.shortcutBadge == null)
+            return;
+
+        bool hasSprite = shortcutSprites != null
+            && shortcutIndex >= 0
+            && shortcutIndex < shortcutSprites.Length
+            && shortcutSprites[shortcutIndex] != null;
+
+        slotUI.shortcutBadge.gameObject.SetActive(hasSprite);
+        if (hasSprite)
+            slotUI.shortcutBadge.sprite = shortcutSprites[shortcutIndex];
+    }
+
+    private void ConfigureVisualSlot(HotbarSlotUI slotUI, Sprite icon, bool showCount)
+    {
+        if (slotUI == null) return;
+
+        if (slotUI.background != null)
+        {
+            slotUI.background.sprite = normalSlotSprite;
+            slotUI.background.color = Color.white;
+        }
+
+        if (slotUI.icon != null)
+        {
+            slotUI.icon.sprite = icon;
+            slotUI.icon.color = icon != null ? Color.white : Color.clear;
+            slotUI.icon.preserveAspect = true;
+        }
+
+        if (slotUI.shortcutBadge != null)
+            slotUI.shortcutBadge.gameObject.SetActive(false);
+        if (slotUI.countRoot != null)
+            slotUI.countRoot.SetActive(showCount);
+    }
+
+    private void HandleBuildHotkeys()
+    {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null || BuildModeManager.Instance == null) return;
+
+        for (int i = 0; i < buildTileTypes.Length; i++)
+        {
+            if (GetDigitKey(keyboard, i + 1).wasPressedThisFrame)
+            {
+                BuildModeManager.Instance.SelectTile(buildTileTypes[i]);
+                return;
+            }
+        }
+    }
+
+    private void UpdateBuildHighlight(TileType selectedType)
+    {
+        for (int i = 0; i < buildSlotInstances.Count; i++)
+        {
+            Image background = buildSlotInstances[i].background;
+            if (background == null) continue;
+
+            background.sprite = buildTileTypes[i] == selectedType && highlightedSlotSprite != null
+                ? highlightedSlotSprite
+                : normalSlotSprite;
+            background.color = Color.white;
         }
     }
 
@@ -199,7 +381,54 @@ public class HotbarUI : MonoBehaviour
     private void UpdateHighlight(ToolType tool)
     {
         for (int i = 0; i < slotInstances.Count; i++)
-            slotInstances[i].background.color = slotConfigs[i].toolType == tool ? activeColor : normalColor;
+        {
+            bool selected = slotConfigs[i].toolType == tool;
+            Image background = slotInstances[i].background;
+
+            if (normalSlotSprite != null && highlightedSlotSprite != null)
+            {
+                background.sprite = selected ? highlightedSlotSprite : normalSlotSprite;
+                background.color = Color.white;
+            }
+            else
+            {
+                background.color = selected ? activeColor : normalColor;
+            }
+        }
+    }
+
+    private Sprite GetSceneToolIcon(ToolType tool) => tool switch
+    {
+        ToolType.Hoe => hoeIconSprite,
+        ToolType.WateringCan => wateringCanIconSprite,
+        ToolType.Scythe => scytheIconSprite,
+        ToolType.Seed => seedIconSprite,
+        _ => null
+    };
+
+    private Sprite GetSeedUiSprite(PlantType seed)
+    {
+        if (seed == null) return null;
+        return seed.plantName switch
+        {
+            "Carrot" => carrotSeedSprite,
+            "Cauliflower" => cauliflowerSeedSprite,
+            "Sunflower" => sunflowerSeedSprite,
+            _ => null
+        };
+    }
+
+    private void ApplyButtonSpriteStates(Button button)
+    {
+        if (button == null || highlightedSlotSprite == null) return;
+
+        SpriteState states = button.spriteState;
+        states.highlightedSprite = highlightedSlotSprite;
+        states.selectedSprite = highlightedSlotSprite;
+        states.pressedSprite = pressedSlotSprite != null ? pressedSlotSprite : highlightedSlotSprite;
+        states.disabledSprite = disabledSlotSprite;
+        button.spriteState = states;
+        button.transition = Selectable.Transition.SpriteSwap;
     }
 
     private void UpdateSeedSlot()
@@ -213,8 +442,14 @@ public class HotbarUI : MonoBehaviour
         // Icon updaten
         if (slotUI.icon != null)
         {
-            slotUI.icon.sprite = (selected != null && selected.icon != null) ? selected.icon : emptySeedSprite;
+            Sprite specificSeedSprite = GetSeedUiSprite(selected);
+            slotUI.icon.sprite = selected != null
+                ? specificSeedSprite ?? selected.icon ?? emptySeedSprite
+                : emptySeedSprite;
             slotUI.icon.color = Color.white;
+            slotUI.icon.rectTransform.localScale = specificSeedSprite != null
+                ? new Vector3(1f, 0.9f, 1f)
+                : Vector3.one;
         }
 
         int seedCount = selected != null && PlayerInventory.Instance != null

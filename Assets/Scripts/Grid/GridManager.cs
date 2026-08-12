@@ -123,6 +123,7 @@ public class GridManager : MonoBehaviour
     {
         if (!IsInBounds(x, z)) return false;
         if (cells[x, z].IsLocked) return false;
+        if (cells[x, z].HasPlant) return false;
         if (type == TileType.Grass) return false;
         if (cells[x, z].Type == type) return false;
 
@@ -138,6 +139,7 @@ public class GridManager : MonoBehaviour
     {
         if (!IsInBounds(x, z)) return false;
         if (cells[x, z].IsLocked) return false;
+        if (cells[x, z].HasPlant) return false;
         if (cells[x, z].Type == TileType.Grass) return false;
 
         cells[x, z].Type = TileType.Grass;
@@ -146,6 +148,18 @@ public class GridManager : MonoBehaviour
 
         ReplaceTile(x, z, grassTilePrefab, TileType.Grass);
         return true;
+    }
+
+    public bool TryApplyTile(int x, int z, TileType type)
+    {
+        bool changed = type == TileType.Grass
+            ? TryRemoveTile(x, z)
+            : TryPlaceTile(x, z, type);
+
+        if (changed && FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
+        return changed;
     }
 
     public void ApplyToSelection(TileType type)

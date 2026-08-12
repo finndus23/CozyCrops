@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 3
   displayName: Seeder
-  icon: {fileID: 21300000, guid: a22f6c7f38720cc4eb0e3d082411b60a, type: 3}
+  icon: {fileID: 491442892, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
   maxLevel: 30
   baseAoSize: 1
   baseDuration: 1

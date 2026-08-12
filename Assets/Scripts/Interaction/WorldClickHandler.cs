@@ -22,6 +22,8 @@ public class WorldClickHandler : MonoBehaviour
 
     void Update()
     {
+        if (InventoryUI.Instance != null && InventoryUI.Instance.IsOpen) return;
+
         var mouse = Mouse.current;
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
 

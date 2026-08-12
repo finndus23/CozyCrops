@@ -162,7 +162,7 @@ public class FarmSaveManager : MonoBehaviour
     {
         SetActiveSlot(slot);
 
-        bool hasExistingSave = SaveExists(activeSlot);
+        bool hasExistingSave = HasInitializedSave(activeSlot);
 
         isLoading = true;
         allowSaveRequests = false;
@@ -298,6 +298,16 @@ public class FarmSaveManager : MonoBehaviour
             }
 
             EnsureSaveLists(data);
+
+            // Frisch per CreateSlot() angelegter, aber noch nicht bespielter Slot:
+            // Die Datei existiert zwar, enthält aber nur Defaults. Würde man sie laden,
+            // überschriebe ApplySaveData u.a. die gerade von TutorialNpc gestartete
+            // Tutorial-Mission mit leeren Daten (activeMissions → 0). Also nichts laden.
+            if (!IsInitializedSave(data))
+            {
+                Debug.Log($"[FarmSaveManager] Slot {activeSlot} existiert, ist aber noch nicht initialisiert → nichts zu laden, Default-Farm bleibt aktiv.");
+                return false;
+            }
 
             if (deferLoadByOneFrame && Application.isPlaying)
                 StartCoroutine(ApplySaveDataRoutine(data, path));
@@ -506,6 +516,27 @@ public class FarmSaveManager : MonoBehaviour
         return File.Exists(GetSavePath(slot));
     }
 
+    /// <summary>
+    /// True nur wenn der Slot ein *echtes, initialisiertes* Spiel enthält.
+    /// Ein frisch per CreateSlot() angelegter Slot existiert zwar als Datei,
+    /// gilt aber erst nach dem ersten echten Save (isInitialized) als bespielt.
+    /// Altsaves (version &lt; 2) kannten das Flag nicht → zählen als initialisiert.
+    /// </summary>
+    public bool HasInitializedSave(int slot)
+    {
+        return TryReadSlotData(slot, out SaveGameData data)
+            && IsInitializedSave(data);
+    }
+
+    /// <summary>
+    /// True wenn diese Save-Daten ein echtes, bespieltes Spiel darstellen.
+    /// Ein frisch per CreateSlot() angelegter Slot hat isInitialized=false und gilt nicht.
+    /// Altsaves (version &lt; 2) kannten das Flag nicht → zählen als initialisiert.
+    /// Single source of truth für diese Unterscheidung.
+    /// </summary>
+    private static bool IsInitializedSave(SaveGameData data)
+        => data != null && (data.isInitialized || data.version < 2);
+
     public bool TryReadSlotData(int slot, out SaveGameData data)
     {
         data = null;
@@ -558,6 +589,30 @@ public class FarmSaveManager : MonoBehaviour
             SceneManager.LoadScene(defaultGameSceneName);
     }
 
+    public bool CreateSlot(int slot, string playerName, int startingMoney = 100)
+    {
+        slot = Mathf.Clamp(slot, 1, 3);
+        playerName = string.IsNullOrWhiteSpace(playerName) ? "Farm" : playerName.Trim();
+
+        if (SaveExists(slot))
+            return false;
+
+        SaveGameData data = new SaveGameData
+        {
+            version = 2,
+            slotIndex = slot,
+            playerName = playerName,
+            money = startingMoney,
+            savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            isInitialized = false
+        };
+
+        string path = GetSavePath(slot);
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        File.WriteAllText(path, JsonUtility.ToJson(data, true));
+        return true;
+    }
+
     public string GetSavePath(int slot)
     {
         return Path.Combine(Application.persistentDataPath, $"farm_save_slot_{slot}.json");
@@ -566,11 +621,12 @@ public class FarmSaveManager : MonoBehaviour
     private SaveGameData BuildCurrentSaveData()
     {
         SaveGameData data = null;
+        TryReadSlotData(activeSlot, out data);
 
         // Wenn wir im Marktplatz sind, gibt es keinen GridManager.
         // Dann laden wir die vorhandene Save-Datei als Basis und ersetzen nur Geld/Inventar.
         bool preserveExistingFarmData = GridManager.Instance == null;
-        if (preserveExistingFarmData)
+        if (preserveExistingFarmData && data == null)
             TryReadSlotData(activeSlot, out data);
 
         if (data == null)
@@ -578,9 +634,10 @@ public class FarmSaveManager : MonoBehaviour
 
         EnsureSaveLists(data);
 
-        data.version = 1;
+        data.version = 2;
         data.slotIndex = activeSlot;
         data.savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        data.isInitialized = true;
 
         data.seeds.Clear();
         data.crops.Clear();

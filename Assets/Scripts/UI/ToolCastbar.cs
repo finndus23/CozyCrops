@@ -1,19 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Zeigt beim Tool-Cast einen Kasten mit dem Tool-Icon am Cursor an.
-/// Der Kasten füllt sich von unten nach oben bis der Cast abgeschlossen ist.
-///
-/// UI-Struktur (unter HUD-Canvas):
-///   ToolCastbar (dieses Script)
-///   └── Container          RectTransform, folgt dem Cursor
-///       ├── Background     Image — dunkler Hintergrundkasten
-///       ├── Fill           Image — Fill Method: Vertical, Fill Origin: Bottom
-///       └── Icon           Image — Tool-Sprite
-///
-/// Farbe und Aussehen direkt auf den Image-Komponenten in Unity setzen.
+/// Ersetzt den Systemcursor durch das aktuell gewaehlte Werkzeug und zeigt
+/// waehrend einer Werkzeugaktion einen radialen Fortschrittsring darum an.
 /// </summary>
 public class ToolCastbar : MonoBehaviour
 {
@@ -21,83 +13,167 @@ public class ToolCastbar : MonoBehaviour
     [SerializeField] private RectTransform container;
     [SerializeField] private Image iconImage;
     [SerializeField] private Image fillImage;
+    [SerializeField] private Sprite carrotSeedSprite;
+    [SerializeField] private Sprite cauliflowerSeedSprite;
+    [SerializeField] private Sprite sunflowerSeedSprite;
 
     [Header("Position")]
     [Tooltip("Versatz in Pixeln relativ zum Cursor.")]
-    [SerializeField] private Vector2 offset = new(32f, 32f);
+    [SerializeField] private Vector2 offset = new(22f, -22f);
 
-    void Awake()
+    private bool isCasting;
+
+    private void Awake()
     {
         if (fillImage != null)
+        {
             fillImage.fillAmount = 0f;
-
-        SetVisible(false);
+            fillImage.gameObject.SetActive(false);
+        }
     }
 
-    void Start()
+    private void Start()
     {
-        if (ToolUseHandler.Instance == null) return;
-        ToolUseHandler.Instance.OnCastStarted         += OnCastStarted;
-        ToolUseHandler.Instance.OnCastProgressChanged += OnProgress;
-        ToolUseHandler.Instance.OnCastCompleted       += Hide;
-        ToolUseHandler.Instance.OnCastCancelled       += Hide;
+        if (ToolUseHandler.Instance != null)
+        {
+            ToolUseHandler.Instance.OnCastStarted += OnCastStarted;
+            ToolUseHandler.Instance.OnCastProgressChanged += OnProgress;
+            ToolUseHandler.Instance.OnCastCompleted += HideProgress;
+            ToolUseHandler.Instance.OnCastCancelled += HideProgress;
+        }
+
+        if (Hotbar.Instance != null)
+        {
+            Hotbar.Instance.OnToolChanged += OnToolChanged;
+            Hotbar.Instance.OnSeedChanged += OnSeedChanged;
+        }
+
+        RefreshCursor();
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        if (ToolUseHandler.Instance == null) return;
-        ToolUseHandler.Instance.OnCastStarted         -= OnCastStarted;
-        ToolUseHandler.Instance.OnCastProgressChanged -= OnProgress;
-        ToolUseHandler.Instance.OnCastCompleted       -= Hide;
-        ToolUseHandler.Instance.OnCastCancelled       -= Hide;
+        if (ToolUseHandler.Instance != null)
+        {
+            ToolUseHandler.Instance.OnCastStarted -= OnCastStarted;
+            ToolUseHandler.Instance.OnCastProgressChanged -= OnProgress;
+            ToolUseHandler.Instance.OnCastCompleted -= HideProgress;
+            ToolUseHandler.Instance.OnCastCancelled -= HideProgress;
+        }
+
+        if (Hotbar.Instance != null)
+        {
+            Hotbar.Instance.OnToolChanged -= OnToolChanged;
+            Hotbar.Instance.OnSeedChanged -= OnSeedChanged;
+        }
+
+        Cursor.visible = true;
     }
 
-    void Update()
+    private void Update()
     {
-        if (container == null || !container.gameObject.activeSelf) return;
-        if (Mouse.current == null) return;
+        if (container == null || !container.gameObject.activeSelf || Mouse.current == null)
+            return;
+
         container.position = (Vector3)Mouse.current.position.ReadValue() + (Vector3)offset;
     }
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    private void OnToolChanged(ToolType _)
+    {
+        HideProgress();
+        RefreshCursor();
+    }
 
-    private void OnCastStarted(System.Collections.Generic.IReadOnlyList<UnityEngine.Vector2Int> _)
+    private void OnSeedChanged(PlantType _)
     {
         UpdateIcon();
-        if (fillImage != null) fillImage.fillAmount = 0f;
-        SetVisible(true);
+    }
+
+    private void OnCastStarted(IReadOnlyList<Vector2Int> _)
+    {
+        isCasting = true;
+        UpdateIcon();
+
+        if (fillImage != null)
+        {
+            fillImage.fillAmount = 0f;
+            fillImage.gameObject.SetActive(IsToolSelected());
+        }
     }
 
     private void OnProgress(float progress)
     {
         if (fillImage != null)
-            fillImage.fillAmount = progress;
+            fillImage.fillAmount = Mathf.Clamp01(progress);
     }
 
-    private void Hide()
+    private void HideProgress()
     {
-        SetVisible(false);
-        if (fillImage != null) fillImage.fillAmount = 0f;
+        isCasting = false;
+
+        if (fillImage != null)
+        {
+            fillImage.fillAmount = 0f;
+            fillImage.gameObject.SetActive(false);
+        }
     }
 
-    // ── Hilfsmethoden ────────────────────────────────────────────────────────
+    private void RefreshCursor()
+    {
+        bool showToolCursor = IsToolSelected();
+
+        if (container != null)
+            container.gameObject.SetActive(showToolCursor);
+
+        Cursor.visible = !showToolCursor;
+
+        if (showToolCursor)
+            UpdateIcon();
+
+        if (fillImage != null)
+            fillImage.gameObject.SetActive(showToolCursor && isCasting);
+    }
+
+    private bool IsToolSelected()
+    {
+        return Hotbar.Instance != null && Hotbar.Instance.ActiveTool != ToolType.None;
+    }
 
     private void UpdateIcon()
     {
-        if (iconImage == null) return;
+        if (iconImage == null || Hotbar.Instance == null)
+            return;
 
         ToolType tool = Hotbar.Instance.ActiveTool;
+        Sprite specificSeedSprite = tool == ToolType.Seed
+            ? GetSeedUiSprite(Hotbar.Instance.SelectedSeed)
+            : null;
+
         Sprite sprite = tool == ToolType.Seed
-            ? Hotbar.Instance.SelectedSeed?.icon
+            ? specificSeedSprite
+                ?? Hotbar.Instance.SelectedSeed?.icon
+                ?? ToolRegistry.Instance?.GetData(ToolType.Seed)?.icon
             : ToolRegistry.Instance?.GetData(tool)?.icon;
 
         iconImage.sprite = sprite;
         iconImage.color = sprite != null ? Color.white : Color.clear;
+        iconImage.preserveAspect = true;
+        iconImage.rectTransform.localScale = specificSeedSprite != null
+            ? new Vector3(1f, 0.9f, 1f)
+            : Vector3.one;
     }
 
-    private void SetVisible(bool visible)
+    private Sprite GetSeedUiSprite(PlantType seed)
     {
-        if (container != null)
-            container.gameObject.SetActive(visible);
+        if (seed == null)
+            return null;
+
+        return seed.plantName switch
+        {
+            "Carrot" => carrotSeedSprite,
+            "Cauliflower" => cauliflowerSeedSprite,
+            "Sunflower" => sunflowerSeedSprite,
+            _ => null
+        };
     }
 }

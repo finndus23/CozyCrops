@@ -25,6 +25,7 @@ public class GridInput : MonoBehaviour
 
     // Drag-Tracking für Farm-Modus
     private int lastToolX = -1, lastToolZ = -1;
+    private int lastBuildX = -1, lastBuildZ = -1;
 
     void Start()
     {
@@ -38,6 +39,14 @@ public class GridInput : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null) return;
 
+        if ((InventoryUI.Instance != null && InventoryUI.Instance.IsOpen)
+            || (GameSceneMenuController.Instance != null && GameSceneMenuController.Instance.IsConfirmationOpen))
+        {
+            IsHoveringGrid = false;
+            UpdateHover(false);
+            return;
+        }
+
         Vector2 screenPos = mouse.position.ReadValue();
         isOverGrid = TryGetGridPosition(screenPos, out hoveredX, out hoveredZ);
         isLockedTile = isOverGrid && (GridManager.Instance.GetCell(hoveredX, hoveredZ)?.IsLocked ?? false);
@@ -50,8 +59,7 @@ public class GridInput : MonoBehaviour
         if (BuildModeManager.Instance.IsActive)
         {
             UpdateHover(isOverGrid && !isLockedTile);
-            HandleSelection(mouse);
-            HandleContextMenu(mouse, screenPos);
+            HandleBuildPlacement(mouse);
             HandleEscape();
             return;
         }
@@ -79,6 +87,28 @@ public class GridInput : MonoBehaviour
             lastToolX = -1;
             lastToolZ = -1;
             // Cast läuft immer bis zum Ende — kein Cancel bei Maus-Release
+        }
+    }
+
+    void HandleBuildPlacement(Mouse mouse)
+    {
+        if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile && !IsPointerOverUI())
+        {
+            if (hoveredX != lastBuildX || hoveredZ != lastBuildZ)
+            {
+                lastBuildX = hoveredX;
+                lastBuildZ = hoveredZ;
+
+                TileType type = BuildModeManager.Instance.SelectedTileType;
+                if (GridManager.Instance.TryApplyTile(hoveredX, hoveredZ, type))
+                    TileContextMenu.NotifyTilePlaced(type);
+            }
+        }
+
+        if (mouse.leftButton.wasReleasedThisFrame)
+        {
+            lastBuildX = -1;
+            lastBuildZ = -1;
         }
     }
 
