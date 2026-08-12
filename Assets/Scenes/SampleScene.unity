@@ -14,18 +14,18 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 3
+  m_Fog: 1
+  m_FogColor: {r: 0.8901961, g: 0.8627451, b: 0.78431374, a: 1}
+  m_FogMode: 1
   m_FogDensity: 0.01
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_LinearFogStart: 30
+  m_LinearFogEnd: 140
+  m_AmbientSkyColor: {r: 0.54901963, g: 0.7019608, b: 0.85882354, a: 1}
+  m_AmbientEquatorColor: {r: 0.7882353, g: 0.7490196, b: 0.6509804, a: 1}
+  m_AmbientGroundColor: {r: 0.43137255, g: 0.35686275, b: 0.26666668, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_AmbientMode: 1
+  m_SubtractiveShadowColor: {r: 0.41960785, g: 0.49803922, b: 0.6392157, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 410087040}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2018,7 +2018,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2334,7 +2334,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3410,7 +3410,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4424973545799680718, guid: bc0f28e5bc04ef54a9b56ebeae78ac48, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9814,7 +9814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10844,7 +10844,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12052,7 +12052,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12872,7 +12872,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13663,7 +13663,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13889,7 +13889,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15686,7 +15686,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16234,7 +16234,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 9900244c1a644074d9fb129310a0542b, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 9900244c1a644074d9fb129310a0542b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -21025,7 +21025,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1529671385933798430, guid: 77c83503cda412e49a322ddaf231942d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -25383,7 +25383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3996664017326835276, guid: 3253a48f3e21d6c479ba2389ce05bd16, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -27720,7 +27720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1487941266646391559, guid: 1376e7fe2601242438a9efc9b0932e1d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -27930,7 +27930,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -28797,7 +28797,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 292632377}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -32366,7 +32366,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -35589,7 +35589,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 357360515}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -36971,7 +36971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -37148,7 +37148,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4963055296938477461, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6101107163663203578, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
       propertyPath: m_LocalScale.x
@@ -40354,7 +40354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -40772,8 +40772,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Color: {r: 1, g: 0.90588236, b: 0.7490196, a: 1}
+  m_Intensity: 1.55
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -40782,7 +40782,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.95
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -40835,7 +40835,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.38791165, y: -0.27470842, z: 0.12230807, w: 0.8712638}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -45958,7 +45958,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: d4a26d0e8e2e2b341999e295d6720382, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d4a26d0e8e2e2b341999e295d6720382, type: 3}
       propertyPath: m_Name
@@ -46182,7 +46182,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -47570,7 +47570,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 828695029824642039, guid: 72c3880aa9165ab4da9cb0656012807f, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1189198572637911586, guid: 72c3880aa9165ab4da9cb0656012807f, type: 3}
       propertyPath: m_Name
@@ -49857,7 +49857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9070573336580621143, guid: 541b08bc544cf124daf4a447f2d514f0, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -51182,7 +51182,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -52456,6 +52456,133 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 511242295}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &512487642
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 512487645}
+  - component: {fileID: 512487644}
+  - component: {fileID: 512487643}
+  m_Layer: 0
+  m_Name: Fill Light (Himmelsbounce)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &512487643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512487642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
+--- !u!108 &512487644
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512487642}
+  m_Enabled: 1
+  serializedVersion: 12
+  m_Type: 1
+  m_Color: {r: 0.6627451, g: 0.79607844, b: 1, a: 1}
+  m_Intensity: 0.22
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!4 &512487645
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512487642}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.047040757, y: 0.9419751, z: -0.14919421, w: 0.29700363}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &512775125
 GameObject:
   m_ObjectHideFlags: 0
@@ -52888,7 +53015,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3567836310789529253, guid: 5d4d4abe7e7de45ed8fa6ff01c8aba81, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -54707,7 +54834,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8188499419874502275, guid: f7e424c0de8d66249bbc114fb33fb246, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -55277,7 +55404,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3555880615551355788, guid: d8312e4a711e79844958bf19c9e7128e, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -57145,7 +57272,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 553152383}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -62226,7 +62353,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -63391,7 +63518,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3719568403536731694, guid: 250717b00009fa3498cf6e51077625d3, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -64969,7 +65096,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4990400230503812199, guid: 99695a40943fbed44adf2117a9152e84, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -68204,7 +68331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -68268,7 +68395,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: d985f49cf1b39f84fa9146cb3f5833db, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d985f49cf1b39f84fa9146cb3f5833db, type: 3}
       propertyPath: m_Name
@@ -68338,7 +68465,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -71644,7 +71771,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -71708,7 +71835,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -72404,7 +72531,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -72848,7 +72975,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3719568403536731694, guid: 250717b00009fa3498cf6e51077625d3, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -75985,7 +76112,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 743453929}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -76707,7 +76834,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 749755967}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -79588,7 +79715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -82694,7 +82821,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -82807,7 +82934,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -84450,7 +84577,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -86609,7 +86736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -94530,7 +94657,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -95609,7 +95736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3996664017326835276, guid: 3253a48f3e21d6c479ba2389ce05bd16, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -98580,7 +98707,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 991650544}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -98824,7 +98951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -101469,7 +101596,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -101628,7 +101755,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023902998}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -103139,7 +103266,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: ac30e5b06e521b64e8b60945236dabeb, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: ac30e5b06e521b64e8b60945236dabeb, type: 3}
       propertyPath: m_Name
@@ -103713,7 +103840,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -105331,7 +105458,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -105647,7 +105774,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -109192,7 +109319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -109385,7 +109512,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110050885}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -109694,7 +109821,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 122419477261476927, guid: f236388441bd2494693c3f4c78ae7ee0, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1295285175019478864, guid: f236388441bd2494693c3f4c78ae7ee0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -112073,7 +112200,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7053882622652927724, guid: 1503d852bb214354ebd5463ce20131e5, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8191836632708068739, guid: 1503d852bb214354ebd5463ce20131e5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -112833,7 +112960,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3766932677433051097, guid: 067ab14566afc8c4083df72e1e40d89d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -114957,7 +115084,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -120518,7 +120645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4448212368078875465, guid: 697d161afef5d304d919e355118e5344, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -121742,7 +121869,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: c71ae1bdc78bf8c44bcd31c1f88bc5dd, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c71ae1bdc78bf8c44bcd31c1f88bc5dd, type: 3}
       propertyPath: m_Name
@@ -122705,7 +122832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4448212368078875465, guid: 697d161afef5d304d919e355118e5344, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -125524,7 +125651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -125938,7 +126065,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1283268263}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -128374,7 +128501,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1309213311}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -128636,7 +128763,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2269385830210952552, guid: 2ee463b2bf3e7c74ba4c4b4310ddcff3, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -129982,7 +130109,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -129999,7 +130126,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7053882622652927724, guid: 1503d852bb214354ebd5463ce20131e5, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8191836632708068739, guid: 1503d852bb214354ebd5463ce20131e5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -130898,7 +131025,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5469210258582322125, guid: dd61d9376da13774192b236353368e36, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5829476170715306520, guid: dd61d9376da13774192b236353368e36, type: 3}
       propertyPath: m_Name
@@ -131257,7 +131384,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -131323,7 +131450,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -137521,7 +137648,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9091708681839910189, guid: b13e8935972ad4d498de9bbddd312f70, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -138159,7 +138286,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -142334,7 +142461,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1529671385933798430, guid: 77c83503cda412e49a322ddaf231942d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -143073,7 +143200,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -147597,7 +147724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8780406459214402357, guid: 729ab502b328ed647a983caa6fa634f4, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -149379,7 +149506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1529671385933798430, guid: 77c83503cda412e49a322ddaf231942d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -150578,7 +150705,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -151805,7 +151932,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6138630777933566391, guid: 8e695e0a174c0124198c2a4eac33308b, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -154410,7 +154537,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1593053358}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -155410,7 +155537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -156308,7 +156435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4584028133859373772, guid: ee7bbe0c4dc2bdf429520e9bd33033e4, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -160743,7 +160870,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1666416683}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -165887,7 +166014,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -167226,7 +167353,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -168518,7 +168645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -171371,7 +171498,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: c71ae1bdc78bf8c44bcd31c1f88bc5dd, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c71ae1bdc78bf8c44bcd31c1f88bc5dd, type: 3}
       propertyPath: m_Name
@@ -173722,7 +173849,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1529671385933798430, guid: 77c83503cda412e49a322ddaf231942d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -181474,7 +181601,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4279181112
   m_fontColor: {r: 0.21960784, g: 0.12156863, b: 0.05882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -181964,7 +182091,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -184593,7 +184720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -187282,7 +187409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2098678051813522408, guid: cb349e4e4c032384890cda436b5fb063, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -188607,7 +188734,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -191173,7 +191300,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1996195680}
   m_Enabled: 1
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -192304,7 +192431,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4448212368078875465, guid: 697d161afef5d304d919e355118e5344, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -192493,7 +192620,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4535886553742294640, guid: 3a4046de53984d848bd2af9741c81a4d, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -194134,7 +194261,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 464502196870594610, guid: b214a049616de1a4badde43d2a617311, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1601331577252723549, guid: b214a049616de1a4badde43d2a617311, type: 3}
       propertyPath: m_LocalPosition.x
@@ -194449,15 +194576,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1949311384909477862, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3537127206605251296, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4330249540969305965, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4817440432585934006, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_Name
@@ -194505,11 +194632,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5376223965873774078, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7930991929008754970, guid: 683c15f9e972f4655b2620101423b704, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -195079,7 +195206,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -195988,7 +196115,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 859781089723783570, guid: 136a5d02f7166784bb45906490294bfc, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1220038068195178567, guid: 136a5d02f7166784bb45906490294bfc, type: 3}
       propertyPath: m_Name
@@ -197203,7 +197330,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4963055296938477461, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6101107163663203578, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -202618,7 +202745,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8780406459214402357, guid: 729ab502b328ed647a983caa6fa634f4, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -203367,7 +203494,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3482783636766292610, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
       propertyPath: m_CastShadows
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -207211,3 +207338,4 @@ SceneRoots:
   - {fileID: 1305319178}
   - {fileID: 1494620946}
   - {fileID: 118623005}
+  - {fileID: 512487645}
