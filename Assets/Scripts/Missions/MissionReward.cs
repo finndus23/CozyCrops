@@ -14,6 +14,7 @@ public class MissionReward
         Seed,
         Tool,
         UnlockZone,
+        License,
         // Hier später: Fertilizer, Sprinkler, ...
     }
 
@@ -33,4 +34,7 @@ public class MissionReward
 
     [Tooltip("Nur für UnlockZone-Rewards: Name des GridZone-GameObjects das freigeschaltet wird.")]
     public string zoneName;
+
+    [Tooltip("Nur für License-Rewards: licenseId die verschenkt wird (ohne Kosten).")]
+    public string licenseId;
 }

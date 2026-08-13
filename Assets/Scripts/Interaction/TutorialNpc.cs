@@ -2,15 +2,20 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Tutorial-NPC in der Farm-Scene.
+/// Tutorial-Bootstrap in der Farm-Scene.
 /// Startet beim ersten Spiel (kein Save) automatisch das Tutorial via TutorialManager.
-/// Beim Klicken: zeigt einen Wiederhol-Dialog (optional).
+///
+/// <b>Kein IClickable mehr.</b> WorldClickHandler löst per GetComponentInParent&lt;IClickable&gt;()
+/// nur EINE Komponente auf — auf dem NPC-Cube lagen aber TutorialNpc und TutorialDialogueRepeat
+/// gleichzeitig, und die Komponenten-Reihenfolge entschied still, welche überhaupt reagiert
+/// (es gewann TutorialDialogueRepeat, dieses OnClick war also totes Gewicht).
+///
+/// Das Anklicken übernimmt jetzt komplett <see cref="StoryDialogueNpc"/>: Tutorial-Wiederholung,
+/// Story-Dialoge und Smalltalk in einem klaren Vorrang. Der frühere repeatDialogue gehört
+/// dort in das Feld 'smallTalkDialogue'.
 /// </summary>
-public class TutorialNpc : MonoBehaviour, IClickable
+public class TutorialNpc : MonoBehaviour
 {
-    [Tooltip("Dialog wenn der Spieler nach dem Tutorial nochmal mit dem NPC spricht")]
-    [SerializeField] private DialogueData repeatDialogue;
-
     private IEnumerator Start()
     {
         yield return null;
@@ -28,15 +33,5 @@ public class TutorialNpc : MonoBehaviour, IClickable
 
         if (!hasInitializedSave)
             TutorialManager.Instance.BeginTutorial();
-    }
-
-    public void OnClick()
-    {
-        if (DialogueManager.Instance == null) return;
-        if (DialogueManager.Instance.IsActive) return;
-        if (TutorialManager.Instance?.IsActive == true) return; // Während Tutorial kein Repeat
-
-        if (repeatDialogue != null)
-            DialogueManager.Instance.StartDialogue(repeatDialogue);
     }
 }

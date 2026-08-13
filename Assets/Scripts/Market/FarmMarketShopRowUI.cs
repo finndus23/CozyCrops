@@ -45,6 +45,22 @@ public class FarmMarketShopRowUI : MonoBehaviour
 
         SetupButton(primaryButton, primaryButtonText, primaryLabel, primaryAction);
         SetupButton(secondaryButton, secondaryButtonText, secondaryLabel, secondaryAction);
+
+        SetDimmed(false);
+    }
+
+    /// <summary>
+    /// Zeile abdunkeln — für Ware die sichtbar, aber (noch) nicht kaufbar ist.
+    ///
+    /// Über eine CanvasGroup statt einzelner Farben: so verblassen Icon, Texte und Knöpfe
+    /// gemeinsam und die Zeile bleibt lesbar. Der Spieler soll sehen, was es gibt.
+    /// </summary>
+    public void SetDimmed(bool dimmed)
+    {
+        if (!TryGetComponent(out CanvasGroup group))
+            group = gameObject.AddComponent<CanvasGroup>();
+
+        group.alpha = dimmed ? 0.45f : 1f;
     }
 
     private void SetupButton(Button button, TMP_Text label, string text, Action action)

@@ -589,7 +589,7 @@ public class FarmSaveManager : MonoBehaviour
             SceneManager.LoadScene(defaultGameSceneName);
     }
 
-    public bool CreateSlot(int slot, string playerName, int startingMoney = 100)
+    public bool CreateSlot(int slot, string playerName, GamePace pace, int startingMoney = 100)
     {
         slot = Mathf.Clamp(slot, 1, 3);
         playerName = string.IsNullOrWhiteSpace(playerName) ? "Farm" : playerName.Trim();
@@ -603,9 +603,16 @@ public class FarmSaveManager : MonoBehaviour
             slotIndex = slot,
             playerName = playerName,
             money = startingMoney,
+            gamePace = (int)pace,
             savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             isInitialized = false
         };
+
+        // Sofort auch auf das laufende Inventar anwenden: der Slot wird direkt nach dem
+        // Anlegen bespielt, und der noch nicht initialisierte Save wird bewusst nicht
+        // geladen (siehe LoadNow) — das Tempo käme sonst erst nach dem ersten echten Save an.
+        if (PlayerInventory.Instance != null)
+            PlayerInventory.Instance.Pace = pace;
 
         string path = GetSavePath(slot);
         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -668,6 +675,12 @@ public class FarmSaveManager : MonoBehaviour
             data.ownedTools.AddRange(ToolRegistry.Instance.GetOwnedToolsSaveData());
         }
 
+        if (LicenseRegistry.Instance != null)
+        {
+            data.ownedLicenses.Clear();
+            data.ownedLicenses.AddRange(LicenseRegistry.Instance.GetSaveData());
+        }
+
         if (MissionManager.Instance != null)
         {
             data.missionProgress.Clear();
@@ -684,6 +697,7 @@ public class FarmSaveManager : MonoBehaviour
         if (inventory == null) return;
 
         data.money = inventory.Money;
+        data.gamePace = (int)inventory.Pace;
 
         foreach (var kvp in inventory.GetAllSeeds())
         {
@@ -777,9 +791,16 @@ public class FarmSaveManager : MonoBehaviour
 
     private void ApplyToolLevels(SaveGameData data)
     {
-        if (ToolRegistry.Instance == null) return;
-        ToolRegistry.Instance.ApplyLoadedData(data.toolLevels);
-        ToolRegistry.Instance.ApplyOwnedToolsData(data.ownedTools);
+        if (ToolRegistry.Instance != null)
+        {
+            ToolRegistry.Instance.ApplyLoadedData(data.toolLevels);
+            ToolRegistry.Instance.ApplyOwnedToolsData(data.ownedTools);
+        }
+
+        // Lizenzen VOR den Missionen laden: Missions-Voraussetzungen und Shop-Angebot
+        // fragen den Lizenz-Stand ab.
+        if (LicenseRegistry.Instance != null)
+            LicenseRegistry.Instance.ApplyLoadedData(data.ownedLicenses);
     }
 
     private void ApplyMissions(SaveGameData data)
@@ -797,6 +818,9 @@ public class FarmSaveManager : MonoBehaviour
             return;
         }
 
+        // Tempo VOR dem Geld setzen: sonst liefe ein direkt danach ausgelöster Verkauf
+        // noch mit dem Standardfaktor.
+        inventory.Pace = (GamePace)data.gamePace;
         inventory.ApplyLoadedData(data.money, data.seeds, data.crops);
     }
 
@@ -844,6 +868,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();
         if (data.ownedTools == null) data.ownedTools = new List<string>();
         if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
+        if (data.ownedLicenses == null) data.ownedLicenses = new List<string>();
     }
 
     private void OnApplicationQuit()

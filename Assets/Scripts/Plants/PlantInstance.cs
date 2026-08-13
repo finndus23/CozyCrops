@@ -15,6 +15,35 @@ public class PlantInstance
     public bool NeedsWatering =>
         Type.requiresWatering && WateringsThisStage < Type.wateringsPerStage;
 
+    /// <summary>
+    /// Fortschritt innerhalb der aktuellen Wachstumsphase, 0–1.
+    /// Für die Status-Anzeige über der Pflanze.
+    /// </summary>
+    public float StageProgress
+    {
+        get
+        {
+            if (IsFullyGrown) return 1f;
+            if (!Type.IsValidStage(StageIndex)) return 0f;
+
+            float needed = Type.growthStages[StageIndex].timeToNextStage;
+            return needed <= 0f ? 1f : Mathf.Clamp01(GrowthTimer / needed);
+        }
+    }
+
+    /// <summary>
+    /// Fortschritt über ALLE Phasen, 0–1. Bei 3 Phasen gibt es nur 2 Wachstumsschritte —
+    /// die letzte Phase ist bereits reif, deshalb StageCount - 1 als Nenner.
+    /// </summary>
+    public float TotalProgress
+    {
+        get
+        {
+            int steps = Mathf.Max(1, Type.StageCount - 1);
+            return Mathf.Clamp01((StageIndex + StageProgress) / steps);
+        }
+    }
+
     public PlantInstance(PlantType type)
     {
         Type = type;

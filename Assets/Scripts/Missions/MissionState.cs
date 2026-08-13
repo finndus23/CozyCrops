@@ -27,6 +27,21 @@ public class MissionState
         progress[objectiveIndex] = Mathf.Min(progress[objectiveIndex] + amount, required);
     }
 
+    /// <summary>
+    /// Setzt den Fortschritt auf einen absoluten Wert statt ihn zu addieren.
+    ///
+    /// Für Ziele, die einen Zustand abfragen statt Ereignisse zu zählen — etwa
+    /// ToolLevelReached, wo der gemeldete Wert die aktuelle Werkzeugstufe ist.
+    /// Mit AddProgress würde sich die Stufe bei jedem Upgrade aufsummieren
+    /// (1+2+3+… statt 3) und das Ziel viel zu früh erfüllen.
+    /// </summary>
+    public void SetProgress(int objectiveIndex, int value)
+    {
+        if (objectiveIndex < 0 || objectiveIndex >= progress.Length) return;
+        int required = Data.objectives[objectiveIndex].requiredAmount;
+        progress[objectiveIndex] = Mathf.Clamp(value, 0, required);
+    }
+
     public int GetProgress(int objectiveIndex) =>
         objectiveIndex >= 0 && objectiveIndex < progress.Length ? progress[objectiveIndex] : 0;
 

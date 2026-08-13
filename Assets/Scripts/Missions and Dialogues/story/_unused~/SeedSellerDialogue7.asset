@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: SeedSellerDialogue7
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Samenverkäufer
+    text: "Die Lizenz hab ich gesehen. Dann liegt der Blumenkohl ab jetzt für dich bereit."
+    portrait: {fileID: 0}
+  - speakerName: Samenverkäufer
+    text: "Nimm acht Stück mit. Bring sie durch und verkauf sie — dann reden wir über das nächste Regal."
+    portrait: {fileID: 0}
+  missionToStartAfter: {fileID: 11400000, guid: 1122334455667788990011223344556c, type: 2}

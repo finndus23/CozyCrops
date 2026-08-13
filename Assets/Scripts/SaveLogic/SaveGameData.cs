@@ -20,6 +20,15 @@ public class SaveGameData
     public List<ToolLevelSaveData> toolLevels = new();
     public List<string> ownedTools = new();
     public List<MissionProgressSaveData> missionProgress = new();
+
+    /// <summary>licenseIds der gekauften Lizenzen.</summary>
+    public List<string> ownedLicenses = new();
+
+    /// <summary>
+    /// Beim Anlegen des Slots gewähltes Spieltempo. 0 = Normal, damit Altsaves
+    /// automatisch auf dem balancierten Tempo landen.
+    /// </summary>
+    public int gamePace;
 }
 
 [Serializable]

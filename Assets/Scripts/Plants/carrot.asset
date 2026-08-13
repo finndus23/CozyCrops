@@ -15,17 +15,17 @@ MonoBehaviour:
   saveId: carrot
   plantName: Carrot
   icon: {fileID: 21300000, guid: cebe4544e9e29f746b0bec2ac644da7a, type: 3}
-  seedPrice: 3
-  sellPrice: 10
+  seedPrice: 4
+  sellPrice: 12
   growthStages:
   - stageName: 1
     prefab: {fileID: 2582875128571546930, guid: f4ea6b9d24fd2164795278fa98ffb6c1, type: 3}
-    timeToNextStage: 5
+    timeToNextStage: 15
   - stageName: 2
     prefab: {fileID: 3856223855077511753, guid: 1a0fc3072ca96ec4283af64115b956a1, type: 3}
-    timeToNextStage: 5
+    timeToNextStage: 15
   - stageName: 3
     prefab: {fileID: 8204887017581438627, guid: 256da108ea4933f498908e467e4c1fc9, type: 3}
-    timeToNextStage: 5
+    timeToNextStage: 15
   requiresWatering: 1
   wateringsPerStage: 1

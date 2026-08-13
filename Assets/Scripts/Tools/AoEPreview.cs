@@ -2,6 +2,14 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
+/// <summary>Farbe eines Werkzeugs für Hover- und Warteschlangen-Overlays.</summary>
+[System.Serializable]
+public class ToolIndicatorStyle
+{
+    public ToolType tool;
+    public Color color = Color.white;
+}
+
 /// <summary>
 /// Zeichnet alle Tile-Overlays im Farm-Modus:
 /// - Hover-/AoE-Vorschau unter dem Cursor
@@ -32,14 +40,33 @@ public class AoEPreview : MonoBehaviour
     [SerializeField] private float tileSize = 1f;
 
     [Header("Farben")]
-    [Tooltip("Einheitliche Farbe für den Hover-/AoE-Indikator — unabhängig von Tool und " +
-             "Gültigkeit. Welches Werkzeug aktiv ist, zeigt bereits der Cursor.")]
+    [Tooltip("Rückfallfarbe für den Hover-Indikator: Baumodus und alles, wofür in " +
+             "toolStyles kein Eintrag steht.")]
     [SerializeField] private Color indicatorColor = new(1f, 1f, 1f, 0.9f);
 
-    [Tooltip("Tiles die in der Warteschlange stehen oder gerade bearbeitet werden.\n" +
-             "Wartend und laufend teilen sich diese Farbe und unterscheiden sich über die " +
-             "Form: wartend zeigt Eckklammern, laufend einen sich schließenden Ring.")]
+    [Tooltip("Rückfallfarbe für Tiles in der Warteschlange, wenn das Werkzeug keinen " +
+             "eigenen Stil hat.")]
     [SerializeField] private Color queuedColor = new(1f, 0.78f, 0.25f, 0.95f);
+
+    [Tooltip("Eine Farbe pro Werkzeug — gilt für Hover UND Warteschlange.\n\n" +
+             "Seit die Warteschlangen pro Werkzeug parallel laufen, liegen mehrere Jobs " +
+             "gleichzeitig auf dem Feld. Mit einer einzigen Queue-Farbe sieht man zwar DASS " +
+             "dort etwas läuft, aber nicht WAS — Hacken, Säen und Gießen sind dann optisch " +
+             "identisch. Die Farbe ist die einzige Information, die auf einem 1x1-Tile noch " +
+             "lesbar ist.")]
+    [SerializeField] private ToolIndicatorStyle[] toolStyles =
+    {
+        new() { tool = ToolType.Hoe,         color = new Color(0.85f, 0.55f, 0.25f, 1f) },
+        new() { tool = ToolType.Seed,        color = new Color(0.45f, 0.85f, 0.35f, 1f) },
+        new() { tool = ToolType.WateringCan, color = new Color(0.35f, 0.72f, 1f,    1f) },
+        new() { tool = ToolType.Scythe,      color = new Color(1f,    0.83f, 0.30f, 1f) },
+    };
+
+    [Tooltip("Alpha-Faktor für den Hover gegenüber der Warteschlange. Der Hover ist nur " +
+             "eine Vorschau und soll leiser sein als eine tatsächlich eingeplante Aktion — " +
+             "sonst kann man beides bei gleicher Farbe nicht auseinanderhalten.")]
+    [Range(0.1f, 1f)]
+    [SerializeField] private float hoverAlphaFactor = 0.7f;
 
     [Header("Animation")]
     [SerializeField] private float popInDuration = 0.16f;
@@ -147,16 +174,18 @@ public class AoEPreview : MonoBehaviour
             if (jobOverlays.ContainsKey(tile)) continue;
             if (GridManager.Instance == null || GridManager.Instance.GetCell(tile.x, tile.y) == null) continue;
 
+            var hoverColor = ResolveHoverColor(tool);
+
             if (hoverOverlays.TryGetValue(tile, out var existing))
             {
-                Apply(existing, indicatorColor, 1f, HoverCornerLength);
+                Apply(existing, hoverColor, 1f, HoverCornerLength);
                 continue;
             }
 
             var go = Acquire(tile);
             if (go == null) continue;
 
-            Apply(go, indicatorColor, 1f, HoverCornerLength);
+            Apply(go, hoverColor, 1f, HoverCornerLength);
             PlayPopIn(go);
             hoverOverlays[tile] = go;
         }
@@ -190,7 +219,7 @@ public class AoEPreview : MonoBehaviour
             {
                 if (desiredJobTiles.Contains(tile)) continue;
                 desiredJobTiles.Add(tile);
-                ShowJobTile(tile, job.Progress, RingCornerLength);
+                ShowJobTile(tile, job.Progress, RingCornerLength, job.Tool);
             }
         }
 
@@ -200,7 +229,7 @@ public class AoEPreview : MonoBehaviour
             {
                 if (desiredJobTiles.Contains(tile)) continue;
                 desiredJobTiles.Add(tile);
-                ShowJobTile(tile, 1f, HoverCornerLength);
+                ShowJobTile(tile, 1f, HoverCornerLength, job.Tool);
             }
         }
 
@@ -217,11 +246,13 @@ public class AoEPreview : MonoBehaviour
         }
     }
 
-    private void ShowJobTile(Vector2Int tile, float fill, float cornerLength)
+    private void ShowJobTile(Vector2Int tile, float fill, float cornerLength, ToolType tool)
     {
+        var color = ResolveJobColor(tool);
+
         if (jobOverlays.TryGetValue(tile, out var existing))
         {
-            Apply(existing, queuedColor, fill, cornerLength);
+            Apply(existing, color, fill, cornerLength);
             return;
         }
 
@@ -236,9 +267,44 @@ public class AoEPreview : MonoBehaviour
         var go = Acquire(tile);
         if (go == null) return;
 
-        Apply(go, queuedColor, fill, cornerLength);
+        Apply(go, color, fill, cornerLength);
         PlayPopIn(go);
         jobOverlays[tile] = go;
+    }
+
+    // ── Farben ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Farbe des Werkzeugs, oder <paramref name="fallback"/> wenn keine hinterlegt ist.
+    /// ToolType.None (Baumodus) hat bewusst nie einen Stil — dort setzt man Tiles,
+    /// da wäre eine Werkzeugfarbe schlicht falsch.
+    /// </summary>
+    private Color ResolveColor(ToolType tool, Color fallback)
+    {
+        if (tool == ToolType.None || toolStyles == null) return fallback;
+
+        foreach (var style in toolStyles)
+        {
+            if (style == null || style.tool != tool) continue;
+
+            // Alpha kommt bewusst von der Rückfallfarbe: so stellt man die Deckkraft
+            // aller Overlays an EINER Stelle ein, statt sie in vier Farbfeldern
+            // nachziehen zu müssen.
+            var c = style.color;
+            c.a = fallback.a;
+            return c;
+        }
+
+        return fallback;
+    }
+
+    private Color ResolveJobColor(ToolType tool) => ResolveColor(tool, queuedColor);
+
+    private Color ResolveHoverColor(ToolType tool)
+    {
+        var c = ResolveColor(tool, indicatorColor);
+        c.a *= hoverAlphaFactor;
+        return c;
     }
 
     // ── Overlay-Verwaltung ────────────────────────────────────────────────────

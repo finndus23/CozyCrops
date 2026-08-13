@@ -1,9 +1,13 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MoneyDisplay : MonoBehaviour
 {
+    /// <summary>Damit Belohnungs-FX wissen, wohin die Münzen fliegen sollen.</summary>
+    public static MoneyDisplay Instance { get; private set; }
+
     [SerializeField] private TMP_Text moneyText;
     [SerializeField] private Sprite backgroundSprite;
     [SerializeField] private Sprite coinSprite;
@@ -13,28 +17,96 @@ public class MoneyDisplay : MonoBehaviour
     [SerializeField] private float horizontalPadding = 58f;
     [SerializeField] private float backgroundHeight = 70f;
 
+    [Header("Hochzählen")]
+    [Tooltip("Wie lange der Zähler bei einer Gutschrift hochläuft. 0 = sofort setzen.\n\n" +
+             "Sollte ungefähr so lang sein wie der Münzschwarm zum Eintreffen braucht — " +
+             "der Zähler startet beim Einschlag der ERSTEN Münze und sollte nicht fertig " +
+             "sein, während noch welche unterwegs sind.")]
+    [SerializeField] private float countUpDuration = 0.9f;
+
+    [Tooltip("Ausgaben laufen nicht rückwärts mit — abgezogenes Geld wird sofort gesetzt. " +
+             "Ein rückwärts trudelnder Zähler liest sich wie ein Fehler.")]
+    [SerializeField] private bool animateOnlyGains = true;
+
+    [Tooltip("Kurzer Puls auf dem Münz-Icon pro Gutschrift.")]
+    [SerializeField] private float coinPunchScale = 0.35f;
+
     private RectTransform textRect;
     private RectTransform backgroundRect;
     private RectTransform coinRect;
+
+    private int displayedAmount;
+    private Tween countTween;
+
+    /// <summary>Münz-Icon — Flugziel für eingesammelte Belohnungen.</summary>
+    public RectTransform CoinAnchor => coinRect != null ? coinRect : (RectTransform)transform;
+
+    /// <summary>Dieselbe Sprite wird für die fliegenden Münzen benutzt.</summary>
+    public Sprite CoinSprite => coinSprite;
+
+    void Awake() => Instance = this;
 
     void Start()
     {
         textRect = (RectTransform)transform;
         CreateBackground();
         PlayerInventory.Instance.OnMoneyChanged += UpdateDisplay;
-        UpdateDisplay(PlayerInventory.Instance.Money);
+
+        displayedAmount = PlayerInventory.Instance.Money;
+        SetText(displayedAmount);
     }
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
+        countTween?.Kill();
+
         if (PlayerInventory.Instance != null)
             PlayerInventory.Instance.OnMoneyChanged -= UpdateDisplay;
     }
 
+    /// <summary>
+    /// Bringt den Zähler auf den neuen Betrag. Gutschriften laufen hoch, damit man sieht
+    /// dass etwas angekommen ist — vor allem beim Einsammeln einer Missions-Belohnung,
+    /// wo die Münzen hierher fliegen und der Zähler das Ergebnis bestätigt.
+    /// </summary>
     private void UpdateDisplay(int amount)
     {
         if (moneyText == null) return;
 
+        countTween?.Kill();
+
+        bool isGain = amount > displayedAmount;
+
+        if (countUpDuration <= 0f || (animateOnlyGains && !isGain))
+        {
+            displayedAmount = amount;
+            SetText(amount);
+            return;
+        }
+
+        int from = displayedAmount;
+        displayedAmount = amount;
+
+        countTween = DOVirtual.Float(from, amount, countUpDuration, v => SetText(Mathf.RoundToInt(v)))
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() => SetText(amount));
+
+        if (isGain) PunchCoin();
+    }
+
+    /// <summary>Kurzer Stups aufs Münz-Icon — "hier ist was angekommen".</summary>
+    public void PunchCoin()
+    {
+        if (coinRect == null || coinPunchScale <= 0f) return;
+
+        coinRect.DOKill(true);
+        coinRect.localScale = Vector3.one;
+        coinRect.DOPunchScale(Vector3.one * coinPunchScale, 0.35f, 8, 0.6f);
+    }
+
+    private void SetText(int amount)
+    {
         moneyText.text = amount.ToString("N0");
         ResizeToFitText();
     }

@@ -20,6 +20,20 @@ public class ToolData : ScriptableObject
     [Tooltip("Startgröße der Wirkungsfläche. 1 = 1×1, 2 = 2×2, 3 = 3×3 …")]
     public int baseAoSize = 1;
 
+    [Tooltip("Zeit-Rabatt auf jedes ZUSÄTZLICHE Tile einer AoE-Aktion.\n\n" +
+             "0 = jedes Tile kostet volle Zeit (9 Tiles = 9× so lang). Dann ist eine größere " +
+             "Fläche nur Klick-Ersparnis, kein Tempo — ein AoE-Meilenstein fühlt sich damit " +
+             "nicht wie ein Sprung an.\n" +
+             "0,5 = jedes weitere Tile kostet die Hälfte (9 Tiles ≈ 5× statt 9×).\n" +
+             "1 = alle Tiles in der Zeit von einem (sehr stark).")]
+    [Range(0f, 1f)]
+    public float aoeBatchDiscount = 0.5f;
+
+    [Header("Warteschlange")]
+    [Tooltip("Wie viele Aktionen mit DIESEM Werkzeug gleichzeitig eingeplant sein dürfen. " +
+             "Über Meilensteine erhöhbar — eigener Progressionsstrang neben AoE und Tempo.")]
+    public int baseQueueSize = 3;
+
     [Header("Duration (Sekunden)")]
     [Tooltip("Wie lange dauert eine Aktion auf Level 0?")]
     public float baseDuration = 1f;
@@ -81,6 +95,37 @@ public class ToolData : ScriptableObject
         }
 
         return size;
+    }
+
+    /// <summary>
+    /// Gesamtdauer einer Aktion über <paramref name="tileCount"/> Tiles.
+    ///
+    /// Das erste Tile kostet volle Zeit, jedes weitere nur noch (1 - aoeBatchDiscount).
+    /// Damit wird eine größere Wirkungsfläche zum echten Durchsatz-Sprung statt bloß
+    /// Klicks zu sparen — sonst wäre der AoE-Meilenstein bei Stufe 10 zeitlich wirkungslos.
+    /// </summary>
+    public float GetJobDuration(int level, int tileCount)
+    {
+        float perTile = GetDuration(level);
+        int n = Mathf.Max(1, tileCount);
+        float extraFactor = 1f - Mathf.Clamp01(aoeBatchDiscount);
+
+        return perTile * (1f + (n - 1) * extraFactor);
+    }
+
+    /// <summary>Warteschlangen-Größe dieses Werkzeugs für das gegebene Level.</summary>
+    public int GetQueueSize(int level)
+    {
+        int size = baseQueueSize;
+
+        for (int i = 0; i < milestones.Length; i++)
+        {
+            var m = milestones[i];
+            if (m.level > level) break;
+            if (m.queueSize > 0) size = m.queueSize;
+        }
+
+        return Mathf.Max(1, size);
     }
 
     /// <summary>Kumulierter Yield-Bonus (Sichel) für das gegebene Level.</summary>

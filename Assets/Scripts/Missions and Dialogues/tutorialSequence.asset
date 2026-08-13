@@ -43,7 +43,7 @@ MonoBehaviour:
     blockedDuring: 
     rewards:
     - type: 0
-      amount: 200
+      amount: 450
       plant: {fileID: 0}
   - introDialogue: {fileID: 11400000, guid: 0e65f4eda6058684d97b93db9e62d68b, type: 2}
     midDialogues: []

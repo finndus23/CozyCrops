@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: SmithQuest3
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Schmied
+    text: "Du bist der Neue von der Farm. Deine Hacke ist noch die vom ersten Tag, das sieht man von hier."
+    portrait: {fileID: 0}
+  - speakerName: Schmied
+    text: "Bring sie auf Stufe fünf. Schneller wird sie davon nicht — aber du kannst fünf Felder vorausplanen statt drei. Jedes Werkzeug hat seine eigene Schlange, das läuft alles nebeneinander."
+    portrait: {fileID: 0}
+  - speakerName: Schmied
+    text: "Und wenn du schon in der Stadt bist: das Lizenzamt gegenüber verkauft die Blumenkohl-Lizenz. Ohne die kriegst du das Saatgut nirgends. Hol beides und nimm gleich acht Samen mit."
+    portrait: {fileID: 0}
+  missionToStartAfter: {fileID: 11400000, guid: 1122334455667788990011223344556a, type: 2}

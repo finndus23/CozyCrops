@@ -41,5 +41,36 @@ Assets/
 - Fertigstellung, Antizipation, Autonomie, Auswahlmöglichkeiten, Entspannung
 - Satisfying Sounds, Progress-Gefühl, kreativer Tile-Based Aufbau
 
+## Arbeitsweise — Editor vs. Code
+
+Faustregel, keine harte Regel: **kurz abwägen, bevor du Szenen-/Prefab-Dateien anfasst.**
+
+Wenn eine Aufgabe in ein paar Minuten per Drag & Drop im Unity-Editor erledigt ist, beschreib
+mir stattdessen die Schritte, statt sie über Datei-Bearbeitung zu lösen. Typische Fälle:
+
+- Skript auf ein GameObject ziehen / Component hinzufügen
+- Referenz im Inspector setzen (AudioClip, Prefab-Feld, …)
+- Einfache Transform-/Value-Anpassungen
+- Audio Mixer, Animator Controller, Lighting, Tilemap
+
+Alles was komplexer ist, mehrere verknüpfte Objekte betrifft, oder wo ich explizit "mach das"
+sage → ganz normal selbst lösen, auch wenn dafür eine Szene/ein Prefab editiert werden muss.
+Im Zweifel kurz nachfragen.
+
+## Datei-Zugriff
+
+- `.unity`/`.prefab` nur lesen, wenn es für die Aufgabe wirklich nötig ist (z.B. eine Referenz
+  suchen, die ich nicht aus dem Kopf weiß) — nicht prophylaktisch.
+- **Nie durchsuchen:** `Library/`, `Temp/`, `obj/`, `Logs/`, `.vs/`
+- Bei größeren Aufgaben lieber fragen ("welches GameObject hat X?") als eine ganze Szene zu parsen.
+
+Ziel: keine Tokens für Sachen verbrennen, die per Hand im Editor schneller gehen.
+
+## Antwortformat
+
+Wenn beides zutrifft, am Ende kurz trennen:
+1. **Im Code erledigt** — was fertig ist
+2. **Im Editor nachziehen** — kurze nummerierte Liste, was ich noch selbst machen muss
+
 ## Vault-Notizen
-Weitere Projektdetails: `C:\Users\sirsw\OneDrive\hirn\01.projects\GD Spiel Unity.md`
+Weitere Projektdetails: `C:\Users\Finn Henning\OneDrive\hirn\01.projects\GD Spiel Unity.md`

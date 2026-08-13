@@ -2625,6 +2625,7 @@ GameObject:
   m_Component:
   - component: {fileID: 677964883}
   - component: {fileID: 677964882}
+  - component: {fileID: 677964884}
   m_Layer: 0
   m_Name: MissionManager
   m_TagString: Untagged
@@ -2632,6 +2633,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &677964884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677964881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e4f5061728394a5b6c7d8e90f1a2b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LicenseRegistry
+  licenses:
+  - {fileID: 11400000, guid: 11a2b3c4d5e6f708192a3b4c5d6e7f80, type: 2}
+  - {fileID: 11400000, guid: 22b3c4d5e6f708192a3b4c5d6e7f8091, type: 2}
 --- !u!114 &677964882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2642,10 +2658,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9362c289487817a46ba56000a9d98996, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::MissionManager
-  storyChain: []
+  storyChain:
+  - {fileID: 11400000, guid: a1c0b2d3e4f5061728394a5b6c7d8e90, type: 2}
+  - {fileID: 11400000, guid: b2d1c3e4f5061728394a5b6c7d8e90a1, type: 2}
+  - {fileID: 11400000, guid: 1122334455667788990011223344556a, type: 2}
+  - {fileID: 11400000, guid: 1122334455667788990011223344556c, type: 2}
+  - {fileID: 11400000, guid: 1122334455667788990011223344556e, type: 2}
+  - {fileID: 11400000, guid: 112233445566778899001122334455a0, type: 2}
+  - {fileID: 11400000, guid: 112233445566778899001122334455a2, type: 2}
   sideMissions: []
+  autoStartStoryChain: 1
 --- !u!4 &677964883
 Transform:
   m_ObjectHideFlags: 0

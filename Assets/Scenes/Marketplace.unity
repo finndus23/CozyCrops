@@ -2076,6 +2076,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 644397509381971841, guid: d65bb4016db8bce48abb258b5fa2ff61, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1167165086}
+    - targetCorrespondingSourceObject: {fileID: 644397509381971841, guid: d65bb4016db8bce48abb258b5fa2ff61, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1167165090}
   m_SourcePrefab: {fileID: 100100000, guid: d65bb4016db8bce48abb258b5fa2ff61, type: 3}
 --- !u!1001 &249683312
 PrefabInstance:
@@ -4879,6 +4882,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4797605776506193496, guid: 7ab456b87d847a94ca9a43844bda4a6a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2053739748}
+    - targetCorrespondingSourceObject: {fileID: 4797605776506193496, guid: 7ab456b87d847a94ca9a43844bda4a6a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2053739750}
   m_SourcePrefab: {fileID: 100100000, guid: 7ab456b87d847a94ca9a43844bda4a6a, type: 3}
 --- !u!1001 &538566266
 PrefabInstance:
@@ -9347,13 +9353,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15a335bd4b8caee42b209b25a89b311a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
-  displayName: Upgrade NPC
-  speechText: MOin
+  displayName: Schmied
+  speechText: "Stumpf ist es, aber nicht hin\xFCber."
   tradeMode: 2
   seedsForSale:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
   cameraFocusPoint: {fileID: 0}
   addPatrolIfMissing: 1
+--- !u!114 &977783360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 977783351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryDialogueNpc
+  steps:
+  - missionId: story_3_tools_and_papers
+    dialogue: {fileID: 11400000, guid: 112233445566778899001122334455b0, type: 2}
+  - missionId: story_5_upgrade_run
+    dialogue: {fileID: 11400000, guid: 112233445566778899001122334455b3, type: 2}
+  smallTalkDialogue: {fileID: 0}
+  repeatTutorialDialogue: 0
+  availableIndicator: {fileID: 0}
+  indicatorRefreshInterval: 0.5
 --- !u!65 &977783355
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10423,6 +10450,23 @@ MonoBehaviour:
   seedsForSale: []
   cameraFocusPoint: {fileID: 0}
   addPatrolIfMissing: 1
+--- !u!114 &1167165090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167165081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryDialogueNpc
+  steps: []
+  smallTalkDialogue: {fileID: 0}
+  repeatTutorialDialogue: 0
+  availableIndicator: {fileID: 0}
+  indicatorRefreshInterval: 0.5
 --- !u!65 &1167165083
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15605,6 +15649,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8085793654713421506, guid: 4e90a33f5b1393648906ce1be40f2c30, type: 3}
       insertIndex: -1
       addedObject: {fileID: 977783356}
+    - targetCorrespondingSourceObject: {fileID: 8085793654713421506, guid: 4e90a33f5b1393648906ce1be40f2c30, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 977783360}
     - targetCorrespondingSourceObject: {fileID: 1078146998741556926, guid: 4e90a33f5b1393648906ce1be40f2c30, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1537046703}
@@ -17385,15 +17432,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15a335bd4b8caee42b209b25a89b311a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
-  displayName: Buy NPC
+  displayName: "Samenverk\xE4ufer"
   speechText: Ich hab auch nicht ewig Zeit
   tradeMode: 0
   seedsForSale:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
   - {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
   - {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+  gatedSeeds: []
   cameraFocusPoint: {fileID: 0}
   addPatrolIfMissing: 1
+--- !u!114 &2053739750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053739743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryDialogueNpc
+  steps: []
+  smallTalkDialogue: {fileID: 0}
+  repeatTutorialDialogue: 0
+  availableIndicator: {fileID: 0}
+  indicatorRefreshInterval: 0.5
 --- !u!65 &2053739747
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17926,6 +17991,156 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9815aa710544066499a10298c7acd7cd, type: 3}
+--- !u!1 &810000010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 810000014}
+  - component: {fileID: 810000013}
+  - component: {fileID: 810000012}
+  - component: {fileID: 810000011}
+  - component: {fileID: 810000015}
+  - component: {fileID: 810000016}
+  m_Layer: 0
+  m_Name: LizenzAmt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &810000011
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &810000012
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &810000013
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &810000014
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 20, y: 1, z: 3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &810000015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15a335bd4b8caee42b209b25a89b311a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
+  displayName: Lizenzamt
+  speechText: "Papierkram zuerst, dann darfst du s�en."
+  tradeMode: 3
+  seedsForSale: []
+  gatedSeeds: []
+  cameraFocusPoint: {fileID: 0}
+  addPatrolIfMissing: 0
+--- !u!114 &810000016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryDialogueNpc
+  steps: []
+  smallTalkDialogue: {fileID: 0}
+  repeatTutorialDialogue: 0
+  availableIndicator: {fileID: 0}
+  indicatorRefreshInterval: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -18078,3 +18293,4 @@ SceneRoots:
   - {fileID: 2052596656}
   - {fileID: 1163945832}
   - {fileID: 1241283486}
+  - {fileID: 810000014}

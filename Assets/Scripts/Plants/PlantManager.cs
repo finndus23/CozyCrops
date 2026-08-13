@@ -26,6 +26,16 @@ public class PlantManager : MonoBehaviour
     private readonly Dictionary<GridCell, GameObject> plantVisuals = new();
     private readonly List<GridCell> activePlants = new();
 
+    /// <summary>
+    /// Alle Zellen mit einer wachsenden Pflanze. Einstiegspunkt für alles was pro Pflanze
+    /// etwas anzeigen will (PlantStatusOverlay) — ohne dass jemand das Grid absuchen muss.
+    /// </summary>
+    public IReadOnlyList<GridCell> ActivePlants => activePlants;
+
+    /// <summary>Das gespawnte Visual dieser Pflanze, oder null.</summary>
+    public GameObject GetPlantVisual(GridCell cell) =>
+        cell != null && plantVisuals.TryGetValue(cell, out var go) ? go : null;
+
     void Awake() => Instance = this;
 
     void Update()

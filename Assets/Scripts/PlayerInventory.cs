@@ -129,11 +129,22 @@ public class PlayerInventory : MonoBehaviour
             FarmSaveManager.Instance.RequestSave();
     }
 
+    /// <summary>
+    /// Gewähltes Spieltempo, kommt aus dem Savegame. Wirkt ausschließlich auf
+    /// Verkaufserlöse — Ausgaben bleiben in beiden Modi identisch, damit im Shop
+    /// überall dieselben Zahlen stehen.
+    /// </summary>
+    public GamePace Pace { get; set; } = GamePace.Normal;
+
+    /// <summary>Was dieser Verkauf tatsächlich einbringt, inklusive Tempo-Faktor.</summary>
+    public int GetSellValue(PlantType type, int amount = 1) =>
+        type == null ? 0 : Pace.ApplyToSale(type.sellPrice * amount);
+
     public bool TrySellCrop(PlantType type, int amount = 1)
     {
         if (GetCropCount(type) < amount) return false;
         crops[type] -= amount;
-        AddMoney(type.sellPrice * amount);
+        AddMoney(GetSellValue(type, amount));
         OnCropsChanged?.Invoke(type, crops[type]);
 
         if (FarmSaveManager.Instance != null)

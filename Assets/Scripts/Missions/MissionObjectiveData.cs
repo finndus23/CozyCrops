@@ -7,10 +7,21 @@ public class MissionObjectiveData
     [Tooltip("Art der Aufgabe")]
     public MissionObjectiveType type;
 
-    [Tooltip("Optional: Spezifischer Pflanzentyp (nur für PlantCrop, HarvestCrop, SellCrop)")]
+    [Tooltip("Optional: Spezifischer Pflanzentyp (nur für PlantCrop, HarvestCrop, SellCrop, WaterCrop, BuySeed)")]
     public PlantType targetPlantType;
 
-    [Tooltip("Wie viele Male muss die Aktion ausgeführt werden?")]
+    [Tooltip("Optional: Spezifisches Werkzeug (nur für AcquireTool, SelectTool, UpgradeTool).\n" +
+             "None = jedes Werkzeug zählt.")]
+    public ToolType targetTool;
+
+    [Tooltip("Optional: Name/SaveId der Zone (nur für UnlockZone). Leer = jede Zone zählt.")]
+    public string targetZoneId;
+
+    [Tooltip("Optional: licenseId (nur für BuyLicense). Leer = jede Lizenz zählt.")]
+    public string targetLicenseId;
+
+    [Tooltip("Wie viele Male muss die Aktion ausgeführt werden?\n\n" +
+             "Ausnahme ToolLevelReached: dort ist das die ZIEL-STUFE, kein Zähler.")]
     public int requiredAmount = 1;
 
     [Tooltip("Beschreibung für die UI, z.B. 'Hacke 1 Feld um'")]

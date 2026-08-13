@@ -18,6 +18,19 @@ public class ZoneManager : MonoBehaviour
     void Start()
     {
         zones = FindObjectsByType<GridZone>(FindObjectsSortMode.None);
+
+        // An JEDE Zone hängen statt nur in TryUnlockZone zu entsperren.
+        // Vorher lag das Entsperren der Tiles allein in TryUnlockZone(): wer eine Zone
+        // über zone.Unlock() öffnete — der Missions-Reward und das Load-System tun genau
+        // das — bekam zwar die Blocker weg, die Tiles blieben aber für immer gesperrt.
+        // Über das Event ist der Pfad egal.
+        foreach (var zone in zones)
+        {
+            if (zone == null) continue;
+            var captured = zone;
+            captured.OnUnlocked += () => UnlockZoneTiles(captured);
+        }
+
         LockAllZoneTiles();
         Debug.Log($"[ZoneManager] {zones.Length} Zone(n) gefunden und Tiles gesperrt.");
     }
@@ -30,9 +43,22 @@ public class ZoneManager : MonoBehaviour
     /// </summary>
     public bool TryUnlockZone(GridZone zone)
     {
-        if (!zone.TryUnlock()) return false;
-        UnlockZoneTiles(zone);
-        return true;
+        if (zone == null) return false;
+        return zone.TryUnlock(); // Tiles laufen über OnUnlocked
+    }
+
+    /// <summary>Zone per SaveId/Name suchen — für Missions-Belohnungen und -Ziele.</summary>
+    public GridZone FindZone(string zoneId)
+    {
+        if (string.IsNullOrWhiteSpace(zoneId) || zones == null) return null;
+
+        foreach (var zone in zones)
+        {
+            if (zone == null) continue;
+            if (zone.SaveId == zoneId || zone.gameObject.name == zoneId) return zone;
+        }
+
+        return null;
     }
 
     // ── Interne Logik ─────────────────────────────────────────────────────────

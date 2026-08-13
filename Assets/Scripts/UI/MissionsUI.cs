@@ -47,9 +47,55 @@ public class MissionsUI : MonoBehaviour
              "höher = feinerer Rahmen.")]
     [SerializeField] private float borderScale = 3f;
 
+    [Header("Kopfbanner (Missionstitel)")]
+    [Tooltip("Optional. Leer lassen — wird zur Laufzeit angelegt.\n\n" +
+             "Sitzt im Holz-Banner der Rahmengrafik, also OBERHALB des Inhaltsbereichs. " +
+             "Liegt bewusst am Panel und nicht im contentRoot: die VerticalLayoutGroup " +
+             "würde es sonst unter den Rahmen schieben.")]
+    [SerializeField] private TMP_Text bannerTitleText;
+
+    [Tooltip("AUS = der Code fasst Position und Größe des Titels nie an, du schiebst ihn " +
+             "im Scene-View selbst zurecht.\n\n" +
+             "Vorgehen: Rechtsklick auf die Komponente → 'Panel-Layout jetzt anwenden' legt " +
+             "'BannerTitle' als echtes Kind des Panels an. Dann diesen Haken raus, das Objekt " +
+             "frei positionieren und die Szene speichern.")]
+    [SerializeField] private bool autoPositionBannerTitle = true;
+
+    [Tooltip("Abstand von der Panel-Oberkante bis zur Oberkante des Titels. " +
+             "Muss zur Höhe des Holz-Banners in Quest.png passen. " +
+             "Nur wirksam solange 'Auto Position Banner Title' an ist.")]
+    [SerializeField] private float bannerTitleTop = 26f;
+
+    [Tooltip("Höhe des Titelfelds im Banner.")]
+    [SerializeField] private float bannerTitleHeight = 58f;
+
+    [Tooltip("Seitlicher Rand — das Banner ist schmaler als das Panel.")]
+    [SerializeField] private float bannerTitleSideInset = 96f;
+
+    [SerializeField] private float bannerTitleFontSize = 22f;
+    [SerializeField] private Color bannerTitleColor = new(0.98f, 0.93f, 0.78f, 1f);
+
+    [Tooltip("Wenn das Banner den Titel zeigt, blendet der oberste Eintrag seinen eigenen aus — " +
+             "sonst steht er doppelt da.")]
+    [SerializeField] private bool hideInlineTitleOfFirstEntry = true;
+
+    [Header("Nächster Schritt")]
+    [Tooltip("Optional. Leer lassen — dann wird das Label zur Laufzeit angelegt.\n\n" +
+             "Zeigt MissionData.nextStepHint wenn gerade KEINE Mission läuft, die Kette aber " +
+             "weitergeht. Genau der Fall bei Akt-Auftakten (startedByDialogue): dort wartet " +
+             "die Kette auf ein NPC-Gespräch und das Panel wäre sonst einfach leer.")]
+    [SerializeField] private TMP_Text nextStepText;
+    [SerializeField] private float nextStepFontSize = 20f;
+    [SerializeField] private Color nextStepColor = new(0.32f, 0.24f, 0.14f);
+
     private readonly Dictionary<string, MissionEntryUI> entries = new();
 
+    /// <summary>Missionen deren Eintrag gerade als Abhol-Karte stehen bleibt.</summary>
+    private readonly HashSet<string> awaitingCollect = new();
+
     private const string BackgroundName = "PanelBackground";
+    private const string NextStepName = "NextStepHint";
+    private const string BannerTitleName = "BannerTitle";
 
     private void Awake()
     {
@@ -68,6 +114,8 @@ public class MissionsUI : MonoBehaviour
         MissionManager.Instance.OnMissionStarted += OnMissionStarted;
         MissionManager.Instance.OnMissionCompleted += OnMissionCompleted;
         MissionManager.Instance.OnObjectiveUpdated += OnObjectiveUpdated;
+        MissionManager.Instance.OnRewardsPending += OnRewardsPending;
+        MissionManager.Instance.OnRewardsCollected += OnRewardsCollected;
 
         // Missionen die beim Start bereits aktiv sind (z.B. nach Scene-Load)
         foreach (var state in MissionManager.Instance.ActiveMissions)
@@ -76,7 +124,13 @@ public class MissionsUI : MonoBehaviour
             SyncProgress(state);
         }
 
-        RefreshEmpty();
+        // Nicht abgeholte Belohnungen nachtragen. Das Load-System feuert OnRewardsPending
+        // schon in ApplyLoadedData — das kann vor diesem Start() liegen, dann wäre das
+        // Event ins Leere gegangen und die Beute unsichtbar (aber weiter im Save).
+        foreach (var data in MissionManager.Instance.PendingRewardMissions)
+            OnRewardsPending(data);
+
+        RefreshPanel();
     }
 
     private void OnDestroy()
@@ -85,6 +139,8 @@ public class MissionsUI : MonoBehaviour
         MissionManager.Instance.OnMissionStarted -= OnMissionStarted;
         MissionManager.Instance.OnMissionCompleted -= OnMissionCompleted;
         MissionManager.Instance.OnObjectiveUpdated -= OnObjectiveUpdated;
+        MissionManager.Instance.OnRewardsPending -= OnRewardsPending;
+        MissionManager.Instance.OnRewardsCollected -= OnRewardsCollected;
     }
 
     private void OnMissionStarted(MissionData data)
@@ -96,15 +152,58 @@ public class MissionsUI : MonoBehaviour
             .FirstOrDefault(m => m.Data.missionId == data.missionId);
         if (state != null) SyncProgress(state);
 
-        RefreshEmpty();
+        RefreshPanel();
     }
 
     private void OnMissionCompleted(MissionData data)
     {
-        if (!entries.TryGetValue(data.missionId, out var entry)) return;
-        Destroy(entry.gameObject);
-        entries.Remove(data.missionId);
-        RefreshEmpty();
+        // Liegt noch Beute bereit, bleibt der Eintrag als Abhol-Karte stehen —
+        // OnRewardsPending hat ihn kurz vorher schon umgeschaltet.
+        if (awaitingCollect.Contains(data.missionId))
+        {
+            RefreshPanel();
+            return;
+        }
+
+        RemoveEntry(data.missionId);
+    }
+
+    /// <summary>
+    /// Mission ist durch, die Belohnung wartet. Feuert VOR OnMissionCompleted.
+    /// Beim Laden eines Spielstands existiert der Eintrag noch nicht — dann neu anlegen.
+    /// </summary>
+    private void OnRewardsPending(MissionData data)
+    {
+        if (!entries.TryGetValue(data.missionId, out var entry))
+        {
+            CreateEntry(data);
+            entries.TryGetValue(data.missionId, out entry);
+        }
+
+        if (entry == null) return;
+
+        awaitingCollect.Add(data.missionId);
+
+        string id = data.missionId;
+        entry.ShowCompleted(data, () => MissionManager.Instance?.TryCollectRewards(id));
+
+        RefreshPanel();
+    }
+
+    private void OnRewardsCollected(MissionData data)
+    {
+        awaitingCollect.Remove(data.missionId);
+        RemoveEntry(data.missionId);
+    }
+
+    private void RemoveEntry(string missionId)
+    {
+        if (entries.TryGetValue(missionId, out var entry) && entry != null)
+            Destroy(entry.gameObject);
+
+        entries.Remove(missionId);
+        awaitingCollect.Remove(missionId);
+        RefreshPanel();
     }
 
     private void OnObjectiveUpdated(MissionData data, int objIdx, int current, int required)
@@ -134,13 +233,241 @@ public class MissionsUI : MonoBehaviour
             entry.UpdateObjective(i, state.GetProgress(i), state.Data.objectives[i].requiredAmount);
     }
 
-    private void RefreshEmpty()
+    /// <summary>
+    /// Blendet das Panel ein/aus und pflegt den "nächster Schritt"-Hinweis.
+    ///
+    /// Das Panel darf nicht mehr allein an entries.Count hängen: hält die Kette an einem
+    /// Akt-Auftakt (startedByDialogue), läuft keine Mission — der Spieler soll aber trotzdem
+    /// lesen können, wohin er als Nächstes muss.
+    /// </summary>
+    private void RefreshPanel()
     {
         if (panel == null)
             panel = gameObject;
 
-        if (panel != null)
-            panel.SetActive(entries.Count > 0);
+        string hint = BuildNextStepHint();
+
+        var label = EnsureNextStepLabel();
+        if (label != null)
+        {
+            label.text = hint;
+            label.gameObject.SetActive(!string.IsNullOrEmpty(hint));
+        }
+
+        RefreshBannerTitle(hint);
+
+        panel.SetActive(entries.Count > 0 || !string.IsNullOrEmpty(hint));
+    }
+
+    /// <summary>
+    /// Schreibt den Titel der obersten Mission ins Kopfbanner und blendet dafür den
+    /// Inline-Titel dieses Eintrags aus, damit er nicht doppelt dasteht.
+    /// </summary>
+    private void RefreshBannerTitle(string hint)
+    {
+        var banner = EnsureBannerTitle();
+        if (banner == null) return;
+
+        MissionEntryUI first = FirstEntryInOrder();
+
+        string title = first != null ? first.MissionTitle : null;
+        if (string.IsNullOrWhiteSpace(title))
+            title = string.IsNullOrEmpty(hint) ? null : "Nächster Schritt";
+
+        banner.text = title;
+        banner.gameObject.SetActive(!string.IsNullOrEmpty(title));
+
+        // Nur der oberste Eintrag verliert seinen Titel — bei mehreren Missionen behalten
+        // die übrigen ihren, sonst wären sie nicht mehr auseinanderzuhalten.
+        if (contentRoot == null) return;
+
+        bool isFirst = true;
+        foreach (Transform child in contentRoot)
+        {
+            var entry = child.GetComponent<MissionEntryUI>();
+            if (entry == null) continue;
+
+            entry.SetInlineTitleVisible(!(isFirst && hideInlineTitleOfFirstEntry));
+            isFirst = false;
+        }
+    }
+
+    private MissionEntryUI FirstEntryInOrder()
+    {
+        if (contentRoot == null) return null;
+
+        foreach (Transform child in contentRoot)
+        {
+            var entry = child.GetComponent<MissionEntryUI>();
+            if (entry != null) return entry;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Legt den Banner-Titel an. Hängt am Panel (nicht am contentRoot) mit
+    /// <c>ignoreLayout</c> — die VerticalLayoutGroup des Panels würde ihn sonst unter
+    /// das Holzschild in den Textbereich schieben.
+    /// </summary>
+    private TMP_Text EnsureBannerTitle()
+    {
+        if (bannerTitleText != null)
+        {
+            ApplyBannerTitleLayout((RectTransform)bannerTitleText.transform);
+            return bannerTitleText;
+        }
+
+        if (panel == null) return null;
+
+        Transform existing = panel.transform.Find(BannerTitleName);
+        if (existing != null)
+        {
+            bannerTitleText = existing.GetComponent<TMP_Text>();
+            if (bannerTitleText != null)
+            {
+                ApplyBannerTitleLayout((RectTransform)existing);
+                // Auch die wiedergefundene Referenz muss gespeichert werden, sonst sucht
+                // der Code sie bei jedem Start neu und das Feld bleibt im Inspector leer.
+                MarkEditorDirty(null);
+                return bannerTitleText;
+            }
+        }
+
+        var go = new GameObject(BannerTitleName, typeof(RectTransform));
+        var rect = go.GetComponent<RectTransform>();
+        rect.SetParent(panel.transform, false);
+
+        var ignore = GetOrAdd<LayoutElement>(go);
+        ignore.ignoreLayout = true;
+
+        var text = go.AddComponent<TextMeshProUGUI>();
+        text.fontSize = bannerTitleFontSize;
+        text.color = bannerTitleColor;
+        text.fontStyle = FontStyles.Bold;
+        text.alignment = TextAlignmentOptions.Center;
+        text.textWrappingMode = TextWrappingModes.Normal;
+        text.overflowMode = TextOverflowModes.Ellipsis;
+        text.raycastTarget = false;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 12f;
+        text.fontSizeMax = bannerTitleFontSize;
+
+        bannerTitleText = text;
+        ApplyBannerTitleLayout(rect);
+
+        MarkEditorDirty(go);
+        return bannerTitleText;
+    }
+
+    /// <summary>
+    /// Im Edit-Modus angelegte Objekte Unity bekanntmachen.
+    ///
+    /// Ohne das ist das GameObject zwar in der Hierarchy zu sehen, die Szene gilt aber als
+    /// unverändert — Ctrl+S speichert es nicht, und die Zuweisung an bannerTitleText geht
+    /// beim nächsten Domain-Reload verloren. Man baut den Titel also, positioniert ihn,
+    /// und beim nächsten Öffnen ist er wieder weg.
+    /// </summary>
+    private void MarkEditorDirty(GameObject created)
+    {
+#if UNITY_EDITOR
+        if (Application.isPlaying) return;
+
+        if (created != null)
+            UnityEditor.Undo.RegisterCreatedObjectUndo(created, "Banner-Titel anlegen");
+
+        UnityEditor.EditorUtility.SetDirty(this);
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+#endif
+    }
+
+    /// <summary>
+    /// Legt den Banner-Titel im Edit-Modus an und wählt ihn direkt aus, damit man ihn
+    /// sofort im Scene-View zurechtschieben kann.
+    /// </summary>
+    [ContextMenu("Banner-Titel anlegen und auswählen")]
+    private void CreateAndSelectBannerTitle()
+    {
+        if (panel == null) panel = gameObject;
+
+        var text = EnsureBannerTitle();
+        if (text == null)
+        {
+            Debug.LogWarning("[MissionsUI] Banner-Titel konnte nicht angelegt werden — kein Panel.", this);
+            return;
+        }
+
+        // Ohne Text ist das Objekt im Scene-View unsichtbar und praktisch nicht greifbar.
+        if (string.IsNullOrEmpty(text.text))
+            text.text = "Missionstitel";
+
+        text.gameObject.SetActive(true);
+
+#if UNITY_EDITOR
+        UnityEditor.Selection.activeGameObject = text.gameObject;
+        Debug.Log("[MissionsUI] 'BannerTitle' liegt jetzt unter dem Panel und ist ausgewählt.\n" +
+                  "Nächster Schritt: Haken 'Auto Position Banner Title' RAUS, dann frei ziehen und Szene speichern.", text);
+#endif
+    }
+
+    private void ApplyBannerTitleLayout(RectTransform rect)
+    {
+        if (rect == null) return;
+
+        // Von Hand positioniert: nicht anfassen. Sonst würde jedes RefreshPanel() die
+        // im Editor gezogene Position wieder überschreiben — der Titel spränge im
+        // Playmode zurück und man sucht den Fehler in der Grafik statt im Code.
+        if (!autoPositionBannerTitle) return;
+
+        // Oben im Panel aufhängen und in der Breite mitwachsen lassen; die Seiten-Insets
+        // halten den Text innerhalb des Holzschilds statt über die Blätter zu laufen.
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.offsetMin = new Vector2(bannerTitleSideInset, -(bannerTitleTop + bannerTitleHeight));
+        rect.offsetMax = new Vector2(-bannerTitleSideInset, -bannerTitleTop);
+    }
+
+    /// <summary>Text für den Hinweis, oder null wenn gerade keiner nötig ist.</summary>
+    private string BuildNextStepHint()
+    {
+        // Eine laufende Mission sagt schon alles — der Hinweis wäre nur Rauschen.
+        if (entries.Count > 0) return null;
+        if (MissionManager.Instance == null) return null;
+
+        var next = MissionManager.Instance.NextStoryMission;
+        if (next == null) return null;
+
+        // Fehlen die Voraussetzungen noch, wäre der Hinweis irreführend.
+        if (!MissionManager.Instance.ArePrerequisitesMet(next)) return null;
+
+        return string.IsNullOrWhiteSpace(next.nextStepHint) ? next.title : next.nextStepHint;
+    }
+
+    private TMP_Text EnsureNextStepLabel()
+    {
+        if (nextStepText != null) return nextStepText;
+        if (contentRoot == null) return null;
+
+        Transform existing = contentRoot.Find(NextStepName);
+        if (existing != null)
+        {
+            nextStepText = existing.GetComponent<TMP_Text>();
+            if (nextStepText != null) return nextStepText;
+        }
+
+        var go = new GameObject(NextStepName, typeof(RectTransform));
+        go.transform.SetParent(contentRoot, false);
+
+        var text = go.AddComponent<TextMeshProUGUI>();
+        text.fontSize = nextStepFontSize;
+        text.color = nextStepColor;
+        text.alignment = TextAlignmentOptions.TopLeft;
+        text.textWrappingMode = TextWrappingModes.Normal;
+        text.raycastTarget = false;
+
+        nextStepText = text;
+        return nextStepText;
     }
 
     /// <summary>
@@ -193,6 +520,11 @@ public class MissionsUI : MonoBehaviour
 
         Image panelImage = EnsureBackgroundImage();
 
+        // Auch im Edit-Modus anlegen: nur so wird 'BannerTitle' ein echtes Kind des Panels,
+        // das man im Scene-View auswählen und verschieben kann. Zur Laufzeit erzeugte
+        // Objekte gibt es im Editor nicht — man hätte nichts zum Anfassen.
+        EnsureBannerTitle();
+
         var panelLayout = GetOrAdd<VerticalLayoutGroup>(panel);
         panelLayout.enabled = true;
         panelLayout.padding = new RectOffset(
@@ -238,6 +570,12 @@ public class MissionsUI : MonoBehaviour
         if (verbose)
         {
             Vector2 raw = panelRect != null ? panelRect.rect.size : Vector2.zero;
+            var bannerRect = bannerTitleText != null ? (RectTransform)bannerTitleText.transform : null;
+            Debug.Log($"[MissionsUI] BannerTitle: {(bannerRect != null ? bannerRect.anchoredPosition + " / " + bannerRect.rect.size : "fehlt")}, " +
+                      $"AutoPosition={autoPositionBannerTitle}" +
+                      (autoPositionBannerTitle ? " (Haken raus zum Selberziehen)" : " (von Hand positioniert)"),
+                      bannerTitleText);
+
             Debug.Log($"[MissionsUI] Panel='{panel.name}' auf {raw} gesetzt, " +
                       $"×{panelScale} skaliert = {raw * panelScale} auf dem Bildschirm " +
                       $"(Breite {panelWidth}, minHöhe {minPanelHeight}). " +

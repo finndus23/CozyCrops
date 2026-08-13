@@ -49,6 +49,12 @@ public class MainMenuController : MonoBehaviour
     private TMP_InputField nameInput;
     private GameObject nameDialog;
     private int pendingSlot;
+
+    /// <summary>Im Anlege-Dialog gewähltes Tempo. Gilt nur für den neuen Spielstand.</summary>
+    private GamePace pendingPace = GamePace.Normal;
+    private readonly Image[] paceHighlights = new Image[2];
+    private TMP_Text paceDescriptionText;
+
     private int displayMode;
     private int slotSelectionOpenedFrame = -1;
     private readonly Image[] displayModeHighlights = new Image[3];
@@ -74,6 +80,10 @@ public class MainMenuController : MonoBehaviour
             Button cancel = FindDeepChild(dialog, "Cancel")?.GetComponent<Button>();
             if (create != null) create.onClick.AddListener(ConfirmCreateSlot);
             if (cancel != null) cancel.onClick.AddListener(() => nameDialog.SetActive(false));
+
+            // Der Dialog kommt fertig aus der Szene — BuildNameDialog() läuft nie.
+            // Die Tempo-Auswahl muss deshalb hier nachträglich hineingebaut werden.
+            EnsurePaceSelector(dialog);
         }
 
         Transform settingsRoot = settingsPanel != null ? settingsPanel.transform.Find("Runtime Settings") : null;
@@ -247,6 +257,7 @@ public class MainMenuController : MonoBehaviour
         }
 
         pendingSlot = slotIndex;
+        SelectPace(GamePace.Normal);
         if (nameInput != null)
         {
             nameInput.text = "";
@@ -262,11 +273,106 @@ public class MainMenuController : MonoBehaviour
         string playerName = nameInput.text.Trim();
         if (playerName.Length == 0) return;
 
-        if (FarmSaveManager.Instance.CreateSlot(pendingSlot, playerName))
+        if (FarmSaveManager.Instance.CreateSlot(pendingSlot, playerName, pendingPace))
         {
             nameDialog.SetActive(false);
             RefreshSlotButtons();
         }
+    }
+
+    private const string PaceRootName = "Pace Selector";
+
+    /// <summary>
+    /// Baut die Tempo-Auswahl in den vorhandenen Namens-Dialog ein.
+    ///
+    /// Der Dialog liegt fertig in der Szene und wird von <see cref="BindSceneUi"/> nur
+    /// gesucht — <see cref="BuildNameDialog"/> läuft nie. Deshalb wird hier zur Laufzeit
+    /// Platz geschaffen (Höhe 260 → 440) und die vorhandenen Knöpfe nach unten geschoben,
+    /// statt die Auswahl in einem Dialog anzulegen, den nie jemand sieht.
+    /// </summary>
+    private void EnsurePaceSelector(Transform dialog)
+    {
+        if (dialog == null) return;
+
+        // Schon gebaut (z.B. nach Szenen-Rückkehr) → nur neu verdrahten.
+        Transform existing = dialog.Find(PaceRootName);
+        if (existing != null)
+        {
+            SelectPace(pendingPace);
+            return;
+        }
+
+        var dialogRect = (RectTransform)dialog;
+        if (dialogRect.sizeDelta.y < 440f)
+            dialogRect.sizeDelta = new Vector2(Mathf.Max(dialogRect.sizeDelta.x, 520f), 440f);
+
+        // Bestätigen/Abbrechen an den neuen unteren Rand. Namen sind dieselben, die
+        // BindSceneUi oben schon zum Verdrahten benutzt.
+        MoveDialogChild(dialog, "Create", new Vector2(-95f, -185f));
+        MoveDialogChild(dialog, "Cancel", new Vector2(95f, -185f));
+
+        // So groß wie der Dialog: die Kinder sitzen dadurch in denselben Koordinaten wie
+        // die übrigen Dialog-Elemente und man muss beim Nachjustieren nicht umrechnen.
+        GameObject root = CreateUiObject(PaceRootName, dialog, Vector2.zero, dialogRect.sizeDelta);
+        Transform parent = root.transform;
+
+        CreateText("Spieltempo", parent, new Vector2(0f, -30f), new Vector2(460f, 34f), 20f);
+
+        Button normal = CreateButton("Pace Normal", parent,
+                                     new Vector2(-95f, -75f), new Vector2(170f, 44f), "NORMAL");
+        normal.onClick.AddListener(() => SelectPace(GamePace.Normal));
+        paceHighlights[(int)GamePace.Normal] = CreatePaceMarker(normal);
+
+        Button relaxed = CreateButton("Pace Relaxed", parent,
+                                      new Vector2(95f, -75f), new Vector2(170f, 44f), "ENTSPANNT");
+        relaxed.onClick.AddListener(() => SelectPace(GamePace.Relaxed));
+        paceHighlights[(int)GamePace.Relaxed] = CreatePaceMarker(relaxed);
+
+        paceDescriptionText = CreateText(string.Empty, parent,
+                                         new Vector2(0f, -130f), new Vector2(490f, 46f), 15f);
+
+        SelectPace(GamePace.Normal);
+    }
+
+    private static void MoveDialogChild(Transform dialog, string childName, Vector2 position)
+    {
+        Transform child = FindDeepChild(dialog, childName);
+        if (child is RectTransform rect)
+            rect.anchoredPosition = position;
+    }
+
+    /// <summary>
+    /// Markierungsleiste unter einem Tempo-Knopf.
+    ///
+    /// Eigenes Objekt statt den Knopf umzufärben: <c>ApplyStandardButtonStates</c> legt
+    /// Farbübergänge auf die targetGraphic, die jede direkt gesetzte Farbe beim nächsten
+    /// Hover wieder überschreiben würden.
+    /// </summary>
+    private static Image CreatePaceMarker(Button button)
+    {
+        GameObject go = CreateUiObject("Selection Marker", button.transform,
+                                       new Vector2(0, -28), new Vector2(150, 6));
+        Image image = go.AddComponent<Image>();
+        image.raycastTarget = false;
+        return image;
+    }
+
+    /// <summary>Tempo-Auswahl im Anlege-Dialog. Nachträglich nicht mehr änderbar.</summary>
+    private void SelectPace(GamePace pace)
+    {
+        pendingPace = pace;
+
+        for (int i = 0; i < paceHighlights.Length; i++)
+        {
+            if (paceHighlights[i] == null) continue;
+            bool active = (int)pace == i;
+            paceHighlights[i].color = active
+                ? new Color(0.42f, 0.62f, 0.24f, 1f)
+                : new Color(0f, 0f, 0f, 0.12f);
+        }
+
+        if (paceDescriptionText != null)
+            paceDescriptionText.text = pace.Description();
     }
 
     private void RefreshSceneSlotButtons()
@@ -509,6 +615,11 @@ public class MainMenuController : MonoBehaviour
         create.onClick.AddListener(ConfirmCreateSlot);
         Button cancel = CreateButton("Cancel", nameDialog.transform, new Vector2(95, -75), new Vector2(170, 55), "ABBRECHEN");
         cancel.onClick.AddListener(() => nameDialog.SetActive(false));
+
+        // Gleicher Weg wie beim Szenen-Dialog: eine Stelle, an der die Tempo-Auswahl
+        // entsteht. Sonst laufen die beiden Aufbauten früher oder später auseinander.
+        EnsurePaceSelector(nameDialog.transform);
+
         nameDialog.SetActive(false);
     }
 

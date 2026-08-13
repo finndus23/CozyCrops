@@ -15,17 +15,17 @@ MonoBehaviour:
   saveId: sunflower
   plantName: Sunflower
   icon: {fileID: 21300000, guid: 8209bd20a658f9d4b84cd3bd50ce0a4f, type: 3}
-  seedPrice: 17
-  sellPrice: 52
+  seedPrice: 24
+  sellPrice: 80
   growthStages:
   - stageName: 1
     prefab: {fileID: 7894121702400547446, guid: 0078b9131652b014992393af8523ccbc, type: 3}
-    timeToNextStage: 12
+    timeToNextStage: 36
   - stageName: 2
     prefab: {fileID: 4029996152737623616, guid: 8f310ba589526d142839442e3eb756d0, type: 3}
-    timeToNextStage: 12
+    timeToNextStage: 36
   - stageName: 3
     prefab: {fileID: 1889704791735354376, guid: cf67da592a170c44a84fb43b95f4d848, type: 3}
-    timeToNextStage: 12
+    timeToNextStage: 36
   requiresWatering: 1
   wateringsPerStage: 2

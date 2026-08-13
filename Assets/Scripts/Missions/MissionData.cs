@@ -35,6 +35,13 @@ public class MissionData : ScriptableObject
              "Aus = die Mission muss aktiv vergeben werden (z.B. über einen NPC-Dialog).")]
     public bool autoStartWhenAvailable;
 
+    [Tooltip("Diese Story-Mission wird NICHT automatisch gestartet, sondern erst durch einen " +
+             "NPC-Dialog (DialogueData.missionToStartAfter).\n\n" +
+             "Ohne das Flag überholt AdvanceStoryChain() den NPC: die Mission liefe schon, " +
+             "bevor der Spieler den Dialog überhaupt gesehen hat. Die Kette hält hier an und " +
+             "zeigt stattdessen nextStepHint an.")]
+    public bool startedByDialogue;
+
     [Header("Anzeige")]
     [Tooltip("Kurzer Hinweis wohin der Spieler als Nächstes soll. Wird in der Missions-UI " +
              "angezeigt wenn gerade keine Mission aktiv ist.")]

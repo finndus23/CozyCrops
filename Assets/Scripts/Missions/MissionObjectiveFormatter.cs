@@ -8,6 +8,7 @@ public static class MissionObjectiveFormatter
     {
         int n = obj.requiredAmount;
         string plant = obj.targetPlantType != null ? obj.targetPlantType.plantName : null;
+        string tool = ToolName(obj.targetTool);
 
         return obj.type switch
         {
@@ -30,13 +31,33 @@ public static class MissionObjectiveFormatter
                 $"Verdiene {n} G",
 
             MissionObjectiveType.AcquireTool =>
-                n == 1 ? "Kaufe 1 Werkzeug" : $"Kaufe {n} Werkzeuge",
+                tool != null ? $"Kaufe {tool}"
+                             : n == 1 ? "Kaufe 1 Werkzeug" : $"Kaufe {n} Werkzeuge",
 
             MissionObjectiveType.BuySeed =>
                 plant != null ? $"Kaufe {n}x {plant} Samen" : $"Kaufe {n} Samen",
 
             MissionObjectiveType.SelectTool =>
-                "Wähle ein Werkzeug aus der Hotbar",
+                tool != null ? $"Wähle {tool} aus der Hotbar"
+                             : "Wähle ein Werkzeug aus der Hotbar",
+
+            MissionObjectiveType.UpgradeTool =>
+                tool != null
+                    ? (n == 1 ? $"Rüste {tool} auf" : $"Rüste {tool} {n}x auf")
+                    : (n == 1 ? "Rüste ein Werkzeug auf" : $"Rüste {n}x ein Werkzeug auf"),
+
+            MissionObjectiveType.UnlockZone =>
+                n == 1 ? "Schalte eine neue Fläche frei" : $"Schalte {n} neue Flächen frei",
+
+            MissionObjectiveType.QueueActions =>
+                $"Reihe {n} Aktionen ein, während schon eine läuft",
+
+            // n ist hier die Ziel-Stufe, kein Zähler.
+            MissionObjectiveType.ToolLevelReached =>
+                tool != null ? $"Bring {tool} auf Stufe {n}" : $"Bring ein Werkzeug auf Stufe {n}",
+
+            MissionObjectiveType.BuyLicense =>
+                n == 1 ? "Kaufe eine Lizenz" : $"Kaufe {n} Lizenzen",
 
             MissionObjectiveType.EnterBuildMode =>
                 "Betrete den Baumodus (B)",
@@ -59,4 +80,17 @@ public static class MissionObjectiveFormatter
             _ => $"Aufgabe ({n})"
         };
     }
+
+    /// <summary>
+    /// Deutscher Anzeigename. Bewusst nicht ToolData.displayName: die Assets sind auf
+    /// Englisch ("Hoe", "Seeder") und der Formatter hat keinen Zugriff auf die Registry.
+    /// </summary>
+    private static string ToolName(ToolType tool) => tool switch
+    {
+        ToolType.Hoe        => "die Hacke",
+        ToolType.WateringCan => "die Gießkanne",
+        ToolType.Seed       => "den Seeder",
+        ToolType.Scythe     => "die Sichel",
+        _ => null
+    };
 }

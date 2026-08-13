@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3576dc41e5ea2be479ce0f0e48d22b73, type: 3}
+  m_Name: story_6_sunflower_run
+  m_EditorClassIdentifier: Assembly-CSharp::MissionData
+  missionId: story_6_sunflower_run
+  title: "Sonnenblumen-Feld"
+  description: "Teure Samen, doppelter Wasserbedarf, achtzig Gold pro Stück. Sechs Stück durchziehen und verkaufen - vier Gießgänge pro Pflanze, dafür brauchst du die Warteschlange."
+  objectives:
+  - type: 1
+    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 6
+    description:
+  - type: 2
+    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 24
+    description:
+  - type: 3
+    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 6
+    description:
+  - type: 4
+    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 6
+    description:
+  rewards:
+  - type: 0
+    amount: 450
+    plant: {fileID: 0}
+    tool: 0
+    zoneName:
+    licenseId:
+  - type: 3
+    amount: 1
+    plant: {fileID: 0}
+    tool: 0
+    zoneName: zone_3
+    licenseId:
+  isStoryMission: 1
+  unlocks: []
+  requiredMissionIds:
+  - story_5_upgrade_run
+  requiredCompletedCount: 0
+  autoStartWhenAvailable: 0
+  startedByDialogue: 1
+  nextStepHint: "Onkel Ozan hat die Samen erwartet."
+  sequentialObjectives: 0

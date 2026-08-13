@@ -55,7 +55,40 @@ public class FarmMarketNpcClickController : MonoBehaviour
         if (npc == null)
             return;
 
+        // Hat dieser NPC gerade einen Story-Auftrag? Dann erst reden, danach handeln.
+        // Der Marktplatz kennt kein IClickable/WorldClickHandler — ohne diesen Haken
+        // käme man an den Quest-Dialogen der Markt-NPCs nie vorbei, weil der Klick
+        // sofort das Shop-Fenster aufreißt.
+        StoryDialogueNpc story = npc.GetComponentInParent<StoryDialogueNpc>();
+        if (story != null && story.TryPlayStoryDialogue())
+        {
+            OpenShopAfterDialogue(npc);
+            return;
+        }
+
         dialogueController.Open(npc);
+    }
+
+    /// <summary>
+    /// Shop aufmachen sobald der Quest-Dialog durch ist — die Aufträge der Markt-NPCs
+    /// lauten ja durchweg "kauf/verkauf hier etwas". Ein zweiter Klick wäre nur Reibung.
+    /// </summary>
+    private void OpenShopAfterDialogue(FarmMarketNpc npc)
+    {
+        if (DialogueManager.Instance == null)
+        {
+            dialogueController.Open(npc);
+            return;
+        }
+
+        void Handler()
+        {
+            DialogueManager.Instance.OnDialogueEnded -= Handler;
+            if (npc != null && dialogueController != null)
+                dialogueController.Open(npc);
+        }
+
+        DialogueManager.Instance.OnDialogueEnded += Handler;
     }
 
     private bool WasPrimaryClickPressed()

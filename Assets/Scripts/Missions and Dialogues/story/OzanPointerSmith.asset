@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: OzanPointerSmith
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Onkel Ozan
+    text: "Geld verdient, gut. Jetzt gib was davon wieder aus."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Fahr in die Stadt und red mit dem Schmied. Er weiß, was dein Werkzeug braucht — und wenn du schon dort bist, erledigst du den Rest gleich mit."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  missionToStartAfter: {fileID: 0}

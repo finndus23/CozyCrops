@@ -51,10 +51,19 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private GameObject sellPanel;
     [SerializeField] private GameObject upgradePanel;
 
+    [Tooltip("Panel des Lizenz-Amts. Leer lassen = das Upgrade-Panel wird mitbenutzt; die " +
+             "Zeilen haben ohnehin dieselbe Struktur. So läuft der Lizenz-NPC ohne " +
+             "zusätzliches Szenen-Setup.")]
+    [SerializeField] private GameObject licensePanel;
+
     [Header("Content Roots")]
     [SerializeField] private Transform buyContentRoot;
     [SerializeField] private Transform sellContentRoot;
     [SerializeField] private Transform upgradeContentRoot;
+
+    [Tooltip("Leer lassen = upgradeContentRoot wird mitbenutzt.")]
+    [SerializeField] private Transform licenseContentRoot;
+
     [SerializeField] private FarmMarketShopRowUI rowPrefab;
 
     [Header("Seed UI Icons")]
@@ -358,6 +367,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
         ClearRows(upgradeContentRoot);
+        if (licenseContentRoot != null) ClearRows(licenseContentRoot);
         UpdateMoneyText();
 
         if (currentNpc == null)
@@ -366,14 +376,117 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         bool openBuy     = currentNpc.TradeMode == FarmMarketNpcTradeMode.BuySeeds;
         bool openSell    = currentNpc.TradeMode == FarmMarketNpcTradeMode.SellInventory;
         bool openUpgrade = currentNpc.TradeMode == FarmMarketNpcTradeMode.ToolUpgrade;
+        bool openLicense = currentNpc.TradeMode == FarmMarketNpcTradeMode.Licenses;
 
-        if (buyPanel != null)     buyPanel.SetActive(openBuy);
-        if (sellPanel != null)    sellPanel.SetActive(openSell);
-        if (upgradePanel != null) upgradePanel.SetActive(openUpgrade);
+        // Fällt aufs Upgrade-Panel zurück wenn kein eigenes zugewiesen ist.
+        GameObject licenseHost = licensePanel != null ? licensePanel : upgradePanel;
+
+        if (buyPanel != null)  buyPanel.SetActive(openBuy);
+        if (sellPanel != null) sellPanel.SetActive(openSell);
+
+        if (upgradePanel != null)
+            upgradePanel.SetActive(openUpgrade || (openLicense && licenseHost == upgradePanel));
+
+        if (licensePanel != null && licensePanel != upgradePanel)
+            licensePanel.SetActive(openLicense);
 
         if (openBuy)          BuildBuyRows();
         else if (openSell)    BuildSellRows();
         else if (openUpgrade) BuildUpgradeRows();
+        else if (openLicense) BuildLicenseRows();
+    }
+
+    /// <summary>
+    /// "Stufe 10: Fläche 2×2" — der nächste Meilenstein als Sparziel.
+    /// Ohne diese Ansage sieht der Spieler nur eine Zahl steigen und merkt nicht,
+    /// dass bei Stufe 10 der Durchsatz auf einen Schlag vierfach wird.
+    /// </summary>
+    private static string DescribeNextMilestone(ToolData data, int currentLevel)
+    {
+        if (data?.milestones == null) return null;
+
+        ToolMilestone next = null;
+        foreach (var m in data.milestones)
+        {
+            if (m == null || m.level <= currentLevel) continue;
+            if (next == null || m.level < next.level) next = m;
+        }
+
+        if (next == null) return null;
+
+        if (!string.IsNullOrWhiteSpace(next.unlockText))
+            return $"Stufe {next.level}: {next.unlockText}";
+
+        if (next.aoSize > 0)   return $"Stufe {next.level}: Fläche {next.aoSize}×{next.aoSize}";
+        if (next.queueSize > 0) return $"Stufe {next.level}: Warteschlange {next.queueSize}";
+        if (next.yieldBonus > 0) return $"Stufe {next.level}: +{next.yieldBonus} Ertrag";
+
+        return $"Stufe {next.level}: Meilenstein";
+    }
+
+    private Transform LicenseRoot =>
+        licenseContentRoot != null ? licenseContentRoot : upgradeContentRoot;
+
+    /// <summary>
+    /// Baut das Lizenz-Regal. Zeigt nur, was gerade erhältlich ist — gekaufte und noch
+    /// gesperrte Lizenzen tauchen gar nicht auf, damit das Amt nicht wie eine Wunschliste
+    /// wirkt.
+    /// </summary>
+    private void BuildLicenseRows()
+    {
+        Transform root = LicenseRoot;
+
+        if (root == null || rowPrefab == null || LicenseRegistry.Instance == null)
+        {
+            Debug.LogWarning("[FarmMarketDialogueShopController] Lizenzen: ContentRoot, RowPrefab oder LicenseRegistry fehlt.");
+            return;
+        }
+
+        var available = LicenseRegistry.Instance.GetAvailable();
+
+        if (available.Count == 0)
+        {
+            FarmMarketShopRowUI empty = Instantiate(rowPrefab, root);
+            empty.Setup(null, "Nichts zu vergeben",
+                        "Komm wieder, wenn du weiter bist.",
+                        string.Empty, "—", null, string.Empty, null);
+            return;
+        }
+
+        foreach (LicenseData license in available)
+        {
+            LicenseData captured = license;
+            bool affordable = inventory != null && inventory.Money >= license.price;
+
+            FarmMarketShopRowUI row = Instantiate(rowPrefab, root);
+            row.Setup(
+                license.icon,
+                string.IsNullOrWhiteSpace(license.displayName) ? license.licenseId : license.displayName,
+                license.description,
+                $"{license.price} G",
+                affordable ? "Kaufen" : "Zu teuer",
+                affordable ? () => BuyLicense(captured) : null,
+                string.Empty,
+                null);
+        }
+    }
+
+    private void BuyLicense(LicenseData license)
+    {
+        if (license == null || LicenseRegistry.Instance == null) return;
+
+        if (!LicenseRegistry.Instance.TryBuy(license))
+        {
+            SetStatus("Dafür reicht das Geld nicht.");
+            return;
+        }
+
+        SetStatus($"{license.displayName} erworben!");
+
+        if (saveAfterTrade)
+            FarmSaveManager.Instance?.RequestSave();
+
+        RefreshShop();
     }
 
     private void BuildBuyRows()
@@ -406,22 +519,50 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             int buyPrice = Mathf.Max(0, plant.seedPrice);
             string displayName = GetPlantDisplayName(plant) + " Seed";
 
+            // Gesperrte Sorten bleiben im Regal stehen, nur ausgegraut. Sie zu verstecken
+            // würde dem Spieler verschweigen, dass es überhaupt mehr gibt — und genau das
+            // ist der Anreiz, die Lizenz zu kaufen.
+            bool unlocked = LicenseRegistry.Instance == null
+                         || LicenseRegistry.Instance.IsPlantUnlocked(plant);
+
             FarmMarketShopRowUI row = Instantiate(rowPrefab, buyContentRoot);
             row.Setup(
                 GetSeedUiSprite(plant) ?? plant.icon,
                 displayName,
-                $"Besitzt: {inventory.GetSeedCount(plant)}",
-                $"Preis: {buyPrice}",
-                "Kaufen",
-                () => BuySeed(plant, 1),
-                "10x",
-                () => BuySeed(plant, 10));
+                unlocked ? $"Besitzt: {inventory.GetSeedCount(plant)}" : RequiredLicenseHint(plant),
+                unlocked ? $"Preis: {buyPrice}" : "Gesperrt",
+                unlocked ? "Kaufen" : "Lizenz nötig",
+                unlocked ? () => BuySeed(plant, 1) : null,
+                unlocked ? "10x" : string.Empty,
+                unlocked ? () => BuySeed(plant, 10) : null);
+
+            row.SetDimmed(!unlocked);
 
             createdAnyRow = true;
         }
 
         if (!createdAnyRow)
             SetStatus("Dieser NPC verkauft aktuell keine Samen.");
+    }
+
+    /// <summary>Welche Lizenz für diese Pflanze fehlt — sagt dem Spieler wonach er suchen soll.</summary>
+    private static string RequiredLicenseHint(PlantType plant)
+    {
+        if (LicenseRegistry.Instance == null) return "Lizenz erforderlich";
+
+        foreach (LicenseData license in LicenseRegistry.Instance.All)
+        {
+            if (license == null || !license.Unlocks(plant)) continue;
+            if (LicenseRegistry.Instance.IsOwned(license)) continue;
+
+            string name = string.IsNullOrWhiteSpace(license.displayName)
+                ? license.licenseId
+                : license.displayName;
+
+            return $"Braucht: {name}";
+        }
+
+        return "Lizenz erforderlich";
     }
 
     private void BuildSellRows()
@@ -456,7 +597,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 if (plant == null || amount <= 0)
                     continue;
 
-                int sellPrice = Mathf.Max(1, plant.sellPrice);
+                // Über das Inventar, nicht plant.sellPrice: im entspannten Tempo bekommt der
+                // Spieler weniger, und im Regal soll stehen was er wirklich kriegt.
+                int sellPrice = Mathf.Max(1, inventory.GetSellValue(plant, 1));
                 string displayName = GetPlantDisplayName(plant) + " Crop";
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, sellContentRoot);
@@ -554,8 +697,18 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 float dur     = data.GetDuration(level);
                 int  yBonus   = data.GetYieldBonus(level);
 
+                int queue = data.GetQueueSize(level);
+
                 string statsLabel = $"Lvl {level}/{maxLevel}  |  AoE: {ao}×{ao}  |  {dur:F1}s/Tile"
+                                  + $"  |  Queue: {queue}"
                                   + (yBonus > 0 ? $"  |  +{yBonus} Ertrag" : "");
+
+                // Nächsten Meilenstein ankündigen — das Sparen auf Stufe 10 soll sich
+                // wie ein Ziel anfühlen, nicht wie eine Zahl die langsam hochgeht.
+                string nextMilestone = DescribeNextMilestone(data, level);
+                if (!string.IsNullOrEmpty(nextMilestone))
+                    statsLabel += $"\n<color=#8A5A1E>{nextMilestone}</color>";
+
                 string costLabel  = isMax ? "MAX LEVEL" : $"Upgrade: {cost} G";
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);

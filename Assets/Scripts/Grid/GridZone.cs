@@ -29,6 +29,14 @@ public class GridZone : MonoBehaviour
 
     public event Action OnUnlocked;
 
+    /// <summary>
+    /// Statisches Event fürs Missions-System. Feuert bewusst NUR in TryUnlock(), also wenn
+    /// der Spieler die Zone selbst bezahlt hat — nicht bei Unlock() aus einem Missions-Reward
+    /// oder beim Laden. Sonst würde eine geschenkte Zone das Ziel "schalte eine Zone frei"
+    /// von selbst abhaken.
+    /// </summary>
+    public static event Action<string> OnZonePurchasedStatic;
+
     private BoxCollider zoneCollider;
 
     void Awake()
@@ -51,6 +59,7 @@ public class GridZone : MonoBehaviour
         if (!PlayerInventory.Instance.TrySpendMoney(unlockCost)) return false;
 
         Unlock();
+        OnZonePurchasedStatic?.Invoke(SaveId);
         return true;
     }
 

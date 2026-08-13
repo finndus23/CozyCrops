@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: SmithQuest5
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Schmied
+    text: "Jetzt wird's ernst. Hacke auf zehn — ab da greift sie 2x2 Felder auf einmal, das ist der eigentliche Sprung."
+    portrait: {fileID: 0}
+  - speakerName: Schmied
+    text: "Weißt du, was du am häufigsten machst? Gießen. Jeden Tag, jede Pflanze, zweimal. Die Kanne auf fünf, dann passt mehr in ihre Schlange."
+    portrait: {fileID: 0}
+  - speakerName: Schmied
+    text: "Und beim Amt liegt die Sonnenblumen-Lizenz. Siebenhundert Gold, kein Scherz. Nimm sechs Samen mit, wenn du sie hast — das ist der Rest deines Vermögens, aber danach rechnet sich jedes Feld doppelt."
+    portrait: {fileID: 0}
+  missionToStartAfter: {fileID: 11400000, guid: 1122334455667788990011223344556e, type: 2}

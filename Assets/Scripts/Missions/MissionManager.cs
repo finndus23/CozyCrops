@@ -24,8 +24,20 @@ public class MissionManager : MonoBehaviour
     private readonly List<MissionState> activeMissions = new();
     private readonly HashSet<string> completedMissionIds = new();
 
+    /// <summary>
+    /// Abgeschlossene Missionen deren Belohnung noch nicht abgeholt wurde.
+    /// Die Kette läuft trotzdem weiter — liegengelassene Beute blockiert keinen Fortschritt.
+    /// </summary>
+    private readonly Dictionary<string, MissionData> pendingRewards = new();
+
     public event Action<MissionData> OnMissionStarted;
     public event Action<MissionData> OnMissionCompleted;
+
+    /// <summary>Belohnung liegt bereit. Die UI baut daraus die Abhol-Karte.</summary>
+    public event Action<MissionData> OnRewardsPending;
+
+    /// <summary>Belohnung wurde abgeholt und ist gutgeschrieben.</summary>
+    public event Action<MissionData> OnRewardsCollected;
 
     /// <summary>mission, objectiveIndex, currentProgress, requiredAmount</summary>
     public event Action<MissionData, int, int, int> OnObjectiveUpdated;
@@ -55,6 +67,10 @@ public class MissionManager : MonoBehaviour
         CarClickHandler.OnTraveledToFarmStatic += HandleTraveledToFarm;
         BarnInteraction.OnBarnOpenedStatic += HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic += HandleToolAcquired;
+        ToolRegistry.OnToolUpgradedStatic += HandleToolUpgraded;
+        ToolUseHandler.OnActionStackedStatic += HandleActionStacked;
+        LicenseRegistry.OnLicenseBoughtStatic += HandleLicenseBought;
+        GridZone.OnZonePurchasedStatic += HandleZonePurchased;
         PlayerInventory.OnSeedBoughtStatic += HandleSeedBought;
         PlayerInventory.OnMoneyEarnedStatic += HandleMoneyEarned;
         Hotbar.OnToolSelectedStatic += HandleToolSelected;
@@ -75,6 +91,10 @@ public class MissionManager : MonoBehaviour
         CarClickHandler.OnTraveledToFarmStatic -= HandleTraveledToFarm;
         BarnInteraction.OnBarnOpenedStatic -= HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic -= HandleToolAcquired;
+        ToolRegistry.OnToolUpgradedStatic -= HandleToolUpgraded;
+        ToolUseHandler.OnActionStackedStatic -= HandleActionStacked;
+        LicenseRegistry.OnLicenseBoughtStatic -= HandleLicenseBought;
+        GridZone.OnZonePurchasedStatic -= HandleZonePurchased;
         PlayerInventory.OnSeedBoughtStatic -= HandleSeedBought;
         PlayerInventory.OnMoneyEarnedStatic -= HandleMoneyEarned;
         Hotbar.OnToolSelectedStatic -= HandleToolSelected;
@@ -94,7 +114,16 @@ public class MissionManager : MonoBehaviour
         }
 
         var state = new MissionState(data);
+        SyncAbsoluteObjectives(state);
         activeMissions.Add(state);
+
+        if (state.IsCompleted())
+        {
+            // Kann passieren wenn die Bedingung schon vor Missionsbeginn erfüllt war,
+            // z.B. "Hacke auf Stufe 10" bei bereits ausgebauter Hacke.
+            CompleteMission(state);
+            return;
+        }
 
         OnMissionStarted?.Invoke(data);
         Debug.Log($"[MissionManager] Mission gestartet: {data.title}");
@@ -149,6 +178,13 @@ public class MissionManager : MonoBehaviour
     /// <summary>Läuft gerade eine Story-Mission?</summary>
     public bool HasActiveStoryMission => activeMissions.Exists(m => m.Data.isStoryMission);
 
+    /// <summary>
+    /// Ist diese Mission abgeschlossen? Einstiegspunkt für alles was an Story-Fortschritt
+    /// hängt — z.B. welche Samen der Markt-NPC überhaupt anbietet.
+    /// </summary>
+    public bool IsMissionCompleted(string missionId) =>
+        !string.IsNullOrWhiteSpace(missionId) && completedMissionIds.Contains(missionId);
+
     /// <summary>Nächste noch nicht abgeschlossene Story-Mission starten, falls keine aktiv ist.</summary>
     public void AdvanceStoryChain()
     {
@@ -164,6 +200,10 @@ public class MissionManager : MonoBehaviour
             // geordnet, ein Loch darin soll auffallen statt still den nächsten
             // Schritt vorzuziehen.
             if (!ArePrerequisitesMet(mission)) return;
+
+            // Akt-Auftakt: hier hält die Kette bewusst an. Die Mission kommt aus dem
+            // NPC-Dialog, die UI zeigt solange mission.nextStepHint ("Sprich mit …").
+            if (mission.startedByDialogue) return;
 
             StartMission(mission);
             return;
@@ -212,18 +252,81 @@ public class MissionManager : MonoBehaviour
     private void HandleTraveledToMarket() => ReportProgress(MissionObjectiveType.TravelToMarket, null, 1);
     private void HandleTraveledToFarm()   => ReportProgress(MissionObjectiveType.TravelToFarm, null, 1);
     private void HandleBarnOpened()       => ReportProgress(MissionObjectiveType.OpenBarn, null, 1);
-    private void HandleToolAcquired()     => ReportProgress(MissionObjectiveType.AcquireTool, null, 1);
     private void HandleSeedBought(PlantType type, int amount) => ReportProgress(MissionObjectiveType.BuySeed, type, amount);
     private void HandleMoneyEarned(int amount) => ReportProgress(MissionObjectiveType.EarnMoney, null, amount);
-    private void HandleToolSelected(ToolType tool)
+
+    private void HandleToolAcquired(ToolType tool) =>
+        ReportProgress(MissionObjectiveType.AcquireTool, null, 1, tool);
+
+    private void HandleToolUpgraded(ToolType tool)
     {
-        Debug.Log($"[MissionManager] HandleToolSelected({tool}) → ReportProgress SelectTool");
-        ReportProgress(MissionObjectiveType.SelectTool, null, 1);
+        ReportProgress(MissionObjectiveType.UpgradeTool, null, 1, tool);
+
+        // Zusätzlich als Zustand melden: hier ist der Betrag die erreichte STUFE.
+        int level = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetLevel(tool) : 0;
+        ReportProgress(MissionObjectiveType.ToolLevelReached, null, level, tool);
     }
 
-    private void ReportProgress(MissionObjectiveType type, PlantType plantType, int amount)
+    private void HandleLicenseBought(string licenseId) =>
+        ReportProgress(MissionObjectiveType.BuyLicense, null, 1, ToolType.None, null, licenseId);
+
+    private void HandleActionStacked() =>
+        ReportProgress(MissionObjectiveType.QueueActions, null, 1);
+
+    private void HandleZonePurchased(string zoneId) =>
+        ReportProgress(MissionObjectiveType.UnlockZone, null, 1, ToolType.None, zoneId);
+
+    private void HandleToolSelected(ToolType tool) =>
+        ReportProgress(MissionObjectiveType.SelectTool, null, 1, tool);
+
+    /// <summary>
+    /// Liefert dieser Objective-Typ überhaupt ein Werkzeug mit?
+    ///
+    /// Ohne diese Prüfung ist targetTool eine Falle: setzt man es versehentlich auf ein
+    /// Ziel wie TillField — dessen Event gar keinen ToolType kennt — vergleicht der Filter
+    /// gegen ToolType.None und verwirft **jeden** Fortschritt. Die Mission wird dann nie
+    /// fertig, ohne dass irgendwo ein Fehler auftaucht. Genau so ist "Hacke 6 Felder um"
+    /// beim ersten Playtest hängen geblieben.
+    /// </summary>
+    private static bool CarriesTool(MissionObjectiveType type) =>
+        type is MissionObjectiveType.AcquireTool
+             or MissionObjectiveType.SelectTool
+             or MissionObjectiveType.UpgradeTool
+             or MissionObjectiveType.ToolLevelReached;
+
+    /// <summary>
+    /// Meldet dieser Typ einen ZUSTAND statt eines Ereignisses? Dann wird der Fortschritt
+    /// gesetzt statt addiert — sonst summierte sich z.B. die Werkzeugstufe auf (1+2+3…).
+    /// </summary>
+    /// <summary>
+    /// Zustandsbasierte Ziele einmal mit der Wirklichkeit abgleichen.
+    ///
+    /// Ohne das hinge eine Mission wie "Bring die Hacke auf Stufe 10" fest, wenn die Hacke
+    /// beim Missionsstart schon dort ist — es käme nie wieder ein Upgrade-Event.
+    /// </summary>
+    private void SyncAbsoluteObjectives(MissionState state)
     {
-        Debug.Log($"[MissionManager] ReportProgress: type={type}, activeMissions={activeMissions.Count}");
+        var objectives = state.Data.objectives;
+        if (objectives == null) return;
+
+        for (int i = 0; i < objectives.Length; i++)
+        {
+            var obj = objectives[i];
+            if (obj.type != MissionObjectiveType.ToolLevelReached) continue;
+            if (ToolRegistry.Instance == null) continue;
+            if (obj.targetTool == ToolType.None) continue;
+
+            state.SetProgress(i, ToolRegistry.Instance.GetLevel(obj.targetTool));
+        }
+    }
+
+    private static bool IsAbsolute(MissionObjectiveType type) =>
+        type is MissionObjectiveType.ToolLevelReached;
+
+    private void ReportProgress(MissionObjectiveType type, PlantType plantType, int amount,
+                                ToolType tool = ToolType.None, string zoneId = null,
+                                string licenseId = null)
+    {
         for (int m = activeMissions.Count - 1; m >= 0; m--)
         {
             var state = activeMissions[m];
@@ -237,7 +340,6 @@ public class MissionManager : MonoBehaviour
                 {
                     if (!state.ObjectiveCompleted(j)) { sequentialLimit = j; break; }
                 }
-                Debug.Log($"[MissionManager] Mission '{state.Data.missionId}' sequential, aktives Objective={sequentialLimit}, gesuchter Typ={type}, Objective[{sequentialLimit}].type={(sequentialLimit >= 0 ? state.Data.objectives[sequentialLimit].type.ToString() : "—")}");
                 if (sequentialLimit < 0) continue; // Alle fertig
             }
 
@@ -249,8 +351,15 @@ public class MissionManager : MonoBehaviour
                 if (obj.type != type) continue;
                 if (state.ObjectiveCompleted(i)) continue;
                 if (obj.targetPlantType != null && obj.targetPlantType != plantType) continue;
+                if (CarriesTool(type) && obj.targetTool != ToolType.None && obj.targetTool != tool) continue;
+                if (!string.IsNullOrWhiteSpace(obj.targetZoneId) && obj.targetZoneId != zoneId) continue;
+                if (!string.IsNullOrWhiteSpace(obj.targetLicenseId) && obj.targetLicenseId != licenseId) continue;
 
-                state.AddProgress(i, amount);
+                if (IsAbsolute(type))
+                    state.SetProgress(i, amount);
+                else
+                    state.AddProgress(i, amount);
+
                 missionUpdated = true;
 
                 OnObjectiveUpdated?.Invoke(state.Data, i, state.GetProgress(i), obj.requiredAmount);
@@ -266,10 +375,13 @@ public class MissionManager : MonoBehaviour
         activeMissions.Remove(state);
         completedMissionIds.Add(state.Data.missionId);
 
-        if (state.Data.rewards != null)
+        // Belohnung wird NICHT sofort gutgeschrieben, sondern zum Abholen hingelegt.
+        // Ohne diesen Zwischenschritt gäbe es keinen Moment, an dem die Münzen fliegen
+        // können — das Geld wäre schon da, bevor der Spieler den Abschluss überhaupt sieht.
+        if (HasRewards(state.Data))
         {
-            foreach (var reward in state.Data.rewards)
-                GrantReward(reward);
+            pendingRewards[state.Data.missionId] = state.Data;
+            OnRewardsPending?.Invoke(state.Data);
         }
 
         OnMissionCompleted?.Invoke(state.Data);
@@ -293,6 +405,40 @@ public class MissionManager : MonoBehaviour
 
         // Jeder Abschluss kann Nebenmissionen freischalten — auch der einer Nebenmission.
         RefreshAvailableSideMissions();
+    }
+
+    // --- Belohnungen abholen ---
+
+    private static bool HasRewards(MissionData data) =>
+        data?.rewards != null && data.rewards.Length > 0;
+
+    /// <summary>Missionen deren Belohnung noch abgeholt werden kann.</summary>
+    public IEnumerable<MissionData> PendingRewardMissions => pendingRewards.Values;
+
+    public bool HasPendingRewards(string missionId) =>
+        !string.IsNullOrWhiteSpace(missionId) && pendingRewards.ContainsKey(missionId);
+
+    /// <summary>
+    /// Holt die Belohnung einer abgeschlossenen Mission ab und schreibt sie gut.
+    /// Gibt false zurück wenn dort nichts (mehr) liegt — schützt gegen Doppelklicks
+    /// auf der Abhol-Karte.
+    /// </summary>
+    public bool TryCollectRewards(string missionId)
+    {
+        if (string.IsNullOrWhiteSpace(missionId)) return false;
+        if (!pendingRewards.TryGetValue(missionId, out var data)) return false;
+
+        pendingRewards.Remove(missionId);
+
+        if (data.rewards != null)
+        {
+            foreach (var reward in data.rewards)
+                GrantReward(reward);
+        }
+
+        OnRewardsCollected?.Invoke(data);
+        FarmSaveManager.Instance?.RequestSave();
+        return true;
     }
 
     private void GrantReward(MissionReward reward)
@@ -319,6 +465,10 @@ public class MissionManager : MonoBehaviour
             case MissionReward.RewardType.UnlockZone:
                 UnlockZoneByName(reward.zoneName);
                 break;
+
+            case MissionReward.RewardType.License:
+                LicenseRegistry.Instance?.Grant(reward.licenseId);
+                break;
         }
     }
 
@@ -330,17 +480,21 @@ public class MissionManager : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(zoneName)) return;
 
-        var zones = FindObjectsByType<GridZone>(FindObjectsSortMode.None);
-        foreach (var zone in zones)
-        {
-            if (zone == null || zone.IsUnlocked) continue;
-            if (zone.SaveId != zoneName && zone.gameObject.name != zoneName) continue;
+        // Über ZoneManager statt FindObjectsByType: der hängt an OnUnlocked und entsperrt
+        // dadurch auch die Tiles. Ein direktes zone.Unlock() räumte früher nur die Blocker
+        // weg und ließ die Fläche unbespielbar zurück.
+        var zone = ZoneManager.Instance != null
+            ? ZoneManager.Instance.FindZone(zoneName)
+            : null;
 
-            zone.Unlock();
+        if (zone == null)
+        {
+            Debug.LogWarning($"[MissionManager] Zone '{zoneName}' für Missions-Belohnung nicht gefunden.");
             return;
         }
 
-        Debug.LogWarning($"[MissionManager] Zone '{zoneName}' für Missions-Belohnung nicht gefunden.");
+        if (zone.IsUnlocked) return;
+        zone.Unlock();
     }
 
     // --- Save / Load ---
@@ -367,7 +521,8 @@ public class MissionManager : MonoBehaviour
                 missionId = id,
                 isActive = false,
                 isCompleted = true,
-                objectiveProgress = new List<int>()
+                objectiveProgress = new List<int>(),
+                rewardsPending = pendingRewards.ContainsKey(id)
             });
         }
 
@@ -380,6 +535,7 @@ public class MissionManager : MonoBehaviour
 
         activeMissions.Clear();
         completedMissionIds.Clear();
+        pendingRewards.Clear();
 
         var allMissions = GetAllMissions();
 
@@ -390,6 +546,14 @@ public class MissionManager : MonoBehaviour
             if (save.isCompleted)
             {
                 completedMissionIds.Add(save.missionId);
+
+                if (save.rewardsPending)
+                {
+                    var pending = allMissions.Find(m => m != null && m.missionId == save.missionId);
+                    if (pending != null && HasRewards(pending))
+                        pendingRewards[save.missionId] = pending;
+                }
+
                 continue;
             }
 
@@ -409,6 +573,10 @@ public class MissionManager : MonoBehaviour
         // UI informieren
         foreach (var state in activeMissions)
             OnMissionStarted?.Invoke(state.Data);
+
+        // Abhol-Karten für Belohnungen die vor dem Speichern liegen geblieben sind
+        foreach (var data in pendingRewards.Values)
+            OnRewardsPending?.Invoke(data);
 
         Debug.Log($"[MissionManager] {activeMissions.Count} aktive Mission(en), {completedMissionIds.Count} abgeschlossen geladen.");
 

@@ -19,6 +19,10 @@ public class ToolMilestone
     [Tooltip("Überschreibt die berechnete Duration hart. -1 = ignorieren.")]
     public float durationOverride = -1f;
 
+    [Tooltip("Neue Warteschlangen-Größe für DIESES Werkzeug ab diesem Level. 0 = keine Änderung.\n" +
+             "Wie viele Aktionen der Spieler vorausplanen kann, bevor er warten muss.")]
+    public int queueSize;
+
     [Tooltip("Text der im Shop angezeigt wird, z.B. 'Fläche vergrößert!'")]
     public string unlockText;
 }

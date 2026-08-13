@@ -80,6 +80,20 @@ public class ToolRegistry : MonoBehaviour
         return data != null ? data.GetYieldBonus(GetLevel(tool)) : 0;
     }
 
+    /// <summary>Gesamtdauer einer Aktion über mehrere Tiles, inklusive Mengenrabatt.</summary>
+    public float GetJobDuration(ToolType tool, int tileCount)
+    {
+        var data = GetData(tool);
+        return data != null ? data.GetJobDuration(GetLevel(tool), tileCount) : 0f;
+    }
+
+    /// <summary>Wie viele Aktionen mit diesem Werkzeug gleichzeitig eingeplant sein dürfen.</summary>
+    public int GetQueueSize(ToolType tool)
+    {
+        var data = GetData(tool);
+        return data != null ? data.GetQueueSize(GetLevel(tool)) : 1;
+    }
+
     public int GetUpgradeCost(ToolType tool)
     {
         var data = GetData(tool);
@@ -97,8 +111,17 @@ public class ToolRegistry : MonoBehaviour
     /// <summary>Feuert wenn owned Tools sich ändern (Kauf oder Save-Load).</summary>
     public event System.Action OnOwnedToolsChanged;
 
-    /// <summary>Statisches Event für Mission-System — feuert nur beim Kauf, nicht beim Load.</summary>
-    public static event System.Action OnToolAcquiredStatic;
+    /// <summary>
+    /// Statisches Event für Mission-System — feuert nur beim Kauf, nicht beim Load.
+    /// Gibt den ToolType mit: ohne ihn konnte eine Mission nur "kaufe irgendein Werkzeug"
+    /// verlangen, nie "kaufe die Gießkanne".
+    /// </summary>
+    public static event System.Action<ToolType> OnToolAcquiredStatic;
+
+    /// <summary>
+    /// Statisches Event für Mission-System — feuert bei jedem erfolgreichen Upgrade.
+    /// </summary>
+    public static event System.Action<ToolType> OnToolUpgradedStatic;
 
     public bool IsOwned(ToolType tool) => ownedTools.Contains(tool);
 
@@ -110,7 +133,7 @@ public class ToolRegistry : MonoBehaviour
             FarmSaveManager.Instance.RequestSave();
 
         if (wasNew)
-            OnToolAcquiredStatic?.Invoke();
+            OnToolAcquiredStatic?.Invoke(tool);
     }
 
     // ── Upgrade ───────────────────────────────────────────────────────────────
@@ -124,6 +147,8 @@ public class ToolRegistry : MonoBehaviour
 
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
+
+        OnToolUpgradedStatic?.Invoke(tool);
 
         return true;
     }

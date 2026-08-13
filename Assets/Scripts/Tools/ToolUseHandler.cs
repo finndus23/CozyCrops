@@ -22,11 +22,22 @@ public class ToolUseHandler : MonoBehaviour
     public static ToolUseHandler Instance { get; private set; }
 
     [Header("Warteschlange")]
-    [Tooltip("Wie viele Jobs gleichzeitig laufen dürfen. 1 = streng nacheinander.")]
-    [SerializeField] private int maxParallelJobs = 1;
-    [Tooltip("Obergrenze für wartende Jobs — verhindert dass ein Drag über das halbe Feld " +
-             "hunderte Aktionen einreiht.")]
-    [SerializeField] private int maxQueuedJobs = 24;
+    [Tooltip("Obergrenze gleichzeitig laufender Jobs über ALLE Werkzeuge. Pro Werkzeug läuft " +
+             "ohnehin nur einer — bei 4 Werkzeugen ist 4 also das sinnvolle Maximum.")]
+    [SerializeField] private int maxParallelJobs = 4;
+
+    [Tooltip("Harte Obergrenze über ALLE Werkzeuge — verhindert dass ein Drag über das halbe " +
+             "Feld hunderte Aktionen einreiht. Die eigentliche Grenze kommt pro Werkzeug aus " +
+             "ToolData.GetQueueSize() und ist über Meilensteine ausbaubar; dieser Wert ist " +
+             "nur das Sicherheitsnetz darüber.")]
+    [SerializeField] private int maxQueuedJobs = 64;
+
+    [Header("Layering (experimentell)")]
+    [Tooltip("Erlaubt, eine Tile für ein Werkzeug einzureihen, obwohl sie dafür noch gar " +
+             "nicht bereit ist — z.B. pflanzen auf einem Feld das noch gehackt wird. Der " +
+             "Pflanz-Job wartet dann, bis das Hacken durch ist.\n\n" +
+             "Aus = altes Verhalten: nur Tiles annehmen, auf denen das Werkzeug sofort wirkt.")]
+    [SerializeField] private bool allowLayering;
 
     // ── Zustand ───────────────────────────────────────────────────────────────
 
@@ -53,6 +64,13 @@ public class ToolUseHandler : MonoBehaviour
     /// <summary>Feuert bei jeder Änderung an Queue oder laufenden Jobs.</summary>
     public event Action OnQueueChanged;
 
+    /// <summary>
+    /// Statisches Event fürs Missions-System: eine Aktion wurde eingereiht, obwohl schon
+    /// eine lief oder wartete. Bewusst nur dann — sonst wäre "nutze die Warteschlange"
+    /// von sechs normalen Klicks nacheinander nicht zu unterscheiden.
+    /// </summary>
+    public static event Action OnActionStackedStatic;
+
     // Bestehende Events — die Cursor-Castbar und GridInput hängen daran und sollen
     // weiter den "primären" (ältesten laufenden) Job sehen.
     public event Action<IReadOnlyList<Vector2Int>> OnCastStarted;
@@ -63,6 +81,10 @@ public class ToolUseHandler : MonoBehaviour
     // ── Private ───────────────────────────────────────────────────────────────
 
     private readonly List<ToolJob> finishedThisFrame = new();
+
+    // Wiederverwendete Puffer für PromoteQueued — vermeidet Allokationen pro Frame.
+    private readonly List<ToolJob> promotable = new();
+    private readonly HashSet<ToolType> toolsBusyThisPass = new();
 
     void Awake()
     {
@@ -76,6 +98,26 @@ public class ToolUseHandler : MonoBehaviour
     /// Reiht eine Aktion auf (x, z) mit dem gegebenen Tool ein.
     /// Gibt false zurück wenn die Aktion dort nichts bewirken würde oder die Queue voll ist.
     /// </summary>
+    /// <summary>Wartende Jobs dieses Werkzeugs (ohne die bereits laufenden).</summary>
+    public int CountQueuedFor(ToolType tool)
+    {
+        int count = 0;
+        foreach (var job in queued)
+            if (job.Tool == tool) count++;
+        return count;
+    }
+
+    /// <summary>
+    /// Wie viele Aktionen dieses Werkzeug vorausplanen darf (Level-abhängig).
+    /// Gilt nur bei aktivem Queueing — ist es aus, greift weiter oben schon die Regel
+    /// "solange etwas läuft, wird nichts angenommen".
+    /// </summary>
+    public int GetQueueCapacity(ToolType tool)
+    {
+        int capacity = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetQueueSize(tool) : 1;
+        return Mathf.Clamp(capacity, 1, maxQueuedJobs);
+    }
+
     public bool TryStartUse(int x, int z, ToolType tool)
     {
         if (tool == ToolType.None) return false;
@@ -87,9 +129,19 @@ public class ToolUseHandler : MonoBehaviour
 
         // Dieselbe Tile nicht doppelt einplanen. Beim Ziehen über das Feld würde man
         // sonst pro Frame denselben Job nachschieben.
-        if (IsTileScheduled(origin)) return false;
+        // Ohne Layering blockiert jede eingeplante Tile; mit Layering nur dieselbe
+        // Tile für dasselbe Werkzeug.
+        if (IsTileScheduled(origin, allowLayering ? tool : ToolType.None)) return false;
 
         if (queued.Count >= maxQueuedJobs) return false;
+
+        // Kapazität pro Werkzeug: die Warteschlange ist ein eigener Progressionsstrang.
+        // Nur bei aktivem Queueing prüfen — sonst wäre die Kapazität auch die Schranke
+        // für die allererste Aktion, und ohne Queueing ginge gar nichts mehr.
+        // Bewusst nur die WARTENDEN Jobs zählen, nicht die laufenden: sonst könnte ein
+        // Werkzeug mit Kapazität 1 nie etwas vorausplanen.
+        if (GameSettings.ActionQueueingEnabled && CountQueuedFor(tool) >= GetQueueCapacity(tool))
+            return false;
 
         int aoSize = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetAoSize(tool) : 1;
         var candidates = CalculateAoTiles(x, z, aoSize);
@@ -103,6 +155,15 @@ public class ToolUseHandler : MonoBehaviour
         foreach (var tile in candidates)
         {
             if (CanApplyTool(tile.x, tile.y, tool))
+            {
+                tiles.Add(tile);
+                continue;
+            }
+
+            // Layering: auch Tiles annehmen, die gerade von einem anderen Werkzeug
+            // vorbereitet werden — pflanzen auf einem Feld das noch gehackt wird.
+            // Beim Ausführen wird ohnehin neu geprüft.
+            if (allowLayering && IsTileScheduled(tile, ToolType.None))
                 tiles.Add(tile);
         }
 
@@ -121,17 +182,26 @@ public class ToolUseHandler : MonoBehaviour
             if (CountScheduledSeedUses(seed) + tiles.Count > available) return false;
         }
 
-        float durationPerTile = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetDuration(tool) : 0f;
-        float duration = durationPerTile * tiles.Count;
+        // Nicht mehr stur perTile × Anzahl: ToolData rechnet den Mengenrabatt ein, damit
+        // eine größere Wirkungsfläche auch wirklich schneller ist und nicht nur Klicks spart.
+        float duration = ToolRegistry.Instance != null
+            ? ToolRegistry.Instance.GetJobDuration(tool, tiles.Count)
+            : 0f;
         int yieldBonus = tool == ToolType.Scythe
             ? ToolRegistry.Instance?.GetYieldBonus(tool) ?? 0
             : 0;
+
+        // Vor dem Einreihen prüfen: lag schon was an, staffelt der Spieler wirklich.
+        bool stacked = running.Count > 0 || queued.Count > 0;
 
         var job = new ToolJob(tool, seed, yieldBonus, origin, tiles, duration);
         queued.Add(job);
 
         OnJobEnqueued?.Invoke(job);
         OnQueueChanged?.Invoke();
+
+        if (stacked)
+            OnActionStackedStatic?.Invoke();
 
         PromoteQueued();
         return true;
@@ -178,13 +248,24 @@ public class ToolUseHandler : MonoBehaviour
     /// <summary>Kompatibilität zum alten Aufrufpfad.</summary>
     public void CancelCast() => CancelAll();
 
-    public bool IsTileScheduled(Vector2Int tile)
+    public bool IsTileScheduled(Vector2Int tile) => IsTileScheduled(tile, ToolType.None);
+
+    /// <summary>
+    /// Ist diese Tile schon eingeplant?
+    ///
+    /// <paramref name="tool"/> = None prüft werkzeugübergreifend (altes Verhalten).
+    /// Beim Layering wird nur gegen dasselbe Werkzeug geprüft: dieselbe Tile darf dann
+    /// gleichzeitig zum Hacken UND zum Pflanzen anstehen, nur nicht zweimal zum Hacken.
+    /// </summary>
+    public bool IsTileScheduled(Vector2Int tile, ToolType tool)
     {
         foreach (var job in running)
-            if (job.Origin == tile || job.CoversTile(tile)) return true;
+            if ((tool == ToolType.None || job.Tool == tool) &&
+                (job.Origin == tile || job.CoversTile(tile))) return true;
 
         foreach (var job in queued)
-            if (job.Origin == tile || job.CoversTile(tile)) return true;
+            if ((tool == ToolType.None || job.Tool == tool) &&
+                (job.Origin == tile || job.CoversTile(tile))) return true;
 
         return false;
     }
@@ -233,54 +314,109 @@ public class ToolUseHandler : MonoBehaviour
     // ── Queue-Verwaltung ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Schiebt wartende Jobs nach, solange das Parallel-Limit es zulässt.
-    /// Beim Start wird nochmal validiert: zwischen Einreihen und Ausführen kann sich
-    /// die Tile geändert haben (anderer Job hat sie umgegraben, Pflanze wurde geerntet).
+    /// Wartet dieser Job noch auf einen anderen, der dieselbe Tile bearbeitet?
+    ///
+    /// Nur beim Layering relevant: dort darf man ein Feld zum Pflanzen einreihen, das noch
+    /// gehackt wird. Der Pflanz-Job muss dann warten statt sich als ungültig wegzuwerfen.
+    /// </summary>
+    private bool WaitsForEarlierJob(ToolJob job)
+    {
+        foreach (var other in running)
+            if (other != job && SharesTile(other, job)) return true;
+
+        foreach (var other in queued)
+        {
+            if (other == job) break; // ab hier stehen nur noch spätere Jobs
+            if (SharesTile(other, job)) return true;
+        }
+
+        return false;
+    }
+
+    private static bool SharesTile(ToolJob a, ToolJob b)
+    {
+        foreach (var tile in b.Tiles)
+            if (a.CoversTile(tile)) return true;
+        return false;
+    }
+
+    /// <summary>
+    /// Startet wartende Jobs. <b>Pro Werkzeug</b> läuft einer gleichzeitig — Hacken, Säen
+    /// und Gießen laufen damit nebeneinander, jedes mit eigener Warteschlange.
     /// </summary>
     private void PromoteQueued()
     {
-        bool changed = false;
+        // Erst auswählen, dann starten. Das Starten kann über CompleteJob (Duration 0)
+        // Events auslösen, die selbst wieder Jobs einreihen — würde man dabei noch über
+        // 'queued' iterieren, verschöben sich die Indizes mitten im Durchlauf.
+        promotable.Clear();
 
-        while (running.Count < MaxParallelJobs && queued.Count > 0)
+        int busySlots = running.Count;
+        toolsBusyThisPass.Clear();
+
+        foreach (var job in running)
+            toolsBusyThisPass.Add(job.Tool);
+
+        foreach (var job in queued)
         {
-            var job = queued[0];
-            queued.RemoveAt(0);
-            changed = true;
+            if (busySlots >= MaxParallelJobs) break;
 
-            // Tiles die inzwischen ungültig geworden sind rausfiltern
-            for (int i = job.Tiles.Count - 1; i >= 0; i--)
-            {
-                if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool))
-                    job.Tiles.RemoveAt(i);
-            }
+            // Pro Werkzeug läuft genau einer — dadurch arbeiten Hacke, Seeder und
+            // Gießkanne gleichzeitig, jeweils aus ihrer eigenen Warteschlange.
+            if (toolsBusyThisPass.Contains(job.Tool)) continue;
 
-            if (job.Tiles.Count == 0)
-            {
-                job.State = ToolJobState.Cancelled;
-                OnJobFinished?.Invoke(job);
-                continue;
-            }
+            // Layering: Vorgänger auf derselben Tile noch nicht fertig → später nochmal.
+            if (allowLayering && WaitsForEarlierJob(job)) continue;
 
-            job.State = ToolJobState.Running;
-            job.Elapsed = 0f;
-            running.Add(job);
-
-            OnJobStarted?.Invoke(job);
-
-            // Die Cursor-Castbar kennt nur einen Cast — sie folgt dem ersten laufenden Job.
-            if (running.Count == 1)
-                OnCastStarted?.Invoke(job.Tiles);
-
-            // Duration 0 → sofort anwenden, kein visuelles Warten
-            if (job.Duration <= 0f)
-            {
-                running.Remove(job);
-                CompleteJob(job);
-            }
+            promotable.Add(job);
+            toolsBusyThisPass.Add(job.Tool);
+            busySlots++;
         }
 
-        if (changed)
-            OnQueueChanged?.Invoke();
+        if (promotable.Count == 0) return;
+
+        foreach (var job in promotable)
+            queued.Remove(job);
+
+        foreach (var job in promotable)
+            StartJob(job);
+
+        OnQueueChanged?.Invoke();
+    }
+
+    private void StartJob(ToolJob job)
+    {
+        // Tiles die inzwischen ungültig geworden sind rausfiltern
+        for (int i = job.Tiles.Count - 1; i >= 0; i--)
+        {
+            if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool))
+                job.Tiles.RemoveAt(i);
+        }
+
+        if (job.Tiles.Count == 0)
+        {
+            job.State = ToolJobState.Cancelled;
+            OnJobFinished?.Invoke(job);
+            return;
+        }
+
+        job.State = ToolJobState.Running;
+        job.Elapsed = 0f;
+        running.Add(job);
+
+        OnJobStarted?.Invoke(job);
+
+        // Die Cursor-Castbar kennt nur einen Cast — sie folgt dem ersten laufenden Job.
+        // Die Fortschrittsringe auf den Tiles zeigen dagegen alle Jobs einzeln.
+        if (running.Count == 1)
+            OnCastStarted?.Invoke(job.Tiles);
+
+        // Duration 0 → sofort anwenden, kein visuelles Warten
+        if (job.Duration <= 0f)
+        {
+            running.Remove(job);
+            CompleteJob(job);
+        }
     }
 
     private void CompleteJob(ToolJob job)

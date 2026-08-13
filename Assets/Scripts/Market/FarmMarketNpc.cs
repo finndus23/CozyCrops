@@ -5,7 +5,25 @@ public enum FarmMarketNpcTradeMode
 {
     BuySeeds,
     SellInventory,
-    ToolUpgrade
+    ToolUpgrade,
+
+    /// <summary>Lizenz-Amt: verkauft die großen Freischaltungen.</summary>
+    Licenses
+}
+
+/// <summary>
+/// Früher: Samen der erst ab einem Story-Fortschritt verkauft wurde.
+///
+/// Das Gating läuft inzwischen ausschließlich über <see cref="LicenseData"/> — zwei Systeme
+/// für dieselbe Sache waren eine Fehlerquelle. Die Klasse bleibt nur stehen, damit Unity
+/// die alten <c>gatedSeeds</c>-Einträge in den Szenen beim Import nicht als Fehler meldet;
+/// sie wird nirgends mehr gelesen und kann weg, sobald die Szenen einmal neu gespeichert sind.
+/// </summary>
+[System.Serializable]
+public class GatedSeed
+{
+    public PlantType plant;
+    public string requiredMissionId;
 }
 
 /// <summary>
@@ -40,7 +58,30 @@ public class FarmMarketNpc : MonoBehaviour
     public string DisplayName => displayName;
     public string SpeechText => speechText;
     public FarmMarketNpcTradeMode TradeMode => tradeMode;
-    public IReadOnlyList<PlantType> SeedsForSale => seedsForSale;
+    /// <summary>
+    /// Das gesamte Sortiment — auch das, wofür noch die Lizenz fehlt.
+    ///
+    /// Bewusst ohne Filter: der Händler zeigt immer alles, gesperrte Sorten stellt der Shop
+    /// ausgegraut mit "Lizenz nötig" dar. Ein leeres Regal verrät dem Spieler nicht, dass es
+    /// überhaupt mehr gibt — sichtbare, aber gesperrte Ware ist der eigentliche Kaufanreiz.
+    /// Ob eine Sorte kaufbar ist, entscheidet allein <see cref="LicenseRegistry"/>.
+    /// </summary>
+    public IReadOnlyList<PlantType> SeedsForSale
+    {
+        get
+        {
+            currentOffer.Clear();
+
+            foreach (var plant in seedsForSale)
+                if (plant != null && !currentOffer.Contains(plant))
+                    currentOffer.Add(plant);
+
+            return currentOffer;
+        }
+    }
+
+    private readonly List<PlantType> currentOffer = new List<PlantType>();
+
     public Transform CameraFocusPoint => cameraFocusPoint != null ? cameraFocusPoint : transform;
 
     private void Awake()

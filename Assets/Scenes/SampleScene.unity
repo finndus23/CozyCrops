@@ -42789,6 +42789,7 @@ GameObject:
   m_Component:
   - component: {fileID: 423786716}
   - component: {fileID: 423786717}
+  - component: {fileID: 423786718}
   m_Layer: 0
   m_Name: PlantManager
   m_TagString: Untagged
@@ -42821,8 +42822,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb11175a734867048bb997764fafbf26, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlantManager
+--- !u!114 &423786718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423786715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3f9c34be5d42a1b8e6d0c9f2a3b4c7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlantStatusOverlay
+  statusPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
+  heightOffset: 0.35
+  showGrowthArc: 1
+  maxVisible: 120
+  refreshInterval: 0.1
+  growingColor: {r: 0.55, g: 0.85, b: 0.45, a: 0.75}
+  thirstyColor: {r: 0.35, g: 0.72, b: 1, a: 1}
+  readyColor: {r: 1, g: 0.83, b: 0.3, a: 1}
 --- !u!1 &424144067
 GameObject:
   m_ObjectHideFlags: 0
@@ -54429,10 +54450,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c8ffe2f57cfef43ab1358154ab103e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridZone
-  unlockCost: 1
+  unlockCost: 450
   lockedColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
   unlockedColor: {r: 0.2, g: 1, b: 0.2, a: 0.15}
-  saveId: 
+  saveId: zone_2
 --- !u!65 &528237630
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -58709,6 +58730,16 @@ MonoBehaviour:
   tileSize: 1
   indicatorColor: {r: 1, g: 1, b: 1, a: 0.9}
   queuedColor: {r: 0.122167915, g: 0, b: 0.4264151, a: 1}
+  toolStyles:
+  - tool: 1
+    color: {r: 0.85, g: 0.55, b: 0.25, a: 1}
+  - tool: 3
+    color: {r: 0.45, g: 0.85, b: 0.35, a: 1}
+  - tool: 2
+    color: {r: 0.35, g: 0.72, b: 1, a: 1}
+  - tool: 4
+    color: {r: 1, g: 0.83, b: 0.3, a: 1}
+  hoverAlphaFactor: 0.7
   popInDuration: 0.1
   popInFromScale: 0.75
 --- !u!4 &565722220
@@ -93866,10 +93897,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c8ffe2f57cfef43ab1358154ab103e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridZone
-  unlockCost: 1
+  unlockCost: 250
   lockedColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
   unlockedColor: {r: 0.2, g: 1, b: 0.2, a: 0.15}
-  saveId: 
+  saveId: zone_1
 --- !u!65 &948942738
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -100269,6 +100300,164 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009621015}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1009751617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1009751618}
+  - component: {fileID: 1009751621}
+  - component: {fileID: 1009751620}
+  - component: {fileID: 1009751619}
+  m_Layer: 0
+  m_Name: BannerTitle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1009751618
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009751617}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2088089326}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -42}
+  m_SizeDelta: {x: -192, y: 58}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1009751619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009751617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: Missionstitel
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4291292666
+  m_fontColor: {r: 0.98, g: 0.93, b: 0.78, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 12
+  m_fontSizeBase: 22
+  m_fontWeight: 400
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 12
+  m_fontSizeMax: 22
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 1
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1009751620
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009751617}
+  m_CullTransparentMesh: 1
+--- !u!114 &1009751621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009751617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1010197015
 GameObject:
   m_ObjectHideFlags: 0
@@ -128108,7 +128297,7 @@ GameObject:
   - component: {fileID: 1305319179}
   - component: {fileID: 1305319180}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: OnkelOzan
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -128216,9 +128405,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 1305319173}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89e9d641799993e49a989e79ffaea89b, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TutorialDialogueRepeat
+  m_EditorClassIdentifier: Assembly-CSharp::StoryDialogueNpc
+  steps:
+  - missionId: story_1_first_field
+    dialogue: {fileID: 11400000, guid: 1a2b3c4d5e6f708192a3b4c5d6e7f809, type: 2}
+  - missionId: story_2_carrot_run
+    dialogue: {fileID: 11400000, guid: 2b3c4d5e6f708192a3b4c5d6e7f8091a, type: 2}
+  - missionId: story_3_tools_and_papers
+    dialogue: {fileID: 11400000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3e, type: 2}
+  - missionId: story_4_cauliflower_run
+    dialogue: {fileID: 11400000, guid: 112233445566778899001122334455ba, type: 2}
+  - missionId: story_5_upgrade_run
+    dialogue: {fileID: 11400000, guid: 4d5e6f708192a3b4c5d6e7f8091a2b3e, type: 2}
+  - missionId: story_6_sunflower_run
+    dialogue: {fileID: 11400000, guid: 112233445566778899001122334455bb, type: 2}
+  - missionId: story_7_full_farm
+    dialogue: {fileID: 11400000, guid: 112233445566778899001122334455b7, type: 2}
+  smallTalkDialogue: {fileID: 11400000, guid: 8192a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
+  repeatTutorialDialogue: 1
+  availableIndicator: {fileID: 0}
+  indicatorRefreshInterval: 0.5
 --- !u!114 &1305319180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128231,7 +128439,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71b1070c2e77eb64c9da1956ab7eb445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialNpc
-  repeatDialogue: {fileID: 0}
 --- !u!1 &1307116614
 GameObject:
   m_ObjectHideFlags: 0
@@ -130474,8 +130681,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a65f8ac7f4cf21f4581d8ba37449f7b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolUseHandler
-  maxParallelJobs: 1
-  maxQueuedJobs: 24
+  maxParallelJobs: 4
+  maxQueuedJobs: 64
 --- !u!4 &1334977211
 Transform:
   m_ObjectHideFlags: 0
@@ -136047,6 +136254,9 @@ MonoBehaviour:
   minSize: {x: 220, y: 70}
   horizontalPadding: 64
   backgroundHeight: 70
+  countUpDuration: 0.6
+  animateOnlyGains: 1
+  coinPunchScale: 0.35
 --- !u!114 &1392969696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142856,7 +143066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
-  m_Navigation:
+  unlockCost: 800
     m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
@@ -143045,10 +143255,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c8ffe2f57cfef43ab1358154ab103e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridZone
-  unlockCost: 1
+  unlockCost: 800
   lockedColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
   unlockedColor: {r: 0.2, g: 1, b: 0.2, a: 0.15}
-  saveId: 
+  saveId: zone_4
 --- !u!65 &1461683936
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -200376,6 +200586,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1806597763}
+  - {fileID: 1009751618}
   m_Father: {fileID: 118623005}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -200395,10 +200606,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592413bca7e4b5e40abc0bc03bffd98a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionsUI
-  panel: {fileID: 0}
+  panel: {fileID: 2088089325}
   contentRoot: {fileID: 1806597763}
   missionEntryPrefab: {fileID: 6874457844991073382, guid: d9b6f728a0c16fa45ae3ead25d22bca6, type: 3}
   panelSprite: {fileID: 21300000, guid: ed7058d0ca6349c43b7523ecce26fa66, type: 3}
+  panelScale: 1.3
+  panelPosition: {x: 18, y: -78}
+  panelWidth: 430
+  minPanelHeight: 230
+  padLeft: 68
+  padRight: 68
+  padTop: 122
+  padBottom: 80
+  entrySpacing: 10
+  borderScale: 3
+  bannerTitleText: {fileID: 1009751619}
+  autoPositionBannerTitle: 0
+  bannerTitleTop: 26
+  bannerTitleHeight: 58
+  bannerTitleSideInset: 96
+  bannerTitleFontSize: 22
+  bannerTitleColor: {r: 0.98, g: 0.93, b: 0.78, a: 1}
+  hideInlineTitleOfFirstEntry: 1
+  nextStepText: {fileID: 0}
+  nextStepFontSize: 20
+  nextStepColor: {r: 0.32, g: 0.24, b: 0.14, a: 1}
 --- !u!114 &2088089328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202955,10 +203187,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74c8ffe2f57cfef43ab1358154ab103e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridZone
-  unlockCost: 1
+  unlockCost: 650
   lockedColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 0}
   unlockedColor: {r: 0.2, g: 1, b: 0.2, a: 0.15}
-  saveId: 
+  saveId: zone_3
 --- !u!65 &2114086531
 BoxCollider:
   m_ObjectHideFlags: 0

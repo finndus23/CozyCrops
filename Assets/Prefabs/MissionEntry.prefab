@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 31.525, y: -22.365}
-  m_SizeDelta: {x: 63.05, y: 0}
+  m_AnchoredPosition: {x: 45.805, y: -40.795}
+  m_SizeDelta: {x: 91.61, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7235964847089439059
 CanvasRenderer:
@@ -206,6 +206,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionEntryUI
   titleText: {fileID: 4531705819786657718}
   objectivesText: {fileID: 1601695641813540152}
+  collectButton: {fileID: 0}
+  collectButtonColor: {r: 0.42, g: 0.62, b: 0.24, a: 1}
 --- !u!114 &3876325433497890105
 MonoBehaviour:
   m_ObjectHideFlags: 0
