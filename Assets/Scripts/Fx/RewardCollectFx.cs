@@ -40,6 +40,31 @@ public class CoinFlightSettings
 
     [Tooltip("Größe beim Aufschlag — leicht schrumpfend wirkt wie Tiefe.")]
     public float arriveScale = 0.6f;
+
+    [Header("Klang")]
+    [Tooltip("Münz-Klang beim Eintreffen. Der Clip kommt aus der UiSfxLibrary, damit er " +
+             "überall gleich ist.")]
+    public bool playSound = true;
+
+    [Tooltip("An = jede einzelne ankommende Münze klingt, nicht nur die erste.\n\n" +
+             "Ergibt das klassische Münzprasseln und fühlt sich bei großen Beträgen " +
+             "deutlich fetter an. Braucht aber einen sehr kurzen, leisen Clip — sonst wird " +
+             "aus zwanzig Münzen ein einziger Krach.")]
+    public bool soundPerCoin = false;
+
+    [Tooltip("Lautstärke der Münzen, wenn soundPerCoin an ist. Deutlich runter, es kommen " +
+             "viele.")]
+    [Range(0f, 1f)]
+    public float perCoinVolume = 0.35f;
+
+    /// <summary>
+    /// Ungefähre Zeit, bis die erste Münze ankommt. Die erste Münze hat keinen Startversatz,
+    /// also nur Ausbrechen plus Flug.
+    ///
+    /// Nur ein Richtwert — die Flugdauer wird pro Münze leicht gestreut. Für das Timing des
+    /// Geldzählers reicht das; auf den Frame genau muss es nicht sein.
+    /// </summary>
+    public float FirstArrivalTime => scatterDuration + flyDuration;
 }
 
 /// <summary>
@@ -60,6 +85,42 @@ public static class RewardCollectFx
     /// <param name="coinCount">Anzahl Münzen — nicht der Geldbetrag, nur Optik.</param>
     /// <param name="onFirstArrival">Wird ausgeführt sobald die erste Münze ankommt.</param>
     /// <param name="settings">Timing/Optik. Null = Standardwerte.</param>
+    /// <summary>
+    /// Münzflug für einen Verkauf. Im Gegensatz zur Missions-Belohnung ist das Geld hier
+    /// bereits gutgeschrieben, wenn der Flug startet — der Handel darf nicht davon abhängen,
+    /// dass eine Animation zu Ende läuft. Deshalb ohne Rückruf: rein kosmetisch.
+    /// </summary>
+    /// <param name="from">Startpunkt, üblicherweise die Shop-Zeile.</param>
+    /// <param name="gold">Verdienter Betrag — bestimmt nur, wie viele Münzen fliegen.</param>
+    /// <param name="onFirstArrival">
+    /// Läuft beim Eintreffen der ersten Münze. Hier gehört der Verkaufsklang hin: er soll
+    /// den Einschlag begleiten, nicht den Klick. Auch wenn kein Flug zustande kommt, wird
+    /// er ausgeführt — sonst bliebe der Verkauf in Szenen ohne Geldanzeige stumm.
+    /// </param>
+    public static void PlaySale(RectTransform from, int gold, CoinFlightSettings settings = null,
+                                Action onFirstArrival = null)
+    {
+        settings ??= new CoinFlightSettings();
+        PlayCoinFlight(from, CoinCountForGold(gold, settings), onFirstArrival, settings);
+    }
+
+    /// <summary>
+    /// Wie viele Münzen ein Betrag wert ist. Bewusst gedeckelt: der Schwarm soll die Größe
+    /// des Ertrags andeuten, nicht abbilden — bei 900 Gold will niemand 900 Sprites sehen.
+    /// </summary>
+    public static int CoinCountForGold(int gold, CoinFlightSettings settings = null)
+    {
+        settings ??= new CoinFlightSettings();
+
+        int min = Mathf.Max(1, settings.minCoins);
+        int max = Mathf.Max(min, settings.maxCoins);
+
+        if (gold <= 0) return min;
+
+        int perCoin = Mathf.Max(1, settings.goldPerExtraCoin);
+        return Mathf.Clamp(min + gold / perCoin, min, max);
+    }
+
     public static void PlayCoinFlight(RectTransform from, int coinCount, Action onFirstArrival,
                                       CoinFlightSettings settings = null)
     {
@@ -71,7 +132,7 @@ public static class RewardCollectFx
         // Der Effekt darf nie zur Voraussetzung für den Spielfortschritt werden.
         if (money == null || from == null || money.CoinSprite == null)
         {
-            onFirstArrival?.Invoke();
+            Arrive(onFirstArrival, settings);
             return;
         }
 
@@ -79,7 +140,7 @@ public static class RewardCollectFx
         Canvas canvas = target.GetComponentInParent<Canvas>();
         if (canvas == null)
         {
-            onFirstArrival?.Invoke();
+            Arrive(onFirstArrival, settings);
             return;
         }
 
@@ -112,13 +173,34 @@ public static class RewardCollectFx
                 if (!fired)
                 {
                     fired = true;
-                    onFirstArrival?.Invoke();
+                    Arrive(onFirstArrival, settings);
+                }
+                else if (settings.playSound && settings.soundPerCoin)
+                {
+                    // Nur die Folgemünzen: die erste hat ihren Klang schon über Arrive()
+                    // bekommen, und zwar in voller Lautstärke.
+                    UiSfx.CoinFlightTick(settings.perCoinVolume);
                 }
 
                 money.PunchCoin();
                 UnityEngine.Object.Destroy(coin);
             });
         }
+    }
+
+    /// <summary>
+    /// Die Münzen sind da: Klang abspielen und den Rückruf auslösen.
+    ///
+    /// Beides zusammengefasst, weil beides denselben Moment meint — und weil die
+    /// Abbruchpfade weiter oben sonst leicht den Klang vergessen. Genau dort wäre es am
+    /// schlimmsten: ohne Geldanzeige fliegt gar nichts, und dann ist der Klang die einzige
+    /// Rückmeldung, dass etwas angekommen ist.
+    /// </summary>
+    private static void Arrive(Action onFirstArrival, CoinFlightSettings settings)
+    {
+        if (settings == null || settings.playSound) UiSfx.CoinFlight();
+
+        onFirstArrival?.Invoke();
     }
 
     private static GameObject CreateCoin(Transform parent, Sprite sprite, Vector3 worldPos, float size)

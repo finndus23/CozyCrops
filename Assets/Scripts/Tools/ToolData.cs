@@ -34,6 +34,10 @@ public class ToolData : ScriptableObject
              "Über Meilensteine erhöhbar — eigener Progressionsstrang neben AoE und Tempo.")]
     public int baseQueueSize = 3;
 
+    [Tooltip("Wie viele Gießungen ein einzelner Einsatz auf Level 0 zählt (nur Gießkanne " +
+             "sinnvoll). Über Meilensteine steigerbar.")]
+    public int baseWateringPower = 1;
+
     [Header("Duration (Sekunden)")]
     [Tooltip("Wie lange dauert eine Aktion auf Level 0?")]
     public float baseDuration = 1f;
@@ -111,6 +115,23 @@ public class ToolData : ScriptableObject
         }
 
         return size;
+    }
+
+    /// <summary>
+    /// Wie viele Gießungen ein Einsatz auf dem gegebenen Level zählt. Mindestens 1.
+    /// </summary>
+    public int GetWateringPower(int level)
+    {
+        int power = Mathf.Max(1, baseWateringPower);
+
+        for (int i = 0; i < milestones.Length; i++)
+        {
+            var m = milestones[i];
+            if (m.level > level) break;
+            if (m.wateringPower > 0) power = m.wateringPower;
+        }
+
+        return power;
     }
 
     /// <summary>

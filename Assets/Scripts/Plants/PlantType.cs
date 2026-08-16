@@ -16,6 +16,23 @@ public class PlantType : ScriptableObject
     public int seedPrice = 10;
     public int sellPrice = 25;
 
+    [Header("Sound")]
+    [Tooltip("Gesät. Optional — liegt zusätzlich über dem Klang aus dem Werkzeug. Leise " +
+             "halten, das Werkzeug trägt die Aktion.")]
+    public AudioClip[] plantSfx;
+
+    [Tooltip("Geerntet. Hier lohnt sich der Aufwand am meisten — eine Karotte, die anders " +
+             "klingt als eine Sonnenblume, macht die Ernte greifbar.")]
+    public AudioClip[] harvestSfx;
+
+    [Tooltip("Verkauft. Leer = der allgemeine Verkaufsklang aus der UiSfxLibrary.")]
+    public AudioClip[] sellSfx;
+
+    [Tooltip("Lautstärke der frucht-eigenen Klänge, 0–1. Unter dem Werkzeug bleiben: sie " +
+             "sollen die Frucht kennzeichnen, nicht die Aktion überdecken.")]
+    [Range(0f, 1f)]
+    public float sfxVolume = 0.6f;
+
     [Header("Growth")]
     public GrowthStage[] growthStages;
 

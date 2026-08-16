@@ -6,6 +6,17 @@ public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; }
 
+    /// <summary>
+    /// Tiles wurden umgewandelt. Liefert die neue Art, den Mittelpunkt der Fläche und die
+    /// Anzahl geänderter Felder.
+    ///
+    /// Feuert <b>einmal pro Aktion</b>, nicht pro Tile — bei einer Auswahl über zwanzig
+    /// Felder käme sonst zwanzigmal derselbe Klang im selben Frame. Aus demselben Grund
+    /// bleibt <see cref="ApplySaveTiles"/> bewusst still: beim Laden eines Spielstands
+    /// entstehen hunderte Tiles auf einmal.
+    /// </summary>
+    public static event Action<TileType, Vector3, int> OnTilesAppliedStatic;
+
     [SerializeField] private int width = 20;
     [SerializeField] private int height = 20;
     [SerializeField] private float cellSize = 1f;
@@ -171,12 +182,21 @@ public class GridManager : MonoBehaviour
         if (changed && FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        if (changed)
+            OnTilesAppliedStatic?.Invoke(type, GridToWorld(x, z), 1);
+
         return changed;
     }
 
     public void ApplyToSelection(TileType type)
     {
         bool changed = false;
+
+        // Mittelpunkt der tatsächlich geänderten Felder aufsummieren. Über die gesamte
+        // Auswahl zu mitteln wäre falsch: gesperrte oder bepflanzte Zellen ändern sich
+        // nicht, und der Ton käme dann aus einer Ecke, in der nichts passiert ist.
+        var sum = Vector3.zero;
+        int count = 0;
 
         foreach (var cell in SelectionManager.Instance.SelectedCells)
         {
@@ -187,14 +207,20 @@ public class GridManager : MonoBehaviour
             else
                 success = TryPlaceTile(cell.x, cell.y, type);
 
-            if (success)
-                changed = true;
+            if (!success) continue;
+
+            changed = true;
+            sum += GridToWorld(cell.x, cell.y);
+            count++;
         }
 
         SelectionManager.Instance.ClearSelection();
 
         if (changed && FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
+
+        if (count > 0)
+            OnTilesAppliedStatic?.Invoke(type, sum / count, count);
     }
 
     /// <summary>

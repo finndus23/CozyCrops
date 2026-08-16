@@ -19,46 +19,56 @@ MonoBehaviour:
   baseAoSize: 1
   aoeBatchDiscount: 0.5
   baseQueueSize: 4
+  baseWateringPower: 1
   baseDuration: 2
   durationReductionPerLevel: 0.04
   minDuration: 0.35
   buyPrice: 140
   baseCost: 55
   costScalingPerLevel: 13
+  useLoop: {fileID: 8300000, guid: 66121a515b8046549ba1974247da2ea9, type: 3}
+  impactClips: []
+  sfxVolume: 0.1
   milestones:
   - level: 5
     aoSize: 0
     yieldBonus: 0
     durationOverride: -1
     queueSize: 5
-    unlockText: "Warteschlange 5"
+    wateringPower: 0
+    unlockText: Warteschlange 5
   - level: 10
     aoSize: 2
     yieldBonus: 0
     durationOverride: -1
     queueSize: 6
+    wateringPower: 0
     unlockText: "Fl\xE4che 2\xD72"
   - level: 15
     aoSize: 0
     yieldBonus: 0
     durationOverride: -1
     queueSize: 8
-    unlockText: "Warteschlange 8"
+    wateringPower: 0
+    unlockText: Warteschlange 8
   - level: 20
     aoSize: 3
     yieldBonus: 0
     durationOverride: -1
     queueSize: 10
+    wateringPower: 2
     unlockText: "Fl\xE4che 3\xD73"
   - level: 25
     aoSize: 0
     yieldBonus: 0
     durationOverride: -1
     queueSize: 13
-    unlockText: "Warteschlange 13"
+    wateringPower: 0
+    unlockText: Warteschlange 13
   - level: 30
     aoSize: 4
     yieldBonus: 0
     durationOverride: -1
     queueSize: 16
+    wateringPower: 2
     unlockText: "Fl\xE4che 4\xD74 \u2014 Vollausbau"

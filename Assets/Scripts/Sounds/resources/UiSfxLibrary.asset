@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6179b517625ee5243b911ea6f8ad95ea, type: 3}
+  m_Name: UiSfxLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::UiSfxLibrary
+  buttonClick:
+  - {fileID: 8300000, guid: 6775cb44151b23a409df03bd52427a42, type: 3}
+  buttonBack: []
+  panelOpen: []
+  panelClose: []
+  purchase:
+  - {fileID: 8300000, guid: f1329c70696e5774d8b1c770638063c1, type: 3}
+  sell:
+  - {fileID: 8300000, guid: f1329c70696e5774d8b1c770638063c1, type: 3}
+  denied: []
+  toolUpgraded: []
+  toolAcquired: []
+  missionStarted: []
+  missionCompleted:
+  - {fileID: 8300000, guid: 99d05a1b86d6b2542ac012edb80e028d, type: 3}
+  rewardCollected:
+  - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
+  volume: 0.3
+  pitchJitter: 0.03

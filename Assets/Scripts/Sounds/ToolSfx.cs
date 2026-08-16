@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Vertont die Werkzeug-Aktionen. Hängt an den Job-Events des <see cref="ToolUseHandler"/>,
@@ -33,25 +34,41 @@ public class ToolSfx : MonoBehaviour
 
     private void OnEnable()
     {
-        // Der Handler ist ein Szenen-Singleton und kann in Awake noch fehlen.
-        handler = ToolUseHandler.Instance;
-        if (handler == null) return;
-
-        handler.OnJobStarted  += HandleJobStarted;
-        handler.OnJobFinished += HandleJobFinished;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        Bind();
     }
 
-    private void Start()
+    // Nachziehen, falls OnEnable vor dem Awake des Handlers lief.
+    private void Start() => Bind();
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Nachziehen, falls OnEnable vor dem Awake des Handlers lief.
+        // Der alte Handler ist mit seiner Szene verschwunden; die Referenz zeigt ins Leere.
+        // Ohne das Zurücksetzen würde Bind() sie für gültig halten und nie neu abonnieren.
+        handler = null;
+
+        // Laufende Dauertöne gehören zu Jobs, die es nicht mehr gibt.
+        StopAllLoops();
+
+        Bind();
+    }
+
+    /// <summary>
+    /// Abonniert den ToolUseHandler der aktuellen Szene.
+    ///
+    /// Diese Komponente liegt auf dem dauerhaften SfxManager-Objekt, der Handler ist
+    /// dagegen szenengebunden. Einmalig in Start zu binden hieße: startet das Spiel im
+    /// Hauptmenü, wo es keinen Handler gibt, bleiben die Werkzeuge die ganze Sitzung stumm.
+    /// </summary>
+    private void Bind()
+    {
         if (handler != null) return;
 
         handler = ToolUseHandler.Instance;
-        if (handler == null)
-        {
-            Debug.LogWarning("[ToolSfx] Kein ToolUseHandler in der Szene — Werkzeug-Sounds bleiben stumm.");
-            return;
-        }
+        if (handler == null) return;
+
+        handler.OnJobStarted  -= HandleJobStarted;
+        handler.OnJobFinished -= HandleJobFinished;
 
         handler.OnJobStarted  += HandleJobStarted;
         handler.OnJobFinished += HandleJobFinished;
@@ -59,6 +76,8 @@ public class ToolSfx : MonoBehaviour
 
     private void OnDisable()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
         if (handler != null)
         {
             handler.OnJobStarted  -= HandleJobStarted;

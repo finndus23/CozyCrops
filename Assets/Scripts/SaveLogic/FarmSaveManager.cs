@@ -42,6 +42,22 @@ public class FarmSaveManager : MonoBehaviour
     [SerializeField] private bool useAutoSave = false;
     [SerializeField] private float autoSaveInterval = 10f;
 
+    [Header("Speichern bei Änderungen")]
+    [Tooltip("Schreibt kurz nachdem sich etwas geändert hat.\n\n" +
+             "Ohne das bleibt RequestSave() wirkungslos, solange die Autosave-Schleife aus " +
+             "ist: Missions-Fortschritt, gebaute Tiles und Käufe melden zwar brav eine " +
+             "Änderung an, aber niemand schreibt sie — nur der manuelle Save tut es.")]
+    [SerializeField] private bool saveOnRequest = true;
+
+    [Tooltip("Wartezeit nach der ersten Änderung, bevor geschrieben wird.\n\n" +
+             "Fasst zusammenhängende Änderungen zu einem Schreibvorgang zusammen: eine " +
+             "AoE-Ernte meldet ein Dutzend Änderungen im selben Moment, das soll nicht ein " +
+             "Dutzend Dateizugriffe auslösen.\n\n" +
+             "Der Timer läuft ab der ERSTEN Änderung und wird von weiteren nicht nach hinten " +
+             "geschoben — sonst könnte durchgehendes Spielen das Speichern beliebig lange " +
+             "hinauszögern, und genau dann verliert man am meisten.")]
+    [SerializeField] private float saveDebounce = 2f;
+
     [Header("Debug Hotkeys")]
     [SerializeField] private bool enableDebugHotkeys = true;
     [SerializeField] private Key saveKey = Key.F5;
@@ -56,6 +72,9 @@ public class FarmSaveManager : MonoBehaviour
     private bool allowSaveRequests;
     private bool isQuitting;
     private float nextAutoSaveTime;
+
+    // Zeitpunkt, zu dem die angesammelten Änderungen geschrieben werden sollen.
+    private float saveDueTime;
 
     public int ActiveSlot => activeSlot;
     public string DefaultGameSceneName => defaultGameSceneName;
@@ -88,8 +107,17 @@ public class FarmSaveManager : MonoBehaviour
     {
         HandleDebugHotkeys();
 
-        if (!useAutoSave) return;
         if (isLoading || isQuitting) return;
+
+        // Änderungsgetriebenes Speichern läuft unabhängig von der Autosave-Schleife: es soll
+        // auch dann greifen, wenn niemand ein festes Intervall haben will.
+        if (saveOnRequest && saveRequested && Time.unscaledTime >= saveDueTime)
+        {
+            SaveNowInternal("Auto (Änderung)");
+            return;
+        }
+
+        if (!useAutoSave) return;
         if (Time.unscaledTime < nextAutoSaveTime) return;
 
         if (saveRequested)
@@ -216,6 +244,10 @@ public class FarmSaveManager : MonoBehaviour
     {
         if (isLoading || isQuitting) return;
         if (!allowSaveRequests) return;
+
+        // Nur die erste Änderung startet den Timer. Würde jede weitere ihn neu setzen,
+        // schöbe durchgehendes Spielen das Speichern immer weiter vor sich her.
+        if (!saveRequested) saveDueTime = Time.unscaledTime + Mathf.Max(0.1f, saveDebounce);
 
         saveRequested = true;
     }
@@ -873,16 +905,37 @@ public class FarmSaveManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        SaveOnLeaving("Quit Save");
         isQuitting = true;
+    }
 
-        if (!saveOnApplicationQuit) return;
+    /// <summary>
+    /// Letzte Gelegenheit zu speichern, wenn das Spiel in den Hintergrund geht.
+    ///
+    /// Auf dem Desktop ist das die Absicherung gegen das, was <see cref="OnApplicationQuit"/>
+    /// nicht mitbekommt: abgewürgte Prozesse, Abstürze, ausgehender Akku. Der Debounce-Timer
+    /// wäre in dem Moment womöglich noch nicht abgelaufen.
+    /// </summary>
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused) SaveOnLeaving("Pause Save");
+    }
 
+    private void SaveOnLeaving(string reason)
+    {
+        if (isQuitting || isLoading) return;
+
+        // saveOnApplicationQuit schaltet nur die Zusatzsicherung ab; hängen ausstehende
+        // Änderungen an, wird trotzdem geschrieben. Ungespeicherter Fortschritt beim
+        // Beenden ist kein Verhalten, das man versehentlich konfiguriert haben will.
         if (!saveRequested)
         {
-            Debug.Log("[FarmSaveManager] Quit Save übersprungen: Keine Änderungen seit letztem Save/Load.");
+            if (saveOnApplicationQuit)
+                Debug.Log($"[FarmSaveManager] {reason} übersprungen: keine Änderungen seit dem letzten Save.");
+
             return;
         }
 
-        SaveNowInternal("Quit Save");
+        SaveNowInternal(reason);
     }
 }

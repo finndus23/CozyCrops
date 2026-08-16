@@ -12,8 +12,17 @@ public class PlantInstance
 
     public bool IsFullyGrown => Type.IsLastStage(StageIndex);
 
+    /// <summary>
+    /// Ob Gießen an dieser Pflanze noch etwas bewirkt.
+    ///
+    /// Die Prüfung auf <see cref="IsFullyGrown"/> ist nötig, weil ein Phasenwechsel den
+    /// Gießzähler zurücksetzt — auch beim Wechsel in die letzte Phase. Eine reife Pflanze
+    /// steht also mit 0 Gießungen da und sah damit aus wie durstig. <see cref="Water"/>
+    /// hat zwar nichts mehr getan, TryWater meldete aber trotzdem Erfolg: Missions-
+    /// Fortschritt, Werkzeug-Animation und ein Save für eine Aktion, die nie stattfand.
+    /// </summary>
     public bool NeedsWatering =>
-        Type.requiresWatering && WateringsThisStage < Type.wateringsPerStage;
+        Type.requiresWatering && !IsFullyGrown && WateringsThisStage < Type.wateringsPerStage;
 
     /// <summary>
     /// Fortschritt innerhalb der aktuellen Wachstumsphase, 0–1.
@@ -86,11 +95,20 @@ public class PlantInstance
         return false;
     }
 
-    public void Water()
+    /// <summary>
+    /// Gießt die Pflanze. <paramref name="amount"/> ist die Gießkraft des Werkzeugs — eine
+    /// aufgewertete Kanne erledigt mehrere nötige Gießungen einer Phase auf einmal.
+    ///
+    /// Überschuss verfällt bewusst und wandert nicht in die nächste Phase: sonst könnte man
+    /// eine Pflanze mit einer starken Kanne im Voraus durchgießen und das Wachstum bis zur
+    /// Reife komplett ohne weiteres Zutun laufen lassen.
+    /// </summary>
+    public void Water(int amount = 1)
     {
         if (IsFullyGrown) return;
-        if (WateringsThisStage < Type.wateringsPerStage)
-            WateringsThisStage++;
+
+        WateringsThisStage = Mathf.Min(Type.wateringsPerStage,
+                                       WateringsThisStage + Mathf.Max(1, amount));
     }
 
     public GameObject GetCurrentPrefab()

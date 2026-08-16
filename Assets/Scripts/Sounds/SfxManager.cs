@@ -23,9 +23,13 @@ public class SfxManager : MonoBehaviour
     public static SfxManager Instance { get; private set; }
 
     [Header("Ausgabe")]
-    [Tooltip("Optional. Leer = direkt an den AudioListener. Sobald es einen Lautstärkeregler " +
-             "im Optionsmenü geben soll, hier die SFX-Gruppe des AudioMixers eintragen.")]
+    [Tooltip("Welt-Effekte: Werkzeuge, Bauen, Ernte. Leer = direkt an den AudioListener.")]
     [SerializeField] private AudioMixerGroup outputGroup;
+
+    [Tooltip("Menü- und Rückmeldungsklänge. Leer = es wird outputGroup benutzt.\n\n" +
+             "Getrennt regelbar zu machen lohnt sich: Welt-Effekte darf man weit " +
+             "herunterziehen, ohne dass das Menü unbedienbar wird.")]
+    [SerializeField] private AudioMixerGroup uiOutputGroup;
 
     [Header("Stimmen")]
     [Tooltip("Wie viele Effekte gleichzeitig klingen dürfen. Ist alles belegt, wird die " +
@@ -48,16 +52,39 @@ public class SfxManager : MonoBehaviour
 
     [SerializeField] private float maxDistance = 60f;
 
-    [Tooltip("Sperre gegen doppelte Auslöser im selben Moment. Verhindert, dass ein Clip " +
-             "durch zwei Events im selben Frame doppelt und damit deutlich lauter startet.")]
-    [SerializeField] private float duplicateGuard = 0.04f;
+    [Tooltip("Zusätzliche Sperrzeit in Sekunden, in der derselbe Clip nicht erneut startet.\n\n" +
+             "Der Schutz gegen doppelte Auslöser im selben Frame läuft unabhängig davon immer. " +
+             "Dieser Wert ist nur für den Fall, dass zwei Systeme ein Ereignis ein paar Frames " +
+             "versetzt melden.\n\n" +
+             "0 lassen. Gemaltes Bauen und schnelle Werkzeugketten erzeugen absichtlich viele " +
+             "gleiche Clips kurz hintereinander — eine Sperrzeit verschluckt genau die.")]
+    [SerializeField] private float duplicateGuard = 0f;
+
+    [Header("Stille am Clip-Anfang")]
+    [Tooltip("Startet Clips hinter der Stille am Anfang. Viele Sound-Pakete haben vor dem " +
+             "eigentlichen Geräusch ein paar Hundertstel Leerlauf — bei einem Klick ist das " +
+             "als Verzögerung hörbar, weil der Ton nicht mehr auf denselben Frame fällt wie " +
+             "das Bild.\n\n" +
+             "Repariert nur die Wiedergabe. Sauberer ist, die Datei zu kürzen: das spart " +
+             "zusätzlich Speicher und wirkt überall, auch außerhalb des SfxManagers.")]
+    [SerializeField] private bool skipLeadingSilence = true;
+
+    [Tooltip("Ab welchem Pegel ein Sample als Ton gilt. Höher stellen, wenn die Clips ein " +
+             "leises Grundrauschen haben und die Erkennung deshalb nicht greift.")]
+    [Range(0f, 0.05f)]
+    [SerializeField] private float silenceThreshold = 0.005f;
 
     private readonly List<AudioSource> voices = new();
     private readonly Dictionary<AudioClip, float> lastPlayed = new();
+    private readonly Dictionary<AudioClip, int> lastPlayedFrame = new();
 
     // Merkt sich pro Clip-Satz die zuletzt gezogene Variante, damit nicht zweimal
     // hintereinander dieselbe kommt — echter Zufall wirkt an der Stelle wie ein Fehler.
     private readonly Dictionary<AudioClip[], int> lastVariant = new();
+
+    // Startversatz pro Clip. Die Analyse liest den kompletten Clip aus, deshalb wird das
+    // Ergebnis gemerkt — einmal pro Clip und Sitzung, nicht bei jedem Klick.
+    private readonly Dictionary<AudioClip, int> leadingSilence = new();
 
     private int nextVoice;
 
@@ -96,32 +123,74 @@ public class SfxManager : MonoBehaviour
     // ── One-Shots ─────────────────────────────────────────────────────────────
 
     /// <summary>Spielt eine zufällige Variante aus <paramref name="clips"/> an einer Position.</summary>
-    public void Play(AudioClip[] clips, Vector3 position, float volume = 1f)
+    public void Play(AudioClip[] clips, Vector3 position, float volume = 1f, float pitchScale = 1f)
     {
         var clip = PickVariant(clips);
-        if (clip != null) Play(clip, position, volume);
+        if (clip != null) Play(clip, position, volume, pitchScale);
     }
 
-    public void Play(AudioClip clip, Vector3 position, float volume = 1f)
+    /// <param name="pitchScale">
+    /// Grundtonhöhe, auf die der Jitter aufschlägt. Unter 1 klingt schwerer und größer,
+    /// über 1 leichter — praktisch, um aus einem Clip zwei Bedeutungen zu machen, statt
+    /// einen zweiten Sound zu suchen.
+    /// </param>
+    public void Play(AudioClip clip, Vector3 position, float volume = 1f, float pitchScale = 1f)
     {
         if (clip == null) return;
 
-        // Doppelte Auslöser im selben Moment abfangen. Zwei identische Clips exakt
-        // gleichzeitig sind nicht doppelt so laut, sondern klingen durch Phasing schlicht
-        // kaputt — und das passiert genau dann, wenn zwei Systeme am selben Ereignis hängen.
-        if (lastPlayed.TryGetValue(clip, out float last) && Time.unscaledTime - last < duplicateGuard)
-            return;
-
-        lastPlayed[clip] = Time.unscaledTime;
+        if (IsBlockedAsDuplicate(clip)) return;
 
         var voice = TakeVoice();
-        ConfigureVoice(voice, position);
+        ConfigureVoice(voice, position, spatial ? 1f : 0f);
 
         voice.clip   = clip;
         voice.loop   = false;
         voice.volume = volume;
-        voice.pitch  = 1f + Random.Range(-pitchJitter, pitchJitter);
+        voice.pitch  = pitchScale + Random.Range(-pitchJitter, pitchJitter);
+        voice.timeSamples = LeadingSilenceSamples(clip);
         voice.Play();
+    }
+
+    // ── UI ────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Spielt einen Effekt <b>ohne</b> Raumbezug — immer gleich laut, egal wo die Kamera steht.
+    ///
+    /// Menü- und Buttonklänge passieren nicht in der Welt, sondern "vor" dem Spieler. Liefe
+    /// ein Klick über die 3D-Ausgabe, würde seine Lautstärke davon abhängen, wo die Kamera
+    /// zufällig gerade steht — im Baumodus am Kartenrand also deutlich leiser als in der Mitte.
+    /// </summary>
+    /// <returns>
+    /// Die benutzte Stimme, oder null wenn nichts abgespielt wurde. Nur nötig, wenn der
+    /// Aufrufer den Klang später vorzeitig beenden will — etwa das Motorgeräusch, das nur
+    /// bis zum Ende des Ladebildschirms laufen soll.
+    /// </returns>
+    public AudioSource PlayUI(AudioClip clip, float volume = 1f, float pitchJitterOverride = -1f)
+    {
+        if (clip == null) return null;
+
+        if (IsBlockedAsDuplicate(clip)) return null;
+
+        var voice = TakeVoice();
+        ConfigureVoice(voice, Vector3.zero, 0f, ui: true);
+
+        float jitter = pitchJitterOverride >= 0f ? pitchJitterOverride : pitchJitter;
+
+        voice.clip   = clip;
+        voice.loop   = false;
+        voice.volume = volume;
+        voice.pitch  = 1f + Random.Range(-jitter, jitter);
+        voice.timeSamples = LeadingSilenceSamples(clip);
+        voice.Play();
+
+        return voice;
+    }
+
+    /// <summary>UI-Variante mit Varianten-Rotation.</summary>
+    public AudioSource PlayUI(AudioClip[] clips, float volume = 1f)
+    {
+        var clip = PickVariant(clips);
+        return clip != null ? PlayUI(clip, volume) : null;
     }
 
     // ── Loops ─────────────────────────────────────────────────────────────────
@@ -141,7 +210,7 @@ public class SfxManager : MonoBehaviour
         var voice = TakeFreeVoice();
         if (voice == null) return null;
 
-        ConfigureVoice(voice, position);
+        ConfigureVoice(voice, position, spatial ? 1f : 0f);
 
         voice.clip   = clip;
         voice.loop   = true;
@@ -189,6 +258,38 @@ public class SfxManager : MonoBehaviour
         source.volume = start;
     }
 
+    // ── Duplikatschutz ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Blockt denselben Clip, wenn er im selben Frame schon einmal gestartet wurde.
+    ///
+    /// Das Problem, um das es geht: zwei Systeme hängen am selben Ereignis und starten
+    /// denselben Clip gleichzeitig. Zwei identische Wellen exakt übereinander sind nicht
+    /// doppelt so laut, sondern klingen durch Phasing kaputt.
+    ///
+    /// Die Sperre gilt bewusst nur <b>innerhalb eines Frames</b>. Eine Sperrzeit über
+    /// mehrere Frames würde auch das treffen, was ausdrücklich erwünscht ist: beim
+    /// gemalten Bauen wird pro überstrichenem Tile derselbe Clip gestartet, und genau
+    /// diese Kette soll man hören. Für Rhythmus sorgt dort der Pitch-Jitter, nicht
+    /// das Verschlucken jeder zweiten Wiedergabe.
+    /// </summary>
+    private bool IsBlockedAsDuplicate(AudioClip clip)
+    {
+        int frame = Time.frameCount;
+
+        if (lastPlayedFrame.TryGetValue(clip, out int lastFrame) && lastFrame == frame)
+            return true;
+
+        if (duplicateGuard > 0f
+            && lastPlayed.TryGetValue(clip, out float last)
+            && Time.unscaledTime - last < duplicateGuard)
+            return true;
+
+        lastPlayedFrame[clip] = frame;
+        lastPlayed[clip] = Time.unscaledTime;
+        return false;
+    }
+
     // ── Stimmenverwaltung ─────────────────────────────────────────────────────
 
     /// <summary>Nächste Stimme im Ringpuffer — notfalls wird die älteste überschrieben.</summary>
@@ -212,12 +313,65 @@ public class SfxManager : MonoBehaviour
         return null;
     }
 
-    private void ConfigureVoice(AudioSource voice, Vector3 position)
+    /// <summary>
+    /// Richtet eine Stimme für die anstehende Wiedergabe ein.
+    ///
+    /// Die Mixer-Gruppe wird pro Abspielung gesetzt, nicht einmalig beim Anlegen: die
+    /// Stimmen sind ein gemeinsamer Vorrat, und dieselbe Stimme spielt mal einen Weltklang
+    /// und im nächsten Moment einen Menüklick. Zwei getrennte Vorräte anzulegen wäre die
+    /// Alternative — dann läge aber der eine brach, während dem anderen die Stimmen ausgehen.
+    /// </summary>
+    private void ConfigureVoice(AudioSource voice, Vector3 position, float spatialBlend, bool ui = false)
     {
         voice.transform.position = position;
-        voice.spatialBlend = spatial ? 1f : 0f;
+        voice.spatialBlend = spatialBlend;
         voice.minDistance = minDistance;
         voice.maxDistance = maxDistance;
+
+        voice.outputAudioMixerGroup = ui && uiOutputGroup != null ? uiOutputGroup : outputGroup;
+    }
+
+    /// <summary>
+    /// Sucht das erste Sample, das lauter als <see cref="silenceThreshold"/> ist, und gibt
+    /// dessen Position zurück. Von dort startet die Wiedergabe — die Stille davor entfällt.
+    ///
+    /// Nur für kurze Effekte gedacht: die Analyse zieht den gesamten Clip in ein float-Array,
+    /// bei Musik wären das schnell hunderte Megabyte. Lange Clips werden deshalb übersprungen.
+    /// </summary>
+    private int LeadingSilenceSamples(AudioClip clip)
+    {
+        if (!skipLeadingSilence || clip == null) return 0;
+
+        if (leadingSilence.TryGetValue(clip, out int cached)) return cached;
+
+        // Zu lang für die Analyse, oder die Daten liegen komprimiert im Speicher und
+        // GetData käme gar nicht dran. Beides ist kein Fehler — dann eben ohne Versatz.
+        if (clip.length > 3f || clip.samples <= 0 || clip.loadState != AudioDataLoadState.Loaded)
+            return 0;
+
+        var data = new float[clip.samples * clip.channels];
+        if (!clip.GetData(data, 0)) return 0;
+
+        int index = 0;
+        while (index < data.Length && Mathf.Abs(data[index]) <= silenceThreshold)
+            index++;
+
+        // Komplett stiller Clip — nichts zu überspringen.
+        if (index >= data.Length)
+        {
+            leadingSilence[clip] = 0;
+            return 0;
+        }
+
+        int offset = index / clip.channels;
+
+        // Ein Stück davor bleiben: Ein Klick beginnt mit einem sehr steilen Anstieg, und
+        // exakt auf dem ersten hörbaren Sample einzusetzen schneidet dessen Anfang ab —
+        // das knackt dann genauso, wie es vorher zu spät kam.
+        offset = Mathf.Max(0, offset - 64);
+
+        leadingSilence[clip] = offset;
+        return offset;
     }
 
     private AudioClip PickVariant(AudioClip[] clips)
