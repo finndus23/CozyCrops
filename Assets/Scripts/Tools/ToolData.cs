@@ -54,6 +54,22 @@ public class ToolData : ScriptableObject
     [Tooltip("Zusätzliche Goldkosten pro Level.")]
     public int costScalingPerLevel = 10;
 
+    [Header("Sound")]
+    [Tooltip("Dauerton während die Aktion läuft (Wasserrauschen, Scharren). Optional.\n\n" +
+             "Eine Aktion dauert auf Stufe 0 zwei Sekunden — kommt der Ton erst am Ende, " +
+             "fühlen sich diese zwei Sekunden tot an. Derselbe Grund, aus dem es die " +
+             "Castbar und den Fortschrittsring gibt.")]
+    public AudioClip useLoop;
+
+    [Tooltip("Wird abgespielt, wenn die Aktion fertig ist (Erde platscht, Sense schneidet).\n" +
+             "Mehrere Varianten eintragen: es wird abwechselnd gezogen, nie zweimal " +
+             "dieselbe hintereinander.")]
+    public AudioClip[] impactClips;
+
+    [Tooltip("Lautstärke der Werkzeug-Sounds, 0–1.")]
+    [Range(0f, 1f)]
+    public float sfxVolume = 1f;
+
     [Header("Meilensteine")]
     [Tooltip("Besondere Effekte bei bestimmten Levels. Nach Level sortieren.")]
     public ToolMilestone[] milestones;
