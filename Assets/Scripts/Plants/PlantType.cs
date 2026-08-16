@@ -33,6 +33,14 @@ public class PlantType : ScriptableObject
     [Range(0f, 1f)]
     public float sfxVolume = 0.6f;
 
+    [Header("Darstellung")]
+    [Tooltip("Drehung um die Y-Achse beim Platzieren, in Grad.\n\n" +
+             "Für Modelle, die in ihrem Prefab in die falsche Richtung schauen. Hier statt " +
+             "in den Prefabs, weil eine Pflanze pro Wachstumsphase ein eigenes Prefab hat — " +
+             "sonst müsste man dieselbe Drehung dreimal eintragen und bei jeder neuen Phase " +
+             "daran denken.")]
+    public float modelYRotation;
+
     [Header("Growth")]
     public GrowthStage[] growthStages;
 

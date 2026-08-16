@@ -17,9 +17,10 @@ MonoBehaviour:
   icon: {fileID: 1276768196, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
   maxLevel: 30
   baseAoSize: 1
-  aoeBatchDiscount: 0.5
+  extraTileCost: 0.9
   baseQueueSize: 4
   baseWateringPower: 1
+  multiWateringEfficiency: 0.85
   baseDuration: 2
   durationReductionPerLevel: 0.04
   minDuration: 0.35

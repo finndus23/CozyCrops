@@ -239,7 +239,8 @@ public class PlantManager : MonoBehaviour
         if (prefab == null) return;
 
         var pos = GridManager.Instance.GridToWorld(cell.X, cell.Z);
-        var go = Instantiate(prefab, pos, Quaternion.identity);
+        var rotation = Quaternion.Euler(0f, cell.Plant.Type.modelYRotation, 0f);
+        var go = Instantiate(prefab, pos, rotation);
 
         // Feel-Good-Polish: Pop-In-Animation beim Spawnen/Stage-Wechsel (siehe PlantGrowthFx.Start()).
         if (!go.TryGetComponent<PlantGrowthFx>(out _))

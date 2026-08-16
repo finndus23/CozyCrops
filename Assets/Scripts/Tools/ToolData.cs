@@ -20,14 +20,17 @@ public class ToolData : ScriptableObject
     [Tooltip("Startgröße der Wirkungsfläche. 1 = 1×1, 2 = 2×2, 3 = 3×3 …")]
     public int baseAoSize = 1;
 
-    [Tooltip("Zeit-Rabatt auf jedes ZUSÄTZLICHE Tile einer AoE-Aktion.\n\n" +
-             "0 = jedes Tile kostet volle Zeit (9 Tiles = 9× so lang). Dann ist eine größere " +
-             "Fläche nur Klick-Ersparnis, kein Tempo — ein AoE-Meilenstein fühlt sich damit " +
-             "nicht wie ein Sprung an.\n" +
-             "0,5 = jedes weitere Tile kostet die Hälfte (9 Tiles ≈ 5× statt 9×).\n" +
-             "1 = alle Tiles in der Zeit von einem (sehr stark).")]
-    [Range(0f, 1f)]
-    public float aoeBatchDiscount = 0.5f;
+    [Tooltip("Was jedes ZUSÄTZLICHE Tile einer AoE-Aktion kostet, gemessen an einem einzelnen.\n\n" +
+             "1 = 9 Tiles dauern exakt so lang wie 9 einzelne Aktionen. Die Wirkungsfläche " +
+             "spart dann nur Klicks, keine Zeit.\n" +
+             "0,9 = jedes weitere Tile kostet 90 % — ein kleiner Bonus obendrauf, damit sich " +
+             "die Aufwertung auch in der Zeit bemerkbar macht.\n" +
+             "0,5 = jedes weitere Tile kostet die Hälfte (9 Tiles ≈ 5× statt 9×).\n\n" +
+             "Niedrige Werte machen große Flächen sehr stark, aber einzelne Tiles im " +
+             "Vergleich unattraktiv. Das eigentliche Tempo soll über die sinkende Base " +
+             "Duration beim Leveln kommen, nicht hierüber.")]
+    [Range(0.1f, 1f)]
+    public float extraTileCost = 0.9f;
 
     [Header("Warteschlange")]
     [Tooltip("Wie viele Aktionen mit DIESEM Werkzeug gleichzeitig eingeplant sein dürfen. " +
@@ -37,6 +40,16 @@ public class ToolData : ScriptableObject
     [Tooltip("Wie viele Gießungen ein einzelner Einsatz auf Level 0 zählt (nur Gießkanne " +
              "sinnvoll). Über Meilensteine steigerbar.")]
     public int baseWateringPower = 1;
+
+    [Tooltip("Zeitgewinn beim Mehrfach-Gießen, 0,5–1.\n\n" +
+             "Eine Kanne mit Gießkraft 2 erledigt zwei Gießungen auf einmal — und braucht " +
+             "dafür grundsätzlich auch die doppelte Zeit. Sonst würde der Meilenstein den " +
+             "Gießbedarf einer Pflanze einfach halbieren, statt Arbeit zu bündeln.\n\n" +
+             "Dieser Faktor gibt den Rabatt darauf: 1 = exakt so lang wie zwei einzelne " +
+             "Gießungen, der Gewinn liegt allein im gesparten Klick. 0,85 = zusätzlich 15 % " +
+             "schneller, damit sich die Aufwertung auch in der Zeit bemerkbar macht.")]
+    [Range(0.5f, 1f)]
+    public float multiWateringEfficiency = 0.85f;
 
     [Header("Duration (Sekunden)")]
     [Tooltip("Wie lange dauert eine Aktion auf Level 0?")]
@@ -137,17 +150,33 @@ public class ToolData : ScriptableObject
     /// <summary>
     /// Gesamtdauer einer Aktion über <paramref name="tileCount"/> Tiles.
     ///
-    /// Das erste Tile kostet volle Zeit, jedes weitere nur noch (1 - aoeBatchDiscount).
-    /// Damit wird eine größere Wirkungsfläche zum echten Durchsatz-Sprung statt bloß
-    /// Klicks zu sparen — sonst wäre der AoE-Meilenstein bei Stufe 10 zeitlich wirkungslos.
+    /// Das erste Tile kostet volle Zeit, jedes weitere <see cref="extraTileCost"/> davon.
+    /// Bei einem Wert nahe 1 kostet die volle Fläche also ungefähr so viel wie die
+    /// entsprechende Zahl einzelner Aktionen — die Wirkungsfläche spart dann vor allem
+    /// Klickarbeit.
+    ///
+    /// Das ist Absicht: käme das Tempo aus dem Mengenrabatt, wäre ein einzelnes Tile
+    /// dauerhaft die schlechteste Art zu arbeiten, und man würde Klicks aufsparen, bis die
+    /// Fläche voll ist. Schneller wird die Arbeit stattdessen über die mit dem Level
+    /// sinkende Zeit pro Tile — davon profitiert auch, wer nur eine Pflanze gießt.
     /// </summary>
     public float GetJobDuration(int level, int tileCount)
     {
         float perTile = GetDuration(level);
         int n = Mathf.Max(1, tileCount);
-        float extraFactor = 1f - Mathf.Clamp01(aoeBatchDiscount);
+        float extraFactor = Mathf.Clamp(extraTileCost, 0.1f, 1f);
 
-        return perTile * (1f + (n - 1) * extraFactor);
+        float duration = perTile * (1f + (n - 1) * extraFactor);
+
+        // Mehrfach-Gießen kostet auch mehrfach Zeit, abzüglich eines Rabatts. Käme die
+        // zweite Gießung gratis, wäre der Meilenstein keine gebündelte Arbeit mehr, sondern
+        // eine halbierte Anforderung — und Pflanzen mit hohem Gießbedarf verlören ihren
+        // Charakter komplett.
+        int power = GetWateringPower(level);
+        if (power > 1)
+            duration *= power * Mathf.Clamp(multiWateringEfficiency, 0.5f, 1f);
+
+        return duration;
     }
 
     /// <summary>Warteschlangen-Größe dieses Werkzeugs für das gegebene Level.</summary>

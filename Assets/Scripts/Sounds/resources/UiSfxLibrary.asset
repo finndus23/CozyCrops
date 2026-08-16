@@ -25,11 +25,11 @@ MonoBehaviour:
   toolUpgraded: []
   toolAcquired: []
   missionStarted: []
-  objectiveCompleted: []
-  missionCompleted:
+  objectiveCompleted:
   - {fileID: 8300000, guid: 99d05a1b86d6b2542ac012edb80e028d, type: 3}
-  rewardCollected:
-  - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
+  missionCompleted:
+  - {fileID: 8300000, guid: 866aad4a9ceff494b9311a81776f6720, type: 3}
+  rewardCollected: []
   coinFlight:
   - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
   volume: 0.3
