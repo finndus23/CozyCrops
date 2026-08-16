@@ -17,6 +17,6 @@ MonoBehaviour:
     text: Willkommen auf deiner neuen farm, hier kannst du dich voll und ganz ausleben.
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Dr\xFCcke B um in den Baumodus zu gelangen"
+    text: "Drücke B um in den Baumodus zu gelangen"
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

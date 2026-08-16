@@ -17,7 +17,7 @@ MonoBehaviour:
     text: Ausgezeichnet, deine ersten Einnahmen so kann es weitergehen.
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Du hast nun alles was du brauchst viel Spa\xDF auf deiner Farm, hier noch
+    text: "Du hast nun alles was du brauchst viel Spaß auf deiner Farm, hier noch
       ein wenig Geld zum start."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

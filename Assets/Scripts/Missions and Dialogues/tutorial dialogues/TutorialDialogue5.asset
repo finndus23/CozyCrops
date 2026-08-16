@@ -17,6 +17,6 @@ MonoBehaviour:
     text: Gut, nun brauchen wir noch ein paar Samen zum einpflanzen.
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Gehe zum Pflanzenh\xE4ndler und kaufe 10 Karottensamen."
+    text: "Gehe zum Pflanzenhändler und kaufe 10 Karottensamen."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

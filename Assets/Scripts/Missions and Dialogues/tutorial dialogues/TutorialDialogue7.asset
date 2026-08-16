@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Nun siehst du unten in der Hotbar deine Tools, w\xE4hle sie mit den Tasten
+    text: "Nun siehst du unten in der Hotbar deine Tools, wähle sie mit den Tasten
       1-4 oder durch einen Mausklick aus."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

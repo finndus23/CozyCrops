@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Moin gro\xDFer hier kleine Tutorialtest "
+    text: "Moin großer hier kleine Tutorialtest "
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 11400000, guid: 43e687f4d7d7c314fbcbe8fdc2c1ea56, type: 2}

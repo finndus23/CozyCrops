@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Wunderbar, du hast wirklich einen gr\xFCnen Daumen. Ernte die Pflanze
+    text: "Wunderbar, du hast wirklich einen grünen Daumen. Ernte die Pflanze
       nun mit der Sichel ab."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

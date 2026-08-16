@@ -40,7 +40,7 @@ MonoBehaviour:
     yieldBonus: 1
     durationOverride: -1
     queueSize: 6
-    unlockText: "Fl\xE4che 2\xD72"
+    unlockText: "Fläche 2×2"
   - level: 15
     aoSize: 0
     yieldBonus: 0
@@ -52,7 +52,7 @@ MonoBehaviour:
     yieldBonus: 0
     durationOverride: -1
     queueSize: 10
-    unlockText: "Fl\xE4che 3\xD73"
+    unlockText: "Fläche 3×3"
   - level: 25
     aoSize: 0
     yieldBonus: 0
@@ -64,4 +64,4 @@ MonoBehaviour:
     yieldBonus: 2
     durationOverride: -1
     queueSize: 16
-    unlockText: "Fl\xE4che 4\xD74 \u2014 Vollausbau"
+    unlockText: "Fläche 4×4 — Vollausbau"

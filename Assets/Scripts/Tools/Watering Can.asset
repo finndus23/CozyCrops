@@ -44,7 +44,7 @@ MonoBehaviour:
     durationOverride: -1
     queueSize: 6
     wateringPower: 0
-    unlockText: "Fl\xE4che 2\xD72"
+    unlockText: "Fläche 2×2"
   - level: 15
     aoSize: 0
     yieldBonus: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
     durationOverride: -1
     queueSize: 10
     wateringPower: 2
-    unlockText: "Fl\xE4che 3\xD73"
+    unlockText: "Fläche 3×3"
   - level: 25
     aoSize: 0
     yieldBonus: 0
@@ -72,4 +72,4 @@ MonoBehaviour:
     durationOverride: -1
     queueSize: 16
     wateringPower: 2
-    unlockText: "Fl\xE4che 4\xD74 \u2014 Vollausbau"
+    unlockText: "Fläche 4×4 — Vollausbau"

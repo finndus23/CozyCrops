@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: story_9_sunflower_license
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_9_sunflower_license
-  title: "Die gro\xDFe Lizenz"
-  description: "Sonnenblumen sind die K\xF6nigsklasse. Das Amt l\xE4sst sich das bezahlen
-    \u2014 aber wer die Lizenz hat, spielt in einer anderen Liga."
+  title: "Die große Lizenz"
+  description: "Sonnenblumen sind die Königsklasse. Das Amt lässt sich das bezahlen
+    — aber wer die Lizenz hat, spielt in einer anderen Liga."
   objectives:
   - type: 19
     targetPlantType: {fileID: 0}
@@ -52,5 +52,5 @@ MonoBehaviour:
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Zur\xFCck zum Lizenzamt."
+  nextStepHint: "Zurück zum Lizenzamt."
   sequentialObjectives: 1

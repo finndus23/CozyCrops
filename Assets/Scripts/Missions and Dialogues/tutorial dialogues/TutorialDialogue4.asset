@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Meine G\xFCte ist das Laut hier. Nunja das ist der Marktplatz, hier kannst
+    text: "Meine Güte ist das Laut hier. Nunja das ist der Marktplatz, hier kannst
       du allerlei Sachen Kaufen oder verkaufen."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Hier etwas Geld, suche den Werkzeugh\xE4ndler und kaufe dir Werkzeuge"
+    text: "Hier etwas Geld, suche den Werkzeughändler und kaufe dir Werkzeuge"
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Super unsere Erste Pflanze ist im Boden. Nun nimm die Gie\xDFkanne und
-      Gie\xDFe Sie."
+    text: "Super unsere Erste Pflanze ist im Boden. Nun nimm die Gießkanne und
+      Gieße Sie."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Pflanzen haben 3 Wachstumsstufen, das hei\xDFt du musst sie Mehrfach Gie\xDFen
+    text: "Pflanzen haben 3 Wachstumsstufen, das heißt du musst sie Mehrfach Gießen
       damit du sie ernten kannst"
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

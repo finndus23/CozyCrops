@@ -754,7 +754,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "R\xFCdiger"
+  m_text: "Rüdiger"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7902,7 +7902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
   displayName: Lizenzamt
-  speechText: "Papierkram zuerst, dann darfst du s\uFFFDen."
+  speechText: "Papierkram zuerst, dann darfst du s�en."
   tradeMode: 3
   seedsForSale: []
   cameraFocusPoint: {fileID: 0}
@@ -9600,7 +9600,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
   displayName: Schmied
-  speechText: "Stumpf ist es, aber nicht hin\xFCber."
+  speechText: "Stumpf ist es, aber nicht hinüber."
   tradeMode: 2
   seedsForSale:
   - {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
@@ -10690,7 +10690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15a335bd4b8caee42b209b25a89b311a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
-  displayName: "H\xE4ndler"
+  displayName: "Händler"
   speechText: Gib schon her den Krempel!
   tradeMode: 1
   seedsForSale: []
@@ -17786,7 +17786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15a335bd4b8caee42b209b25a89b311a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpc
-  displayName: "Samenverk\xE4ufer"
+  displayName: "Samenverkäufer"
   speechText: Ich hab auch nicht ewig Zeit
   tradeMode: 0
   seedsForSale:

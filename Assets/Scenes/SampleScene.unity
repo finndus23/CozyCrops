@@ -13909,7 +13909,7 @@ GameObject:
   m_Component:
   - component: {fileID: 150322055}
   m_Layer: 0
-  m_Name: "Z\xE4une"
+  m_Name: "Zäune"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74700,7 +74700,7 @@ GameObject:
   m_Component:
   - component: {fileID: 728078306}
   m_Layer: 0
-  m_Name: "STRA\xDFE"
+  m_Name: "STRAßE"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

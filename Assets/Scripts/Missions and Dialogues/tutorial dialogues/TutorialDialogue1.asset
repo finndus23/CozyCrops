@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: Du bist jetzt im Baumodus! Unten in der Leiste w\xE4hlst du aus, welches
-      Feld du anlegen willst. Farmland ist schon ausgew\xE4hlt.
+    text: Du bist jetzt im Baumodus! Unten in der Leiste wählst du aus, welches
+      Feld du anlegen willst. Farmland ist schon ausgewählt.
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: Klicke oder ziehe mit der linken Maustaste \xFCber den Boden, um Farmland
+    text: Klicke oder ziehe mit der linken Maustaste über den Boden, um Farmland
       anzulegen.
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

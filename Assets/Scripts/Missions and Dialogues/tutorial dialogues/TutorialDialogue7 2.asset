@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Geh auf den Samen Slot, w\xE4hle den richtigen Samen aus und Pflanze ihn
+    text: "Geh auf den Samen Slot, wähle den richtigen Samen aus und Pflanze ihn
       ein."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}

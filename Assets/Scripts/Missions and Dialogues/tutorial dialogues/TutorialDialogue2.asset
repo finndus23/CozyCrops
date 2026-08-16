@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Onkel Ozan
-    text: "Sehr gut, Damit k\xF6nnen wir doch arbeiten!"
+    text: "Sehr gut, Damit können wir doch arbeiten!"
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   - speakerName: Onkel Ozan
-    text: "Dr\xFCcke B um den Baumodus wieder zu verlassen."
+    text: "Drücke B um den Baumodus wieder zu verlassen."
     portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
   missionToStartAfter: {fileID: 0}
