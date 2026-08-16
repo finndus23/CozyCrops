@@ -23,6 +23,14 @@ public class ToolMilestone
              "Wie viele Aktionen der Spieler vorausplanen kann, bevor er warten muss.")]
     public int queueSize;
 
+    [Tooltip("Wie viele Gießungen ein einzelner Einsatz zählt (nur Gießkanne sinnvoll). " +
+             "0 = keine Änderung.\n\n" +
+             "Pflanzen, die mehrere Gießungen pro Phase brauchen — Sonnenblumen etwa —, " +
+             "kosten sonst auch auf hohem Level noch zwei volle Durchgänge über dasselbe " +
+             "Feld. Eine größere Fläche hilft dagegen nicht: das Problem liegt in der " +
+             "Tiefe, nicht in der Breite.")]
+    public int wateringPower;
+
     [Tooltip("Text der im Shop angezeigt wird, z.B. 'Fläche vergrößert!'")]
     public string unlockText;
 }

@@ -32,6 +32,15 @@ public class ToolUseHandler : MonoBehaviour
              "nur das Sicherheitsnetz darüber.")]
     [SerializeField] private int maxQueuedJobs = 64;
 
+    [Tooltip("Zählt die Warteschlange in TILES statt in Aktionen.\n\n" +
+             "Aus: sechs Plätze sind sechs Klicks — egal ob jeder ein Feld oder neun " +
+             "bearbeitet. Eine größere Wirkungsfläche macht jede einzelne Aktion mächtiger, " +
+             "die Vorausplanung bleibt aber gleich kurz.\n\n" +
+             "An: die Fläche geht als Faktor ein. Sechs Plätze bei 2×2 ergeben 24 " +
+             "vorplanbare Felder. Die Aufwertung wirkt damit auch auf die Reichweite der " +
+             "Warteschlange und fühlt sich deutlich mehr nach Fortschritt an.")]
+    [SerializeField] private bool queueScalesWithAoE = true;
+
     [Header("Layering (experimentell)")]
     [Tooltip("Erlaubt, eine Tile für ein Werkzeug einzureihen, obwohl sie dafür noch gar " +
              "nicht bereit ist — z.B. pflanzen auf einem Feld das noch gehackt wird. Der " +
@@ -118,6 +127,32 @@ public class ToolUseHandler : MonoBehaviour
         return Mathf.Clamp(capacity, 1, maxQueuedJobs);
     }
 
+    /// <summary>Wartende Tiles dieses Werkzeugs — die Summe über alle eingereihten Jobs.</summary>
+    public int CountQueuedTilesFor(ToolType tool)
+    {
+        int count = 0;
+        foreach (var job in queued)
+            if (job.Tool == tool) count += job.Tiles?.Count ?? 0;
+
+        return count;
+    }
+
+    /// <summary>
+    /// Kapazität der Warteschlange in Tiles — nur relevant bei aktivem
+    /// <c>queueScalesWithAoE</c>.
+    ///
+    /// Die Wirkungsfläche geht als Faktor ein: sechs Plätze bei 2×2 ergeben 24 Felder.
+    /// Ohne das bliebe die Vorausplanung beim Aufwerten der Fläche gleich lang, obwohl
+    /// jeder Klick mehr erledigt — die Aufwertung fühlte sich dann kleiner an, als sie ist.
+    /// </summary>
+    public int GetQueueTileCapacity(ToolType tool)
+    {
+        int aoSize = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetAoSize(tool) : 1;
+        int tilesPerAction = Mathf.Max(1, aoSize * aoSize);
+
+        return GetQueueCapacity(tool) * tilesPerAction;
+    }
+
     public bool TryStartUse(int x, int z, ToolType tool)
     {
         if (tool == ToolType.None) return false;
@@ -140,7 +175,11 @@ public class ToolUseHandler : MonoBehaviour
         // für die allererste Aktion, und ohne Queueing ginge gar nichts mehr.
         // Bewusst nur die WARTENDEN Jobs zählen, nicht die laufenden: sonst könnte ein
         // Werkzeug mit Kapazität 1 nie etwas vorausplanen.
-        if (GameSettings.ActionQueueingEnabled && CountQueuedFor(tool) >= GetQueueCapacity(tool))
+        // Bei tile-basierter Kapazität kann das hier noch nicht entschieden werden — dafür
+        // muss erst feststehen, wie viele Tiles die Aktion überhaupt trifft. Die Prüfung
+        // holt weiter unten nach, sobald die Liste steht.
+        if (GameSettings.ActionQueueingEnabled && !queueScalesWithAoE
+            && CountQueuedFor(tool) >= GetQueueCapacity(tool))
             return false;
 
         int aoSize = ToolRegistry.Instance != null ? ToolRegistry.Instance.GetAoSize(tool) : 1;
@@ -169,6 +208,11 @@ public class ToolUseHandler : MonoBehaviour
 
         if (tiles.Count == 0) return false;
 
+        // Tile-basierte Kapazität: jetzt steht fest, wie viele Felder dazukämen.
+        if (GameSettings.ActionQueueingEnabled && queueScalesWithAoE
+            && CountQueuedTilesFor(tool) + tiles.Count > GetQueueTileCapacity(tool))
+            return false;
+
         // Saatgut reservieren: ohne das kann man 10 Felder einreihen obwohl nur 3 Samen
         // da sind, und 7 Jobs laufen durch um dann still zu scheitern.
         if (tool == ToolType.Seed)
@@ -179,7 +223,22 @@ public class ToolUseHandler : MonoBehaviour
                 ? PlayerInventory.Instance.GetSeedCount(seed)
                 : 0;
 
-            if (CountScheduledSeedUses(seed) + tiles.Count > available) return false;
+            int budget = available - CountScheduledSeedUses(seed);
+            if (budget <= 0) return false;
+
+            // Reicht das Saatgut nicht für die ganze Fläche, wird bepflanzt was geht statt
+            // die Aktion zu verweigern. Mit drei Samen auf ein 3x3-Feld zu klicken und gar
+            // nichts zu bekommen, wirkt wie ein Fehler — der Spieler sieht ja Saatgut im
+            // Inventar. Die Fläche schrumpft, die Aktion findet statt.
+            if (tiles.Count > budget)
+            {
+                // Nach Abstand zum Klick sortieren, damit die verbleibenden Samen dort
+                // landen, wo der Spieler hingezeigt hat, und nicht am Rand der Fläche.
+                tiles.Sort((a, b) =>
+                    (a - origin).sqrMagnitude.CompareTo((b - origin).sqrMagnitude));
+
+                tiles.RemoveRange(budget, tiles.Count - budget);
+            }
         }
 
         // Nicht mehr stur perTile × Anzahl: ToolData rechnet den Mengenrabatt ein, damit

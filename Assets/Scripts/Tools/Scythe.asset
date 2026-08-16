@@ -25,13 +25,16 @@ MonoBehaviour:
   buyPrice: 110
   baseCost: 50
   costScalingPerLevel: 12
+  useLoop: {fileID: 8300000, guid: b6976af115162c34e8b812cf78a1396e, type: 3}
+  impactClips: []
+  sfxVolume: 0.1
   milestones:
   - level: 5
     aoSize: 0
     yieldBonus: 0
     durationOverride: -1
     queueSize: 5
-    unlockText: "Warteschlange 5"
+    unlockText: Warteschlange 5
   - level: 10
     aoSize: 2
     yieldBonus: 1
@@ -43,7 +46,7 @@ MonoBehaviour:
     yieldBonus: 0
     durationOverride: -1
     queueSize: 8
-    unlockText: "Warteschlange 8"
+    unlockText: Warteschlange 8
   - level: 20
     aoSize: 3
     yieldBonus: 0
@@ -55,7 +58,7 @@ MonoBehaviour:
     yieldBonus: 0
     durationOverride: -1
     queueSize: 13
-    unlockText: "Warteschlange 13"
+    unlockText: Warteschlange 13
   - level: 30
     aoSize: 4
     yieldBonus: 2

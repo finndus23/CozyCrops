@@ -80,6 +80,16 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     [SerializeField] private bool allowSellingCrops = true;
     [SerializeField] private float seedSellPriceFactor = 0.5f;
 
+    [Header("Münzflug")]
+    [Tooltip("Münzen fliegen beim Verkauf von der Zeile zur Geldanzeige — derselbe Effekt " +
+             "wie beim Abholen einer Missions-Belohnung.")]
+    [SerializeField] private bool coinFlightOnSell = true;
+
+    [Tooltip("Timing und Optik des Münzflugs beim Verkauf.\n\n" +
+             "Darf knapper eingestellt sein als bei Missionen: im Shop verkauft man mehrmals " +
+             "hintereinander, und ein langer Schwarm überlagert sich sonst selbst.")]
+    [SerializeField] private CoinFlightSettings coinFlight = new();
+
     private FarmMarketNpc currentNpc;
     private AudioListener gameplayAudioListener;
     private AudioListener dialogueAudioListener;
@@ -418,6 +428,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             return $"Stufe {next.level}: {next.unlockText}";
 
         if (next.aoSize > 0)   return $"Stufe {next.level}: Fläche {next.aoSize}×{next.aoSize}";
+        if (next.wateringPower > 1) return $"Stufe {next.level}: Gießt {next.wateringPower}× pro Einsatz";
         if (next.queueSize > 0) return $"Stufe {next.level}: Warteschlange {next.queueSize}";
         if (next.yieldBonus > 0) return $"Stufe {next.level}: +{next.yieldBonus} Ertrag";
 
@@ -478,10 +489,12 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (!LicenseRegistry.Instance.TryBuy(license))
         {
             SetStatus("Dafür reicht das Geld nicht.");
+            UiSfx.Denied();
             return;
         }
 
         SetStatus($"{license.displayName} erworben!");
+        UiSfx.Purchase();
 
         if (saveAfterTrade)
             FarmSaveManager.Instance?.RequestSave();
@@ -609,9 +622,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                     $"Besitzt: {amount}",
                     $"Verkauf: {sellPrice}",
                     "1 verkaufen",
-                    () => SellCrop(plant, 1),
+                    () => SellCrop(plant, 1, (RectTransform)row.transform),
                     "Alle",
-                    () => SellCrop(plant, inventory.GetCropCount(plant)));
+                    () => SellCrop(plant, inventory.GetCropCount(plant), (RectTransform)row.transform));
 
                 createdAnyRow = true;
             }
@@ -637,9 +650,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                     $"Besitzt: {amount}",
                     $"Verkauf: {sellPrice}",
                     "1 verkaufen",
-                    () => SellSeed(plant, 1),
+                    () => SellSeed(plant, 1, (RectTransform)row.transform),
                     "Alle",
-                    () => SellSeed(plant, inventory.GetSeedCount(plant)));
+                    () => SellSeed(plant, inventory.GetSeedCount(plant), (RectTransform)row.transform));
 
                 createdAnyRow = true;
             }
@@ -794,21 +807,38 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (inventory == null || plant == null || amount <= 0)
             return;
 
-        int totalPrice = Mathf.Max(0, plant.seedPrice) * amount;
+        int unitPrice = Mathf.Max(1, plant.seedPrice);
 
-        if (!inventory.TryBuySeed(plant, amount))
+        // So viele wie bezahlbar statt gar keine. Auf "10x" zu klicken und nichts zu
+        // bekommen, obwohl das Geld für sieben reicht, liest sich wie ein defekter Knopf —
+        // der Spieler rechnet nicht nach, er klickt nochmal.
+        int affordable = Mathf.Min(amount, inventory.Money / unitPrice);
+
+        if (affordable <= 0)
         {
-            SetStatus($"Nicht genug Geld. Benötigt: {totalPrice}");
+            SetStatus($"Nicht genug Geld. Ein Samen kostet {unitPrice}.");
+            UiSfx.Denied();
             UpdateMoneyText();
             return;
         }
 
-        SetStatus($"Gekauft: {amount}x {GetPlantDisplayName(plant)} Seed.");
+        if (!inventory.TryBuySeed(plant, affordable))
+        {
+            SetStatus($"Nicht genug Geld. Benötigt: {unitPrice * affordable}");
+            UiSfx.Denied();
+            UpdateMoneyText();
+            return;
+        }
+
+        SetStatus(affordable < amount
+            ? $"Gekauft: {affordable}x {GetPlantDisplayName(plant)} Seed — mehr war nicht drin."
+            : $"Gekauft: {affordable}x {GetPlantDisplayName(plant)} Seed.");
+
         SaveAfterTradeIfNeeded();
         RefreshShop();
     }
 
-    private void SellCrop(PlantType plant, int amount)
+    private void SellCrop(PlantType plant, int amount, RectTransform origin = null)
     {
         if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.SellItem) == true)
         {
@@ -828,18 +858,33 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             return;
         }
 
+        // Vor dem Verkauf ermitteln — danach ist die Ware weg und der Wert nicht mehr abfragbar.
+        int gold = inventory.GetSellValue(plant, amountToSell);
+
+        // TrySellCrop bucht das Geld selbst, der Zähler würde also sofort loslaufen.
+        // Deshalb muss der Vorlauf davor angemeldet sein.
+        bool fly = AnnounceCoinFlight(origin, gold);
+
         if (!inventory.TrySellCrop(plant, amountToSell))
         {
+            if (fly) MoneyDisplay.Instance.ClearPendingGainDelay();
+
             SetStatus("Verkauf fehlgeschlagen.");
             return;
         }
 
         SetStatus($"Verkauft: {amountToSell}x {GetPlantDisplayName(plant)} Crop.");
+
+        // Vor RefreshShop: dabei werden die Zeilen neu gebaut, und origin zeigt danach auf
+        // ein zerstörtes Objekt.
+        if (fly) RewardCollectFx.PlaySale(origin, gold, coinFlight, () => CropSfx.PlaySell(plant));
+        else     CropSfx.PlaySell(plant);
+
         SaveAfterTradeIfNeeded();
         RefreshShop();
     }
 
-    private void SellSeed(PlantType plant, int amount)
+    private void SellSeed(PlantType plant, int amount, RectTransform origin = null)
     {
         if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.SellItem) == true)
         {
@@ -875,11 +920,35 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         }
 
         int moneyGained = actuallySold * GetSeedSellPrice(plant);
+
+        bool fly = AnnounceCoinFlight(origin, moneyGained);
         inventory.AddMoney(moneyGained);
 
         SetStatus($"Verkauft: {actuallySold}x {GetPlantDisplayName(plant)} Seed für {moneyGained}.");
+
+        if (fly) RewardCollectFx.PlaySale(origin, moneyGained, coinFlight, () => CropSfx.PlaySell(plant));
+        else     CropSfx.PlaySell(plant);
+
         SaveAfterTradeIfNeeded();
         RefreshShop();
+    }
+
+    /// <summary>
+    /// Prüft, ob ein Münzflug möglich ist, und meldet in dem Fall den passenden Vorlauf beim
+    /// Geldzähler an. Gibt zurück, ob der Flug tatsächlich gestartet werden soll.
+    ///
+    /// Beides gehört zusammen: verzögert man den Zähler, ohne dass Münzen fliegen, steht er
+    /// eine Sekunde grundlos still.
+    /// </summary>
+    private bool AnnounceCoinFlight(RectTransform origin, int gold)
+    {
+        if (!coinFlightOnSell || origin == null || gold <= 0) return false;
+
+        var money = MoneyDisplay.Instance;
+        if (money == null || money.CoinSprite == null) return false;
+
+        money.DelayNextGain(coinFlight.FirstArrivalTime);
+        return true;
     }
 
     private int GetSeedSellPrice(PlantType plant)

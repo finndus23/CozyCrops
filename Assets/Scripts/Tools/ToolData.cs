@@ -34,6 +34,10 @@ public class ToolData : ScriptableObject
              "Über Meilensteine erhöhbar — eigener Progressionsstrang neben AoE und Tempo.")]
     public int baseQueueSize = 3;
 
+    [Tooltip("Wie viele Gießungen ein einzelner Einsatz auf Level 0 zählt (nur Gießkanne " +
+             "sinnvoll). Über Meilensteine steigerbar.")]
+    public int baseWateringPower = 1;
+
     [Header("Duration (Sekunden)")]
     [Tooltip("Wie lange dauert eine Aktion auf Level 0?")]
     public float baseDuration = 1f;
@@ -53,6 +57,22 @@ public class ToolData : ScriptableObject
 
     [Tooltip("Zusätzliche Goldkosten pro Level.")]
     public int costScalingPerLevel = 10;
+
+    [Header("Sound")]
+    [Tooltip("Dauerton während die Aktion läuft (Wasserrauschen, Scharren). Optional.\n\n" +
+             "Eine Aktion dauert auf Stufe 0 zwei Sekunden — kommt der Ton erst am Ende, " +
+             "fühlen sich diese zwei Sekunden tot an. Derselbe Grund, aus dem es die " +
+             "Castbar und den Fortschrittsring gibt.")]
+    public AudioClip useLoop;
+
+    [Tooltip("Wird abgespielt, wenn die Aktion fertig ist (Erde platscht, Sense schneidet).\n" +
+             "Mehrere Varianten eintragen: es wird abwechselnd gezogen, nie zweimal " +
+             "dieselbe hintereinander.")]
+    public AudioClip[] impactClips;
+
+    [Tooltip("Lautstärke der Werkzeug-Sounds, 0–1.")]
+    [Range(0f, 1f)]
+    public float sfxVolume = 1f;
 
     [Header("Meilensteine")]
     [Tooltip("Besondere Effekte bei bestimmten Levels. Nach Level sortieren.")]
@@ -95,6 +115,23 @@ public class ToolData : ScriptableObject
         }
 
         return size;
+    }
+
+    /// <summary>
+    /// Wie viele Gießungen ein Einsatz auf dem gegebenen Level zählt. Mindestens 1.
+    /// </summary>
+    public int GetWateringPower(int level)
+    {
+        int power = Mathf.Max(1, baseWateringPower);
+
+        for (int i = 0; i < milestones.Length; i++)
+        {
+            var m = milestones[i];
+            if (m.level > level) break;
+            if (m.wateringPower > 0) power = m.wateringPower;
+        }
+
+        return power;
     }
 
     /// <summary>

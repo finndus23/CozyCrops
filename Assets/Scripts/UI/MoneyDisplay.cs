@@ -35,8 +35,17 @@ public class MoneyDisplay : MonoBehaviour
     private RectTransform backgroundRect;
     private RectTransform coinRect;
 
-    private int displayedAmount;
+    // Der Wert, der gerade auf dem Bildschirm steht — nicht das Ziel. Beides
+    // auseinanderzuhalten ist nötig, sobald das Hochzählen verzögert startet: kommt
+    // währenddessen eine weitere Gutschrift, muss die neue Zählung dort ansetzen, wo der
+    // Spieler gerade hinschaut, und nicht beim schon gebuchten Zielwert.
+    private int visibleAmount;
+
     private Tween countTween;
+    private Tween punchTween;
+
+    // Vorlauf für die nächste Gutschrift, gesetzt von außen (Münzflug).
+    private float pendingGainDelay;
 
     /// <summary>Münz-Icon — Flugziel für eingesammelte Belohnungen.</summary>
     public RectTransform CoinAnchor => coinRect != null ? coinRect : (RectTransform)transform;
@@ -52,14 +61,15 @@ public class MoneyDisplay : MonoBehaviour
         CreateBackground();
         PlayerInventory.Instance.OnMoneyChanged += UpdateDisplay;
 
-        displayedAmount = PlayerInventory.Instance.Money;
-        SetText(displayedAmount);
+        visibleAmount = PlayerInventory.Instance.Money;
+        SetText(visibleAmount);
     }
 
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
         countTween?.Kill();
+        punchTween?.Kill();
 
         if (PlayerInventory.Instance != null)
             PlayerInventory.Instance.OnMoneyChanged -= UpdateDisplay;
@@ -70,29 +80,73 @@ public class MoneyDisplay : MonoBehaviour
     /// dass etwas angekommen ist — vor allem beim Einsammeln einer Missions-Belohnung,
     /// wo die Münzen hierher fliegen und der Zähler das Ergebnis bestätigt.
     /// </summary>
+    /// <summary>
+    /// Hält die nächste Gutschrift um <paramref name="seconds"/> zurück, bevor der Zähler
+    /// hochzuzählen beginnt.
+    ///
+    /// Gedacht für den Münzflug beim Verkauf: dort ist das Geld schon gebucht, während die
+    /// Münzen noch unterwegs sind. Ohne den Vorlauf wäre der Zähler fertig, bevor die erste
+    /// Münze ankommt — und der Flug sähe aus, als hätte er nichts damit zu tun.
+    ///
+    /// Bei Missions-Belohnungen ist das nicht nötig: dort wird das Geld ohnehin erst beim
+    /// Eintreffen der ersten Münze gebucht.
+    /// </summary>
+    public void DelayNextGain(float seconds)
+    {
+        if (seconds <= 0f) return;
+
+        // Bei mehreren Verkäufen kurz hintereinander den längeren Vorlauf behalten —
+        // sonst überholt eine späte Buchung die noch fliegenden Münzen der ersten.
+        pendingGainDelay = Mathf.Max(pendingGainDelay, seconds);
+    }
+
+    /// <summary>
+    /// Nimmt einen angemeldeten Vorlauf zurück. Nötig, wenn zwischen Anmeldung und Buchung
+    /// doch noch etwas schiefgeht — sonst würde die Verzögerung die nächste, völlig
+    /// unbeteiligte Gutschrift ausbremsen.
+    /// </summary>
+    public void ClearPendingGainDelay() => pendingGainDelay = 0f;
+
     private void UpdateDisplay(int amount)
     {
         if (moneyText == null) return;
 
         countTween?.Kill();
 
-        bool isGain = amount > displayedAmount;
+        bool isGain = amount > visibleAmount;
+
+        float delay = pendingGainDelay;
+        pendingGainDelay = 0f;
 
         if (countUpDuration <= 0f || (animateOnlyGains && !isGain))
         {
-            displayedAmount = amount;
+            visibleAmount = amount;
             SetText(amount);
             return;
         }
 
-        int from = displayedAmount;
-        displayedAmount = amount;
+        int from = visibleAmount;
 
-        countTween = DOVirtual.Float(from, amount, countUpDuration, v => SetText(Mathf.RoundToInt(v)))
+        countTween = DOVirtual.Float(from, amount, countUpDuration, v =>
+            {
+                visibleAmount = Mathf.RoundToInt(v);
+                SetText(visibleAmount);
+            })
             .SetEase(Ease.OutCubic)
-            .OnComplete(() => SetText(amount));
+            .SetDelay(delay)
+            .OnComplete(() =>
+            {
+                visibleAmount = amount;
+                SetText(amount);
+            });
 
-        if (isGain) PunchCoin();
+        if (!isGain) return;
+
+        // Der Stups gehört zum Einschlag, nicht zum Auslöser — also ebenfalls verzögert.
+        punchTween?.Kill();
+
+        if (delay <= 0f) PunchCoin();
+        else punchTween = DOVirtual.DelayedCall(delay, PunchCoin);
     }
 
     /// <summary>Kurzer Stups aufs Münz-Icon — "hier ist was angekommen".</summary>

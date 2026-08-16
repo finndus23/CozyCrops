@@ -1,9 +1,22 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SelectionManager : MonoBehaviour
 {
     public static SelectionManager Instance { get; private set; }
+
+    /// <summary>
+    /// Eine Zelle wurde markiert (true) oder abgewählt (false).
+    ///
+    /// Feuert beim Ziehen für jede neu berührte Zelle einmal — das ist gewollt, die
+    /// Rückmeldung soll der Bewegung folgen. Dass bei schnellem Ziehen mehrere Zellen im
+    /// selben Frame übereinanderklingen, fängt der Duplikatschutz im SfxManager ab.
+    ///
+    /// <see cref="ClearSelection"/> feuert bewusst nicht: das Aufräumen nach dem Bauen ist
+    /// keine Spieleraktion und braucht keine eigene Rückmeldung.
+    /// </summary>
+    public static event Action<Vector2Int, bool> OnCellSelectionChangedStatic;
 
     [SerializeField] private GameObject selectionHighlightPrefab;
 
@@ -29,12 +42,10 @@ public class SelectionManager : MonoBehaviour
         if (!GridManager.Instance.IsInBounds(x, z)) return;
         dragProcessed.Add(cell);
 
-        if (selectedCells.Contains(cell))
-            selectedCells.Remove(cell);
-        else
-            selectedCells.Add(cell);
+        bool selected = Toggle(cell);
 
         RefreshHighlights();
+        OnCellSelectionChangedStatic?.Invoke(cell, selected);
     }
 
     public void AddToSelection(int x, int z)
@@ -44,12 +55,19 @@ public class SelectionManager : MonoBehaviour
         if (dragProcessed.Contains(cell)) return;
         dragProcessed.Add(cell);
 
-        if (selectedCells.Contains(cell))
-            selectedCells.Remove(cell);
-        else
-            selectedCells.Add(cell);
+        bool selected = Toggle(cell);
 
         RefreshHighlights();
+        OnCellSelectionChangedStatic?.Invoke(cell, selected);
+    }
+
+    /// <summary>Kippt den Markierungszustand einer Zelle. Gibt zurück, ob sie danach markiert ist.</summary>
+    private bool Toggle(Vector2Int cell)
+    {
+        if (selectedCells.Remove(cell)) return false;
+
+        selectedCells.Add(cell);
+        return true;
     }
 
     public void ClearSelection()

@@ -80,6 +80,13 @@ public class ToolRegistry : MonoBehaviour
         return data != null ? data.GetYieldBonus(GetLevel(tool)) : 0;
     }
 
+    /// <summary>Wie viele Gießungen ein Einsatz dieses Werkzeugs zählt. Mindestens 1.</summary>
+    public int GetWateringPower(ToolType tool)
+    {
+        var data = GetData(tool);
+        return data != null ? data.GetWateringPower(GetLevel(tool)) : 1;
+    }
+
     /// <summary>Gesamtdauer einer Aktion über mehrere Tiles, inklusive Mengenrabatt.</summary>
     public float GetJobDuration(ToolType tool, int tileCount)
     {

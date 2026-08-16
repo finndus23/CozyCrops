@@ -1,0 +1,188 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2913714462878296318
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1578622142767748142}
+  - component: {fileID: 4771959954348341354}
+  - component: {fileID: 9173562601305685238}
+  - component: {fileID: 4530027498341809362}
+  - component: {fileID: 4943511096286609876}
+  - component: {fileID: 6883119319124072564}
+  - component: {fileID: 6381639862000870175}
+  - component: {fileID: 8461616645006311145}
+  - component: {fileID: 4722078580778325058}
+  m_Layer: 0
+  m_Name: SfxManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1578622142767748142
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4771959954348341354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 986e4ea8b32cb2a4ea0942f55a2ee6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SfxManager
+  outputGroup: {fileID: -8293721165582685001, guid: 22f4913b3ad0a4248a98b890ab44cd12, type: 2}
+  uiOutputGroup: {fileID: 7304418744117589146, guid: 22f4913b3ad0a4248a98b890ab44cd12, type: 2}
+  voiceCount: 12
+  pitchJitter: 0.08
+  spatial: 1
+  minDistance: 12
+  maxDistance: 60
+  duplicateGuard: 0.04
+  skipLeadingSilence: 1
+  silenceThreshold: 0.005
+--- !u!114 &9173562601305685238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc6a800c45f484243a83f3f33b3a4e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToolSfx
+  playLoops: 1
+--- !u!114 &4530027498341809362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ed93ba5d423ba94f8c4d46819457dfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSfx
+  library: {fileID: 11400000, guid: 9d99a820051caaa4998e7afd98ab7681, type: 2}
+  autoHookButtons: 1
+  rescanInterval: 1
+--- !u!114 &4943511096286609876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b739acd62abf44b4b8062940d63b61ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicDirector
+  outputGroup: {fileID: -7804543805076786298, guid: 22f4913b3ad0a4248a98b890ab44cd12, type: 2}
+  musicVolume: 0.3
+  defaultFade: 1.5
+--- !u!114 &6883119319124072564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbe69cd2e85d1f9429553983758bef4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildSfx
+  enterBuildMode: []
+  exitBuildMode: []
+  selectTileType: []
+  cellSelected: []
+  cellDeselected: []
+  impactFarmPlot:
+  - {fileID: 8300000, guid: 609dd244178c62e46973a618b185a91c, type: 3}
+  impactPath:
+  - {fileID: 8300000, guid: 609dd244178c62e46973a618b185a91c, type: 3}
+  impactGrass:
+  - {fileID: 8300000, guid: 1578f5e0669537244951b0eb64236437, type: 3}
+  volume: 0.35
+  areaBoost: 0.3
+  areaBoostFullAt: 12
+  deselectPitch: 0.85
+--- !u!114 &6381639862000870175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28ef4a9f492d60c4982a5e8f88ae348b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TravelSfx
+  departToMarket:
+  - {fileID: 8300000, guid: 51de296334cac3d468e627a89c850a3d, type: 3}
+  departToFarm:
+  - {fileID: 8300000, guid: 51de296334cac3d468e627a89c850a3d, type: 3}
+  volume: 0.2
+--- !u!114 &8461616645006311145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b6e1784c7b2ded49b5e1d75e67a2015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AmbienceDirector
+  outputGroup: {fileID: 5827178481949532304, guid: 22f4913b3ad0a4248a98b890ab44cd12, type: 2}
+  ambienceVolume: 1
+  defaultFade: 3
+--- !u!114 &4722078580778325058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db76730da7e10b448f80dca76f80618, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioVolumeSettings
+  mixer: {fileID: 24100000, guid: 22f4913b3ad0a4248a98b890ab44cd12, type: 2}
+  masterParam: MasterVolume
+  musicParam: MusicVolume
+  ambienceParam: AmbienceVolume
+  sfxParam: SfxVolume
+  uiParam: UiVolume
+  defaultMaster: 1
+  defaultMusic: 0.6
+  defaultAmbience: 0.5
+  defaultSfx: 0.9
+  defaultUi: 0.8

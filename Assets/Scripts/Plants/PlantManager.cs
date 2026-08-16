@@ -105,7 +105,16 @@ public class PlantManager : MonoBehaviour
         if (!cell.Plant.NeedsWatering) return false;
 
         var wateredType = cell.Plant.Type;
-        cell.Plant.Water();
+
+        // Gießkraft kommt aus dem Werkzeug-Level: ab dem entsprechenden Meilenstein zählt
+        // ein Einsatz mehrfach, damit Pflanzen mit hohem Gießbedarf nicht dauerhaft zwei
+        // Durchgänge über dasselbe Feld verlangen.
+        int power = ToolRegistry.Instance != null
+            ? ToolRegistry.Instance.GetWateringPower(ToolType.WateringCan)
+            : 1;
+
+        cell.Plant.Water(power);
+
         if (cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
             cell.TileVisual?.SetState(FarmTileState.Watered);
 
