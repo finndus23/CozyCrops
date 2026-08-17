@@ -14,6 +14,18 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float rotateSpeed = 0.3f;
     [SerializeField] private string xAxisOnlySceneName = "Marketplace";
 
+    [Header("Kamera-Clipping")]
+    [Tooltip("Schiebt eine orthografische Kamera beim Herauszoomen entlang ihrer Blickachse " +
+             "zurueck. Dadurch geraten Boden und niedrige Objekte am unteren Bildrand nicht " +
+             "vor die Near-Clipping-Plane.")]
+    [SerializeField] private bool preventNearPlaneClipping = true;
+    [Tooltip("Y-Hoehe der Bodenebene, die bis zum unteren Bildrand sichtbar bleiben soll.")]
+    [SerializeField] private float groundPlaneHeight = 0f;
+    [Tooltip("Zusaetzlicher Abstand vor der Near-Clipping-Plane. Deckt Pflanzen, Zaun und " +
+             "andere niedrige Aufbauten auf dem Boden ab.")]
+    [Min(0f)]
+    [SerializeField] private float nearClipPadding = 5f;
+
     [Header("Schatten")]
     [Tooltip("Koppelt die Shadow Distance an den Zoom. Ein fester Wert kann nicht beides: " +
              "nah gestochen scharf UND weit rausgezoomt vollständig.")]
@@ -26,6 +38,7 @@ public class CameraController : MonoBehaviour
 
     private Camera cam;
     private float lockedMarketplaceZ;
+    private float appliedClippingRetreat;
 
     private UniversalRenderPipelineAsset urpAsset;
     private float originalShadowDistance;
@@ -34,6 +47,7 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         cam = GetComponent<Camera>();
+        ApplyNearPlaneProtection();
         lockedMarketplaceZ = transform.position.z;
 
         urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
@@ -57,7 +71,58 @@ public class CameraController : MonoBehaviour
         HandleZoom();
         HandleDrag();
         HandleRotate();
+        ApplyNearPlaneProtection();
         ApplyShadowDistance();
+    }
+
+    /// <summary>
+    /// Bei einer orthografischen Kamera vergroessert Zoom nur den Ausschnitt, nicht den
+    /// Abstand zur Welt. Ab einer gewissen Orthographic Size liegt der untere Rand des
+    /// Sichtvolumens deshalb hinter der Kamera und wird von der Near Plane abgeschnitten.
+    ///
+    /// Entlang der Blickachse zurueckzugehen veraendert bei orthografischer Projektion
+    /// nicht den Bildausschnitt. Es schafft lediglich genug Tiefe vor der Kamera. Der
+    /// gemerkte Offset erlaubt, beim Hineinzoomen wieder an die Ausgangsposition zu gehen.
+    /// </summary>
+    private void ApplyNearPlaneProtection()
+    {
+        if (!preventNearPlaneClipping || cam == null || !cam.orthographic)
+        {
+            RemoveClippingRetreat();
+            return;
+        }
+
+        Vector3 forward = transform.forward;
+        if (forward.y >= -0.001f)
+        {
+            RemoveClippingRetreat();
+            return; // Keine sinnvolle Boden-Schnittberechnung, wenn die Kamera nicht nach unten blickt.
+        }
+
+        // Position ohne den von dieser Methode zuletzt hinzugefuegten Tiefen-Offset.
+        Vector3 basePosition = transform.position + forward * appliedClippingRetreat;
+
+        float halfWidth = cam.orthographicSize * cam.aspect;
+        float lowestFrustumY = basePosition.y
+                               - Mathf.Abs(transform.up.y) * cam.orthographicSize
+                               - Mathf.Abs(transform.right.y) * halfWidth;
+
+        // Tiefe, in der die Bodenebene den untersten Viewport-Strahl schneidet.
+        float groundDepthAtBottom = (groundPlaneHeight - lowestFrustumY) / forward.y;
+        float minimumDepth = cam.nearClipPlane + Mathf.Max(0f, nearClipPadding);
+        float requiredRetreat = Mathf.Max(0f, minimumDepth - groundDepthAtBottom);
+
+        transform.position = basePosition - forward * requiredRetreat;
+        appliedClippingRetreat = requiredRetreat;
+    }
+
+    private void RemoveClippingRetreat()
+    {
+        if (Mathf.Approximately(appliedClippingRetreat, 0f))
+            return;
+
+        transform.position += transform.forward * appliedClippingRetreat;
+        appliedClippingRetreat = 0f;
     }
 
     /// <summary>
