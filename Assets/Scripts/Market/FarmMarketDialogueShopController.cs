@@ -119,7 +119,14 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         if (!IsOpen)
             return;
 
-        if (WasEscapePressed())
+        if (!WasEscapePressed())
+            return;
+
+        // Erst das Bestätigungsfenster wegklicken, nicht gleich den ganzen Shop —
+        // sonst verliert man mitten im Upgrade-Dialog ungewollt die NPC-Konversation.
+        if (IsUpgradeConfirmationOpen)
+            HideUpgradeConfirmation();
+        else
             CloseShop();
     }
 
@@ -190,6 +197,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
         currentNpc = null;
 
+        HideUpgradeConfirmation();
+        UiTooltip.Hide();
+
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
         ClearRows(upgradeContentRoot);
@@ -228,6 +238,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             currentNpc.EndDialogue();
 
         currentNpc = null;
+
+        HideUpgradeConfirmation();
+        UiTooltip.Hide();
 
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
@@ -374,6 +387,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
     {
         CacheReferencesIfNeeded();
 
+        UiTooltip.Hide();
         ClearRows(buyContentRoot);
         ClearRows(sellContentRoot);
         ClearRows(upgradeContentRoot);
@@ -682,10 +696,10 @@ public class FarmMarketDialogueShopController : MonoBehaviour
 
             if (!owned)
             {
-                // Tool noch nicht gekauft — Basis-Stats anzeigen
-                int  ao  = data.GetAoSize(0);
+                // Tool noch nicht gekauft — nur die Basis-Geschwindigkeit anzeigen, den
+                // Rest (Fläche, Warteschlange, …) gibt's beim Hover über den Text.
                 float dur = data.GetDuration(0);
-                string baseStats = $"AoE: {ao}×{ao}  |  {dur:F1}s/Tile";
+                string baseStats = $"{dur:F1}s/Feld";
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
                 row.Setup(
@@ -696,33 +710,23 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                     "Kaufen",
                     () => BuyTool(captured),
                     string.Empty,
-                    null);
+                    null,
+                    DescribeToolPerks(data, 0));
             }
             else
             {
-                // Tool bereits vorhanden → Upgrade anzeigen
-                int level   = ToolRegistry.Instance.GetLevel(tool);
+                // Tool bereits vorhanden → Upgrade anzeigen. Nur Level + Basisgeschwindigkeit
+                // in der Zeile — AoE, Warteschlange, Ertrag etc. stecken im Hover-Tooltip,
+                // sonst wird die Liste pro Zeile schnell unübersichtlich.
+                int level    = ToolRegistry.Instance.GetLevel(tool);
                 int maxLevel = data.maxLevel;
-                int cost    = ToolRegistry.Instance.GetUpgradeCost(tool);
-                bool isMax  = ToolRegistry.Instance.IsMaxLevel(tool);
+                int cost     = ToolRegistry.Instance.GetUpgradeCost(tool);
+                bool isMax   = ToolRegistry.Instance.IsMaxLevel(tool);
 
-                int  ao       = data.GetAoSize(level);
-                float dur     = data.GetDuration(level);
-                int  yBonus   = data.GetYieldBonus(level);
+                float dur = data.GetDuration(level);
+                string statsLabel = $"Lvl {level}/{maxLevel}  |  {dur:F1}s/Feld";
 
-                int queue = data.GetQueueSize(level);
-
-                string statsLabel = $"Lvl {level}/{maxLevel}  |  AoE: {ao}×{ao}  |  {dur:F1}s/Tile"
-                                  + $"  |  Queue: {queue}"
-                                  + (yBonus > 0 ? $"  |  +{yBonus} Ertrag" : "");
-
-                // Nächsten Meilenstein ankündigen — das Sparen auf Stufe 10 soll sich
-                // wie ein Ziel anfühlen, nicht wie eine Zahl die langsam hochgeht.
-                string nextMilestone = DescribeNextMilestone(data, level);
-                if (!string.IsNullOrEmpty(nextMilestone))
-                    statsLabel += $"\n<color=#8A5A1E>{nextMilestone}</color>";
-
-                string costLabel  = isMax ? "MAX LEVEL" : $"Upgrade: {cost} G";
+                string costLabel = isMax ? "MAX LEVEL" : $"Upgrade: {cost} G";
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
                 row.Setup(
@@ -731,11 +735,39 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                     statsLabel,
                     costLabel,
                     isMax ? "—" : "Upgraden",
-                    isMax ? null : () => UpgradeTool(captured),
+                    isMax ? null : () => ShowUpgradeConfirmation(captured),
                     string.Empty,
-                    null);
+                    null,
+                    DescribeToolPerks(data, level));
             }
         }
+    }
+
+    /// <summary>
+    /// Alles was ein Werkzeug beim aktuellen Level tatsächlich kann — für den Hover-
+    /// Tooltip über der Stats-Zeile. Wateringpower nur bei Kannen mit echtem Mehrfach-
+    /// Effekt zeigen, sonst steht bei jedem anderen Tool sinnlos "Gießkraft: 1×" da.
+    /// </summary>
+    private static string DescribeToolPerks(ToolData data, int level)
+    {
+        int ao      = data.GetAoSize(level);
+        int queue   = data.GetQueueSize(level);
+        int yBonus  = data.GetYieldBonus(level);
+        int watering = data.GetWateringPower(level);
+
+        var lines = new System.Text.StringBuilder();
+        lines.Append($"Fläche: {ao}×{ao}");
+        lines.Append($"\nWarteschlange: {queue}");
+        if (watering > 1)
+            lines.Append($"\nGießkraft: {watering}×");
+        if (yBonus > 0)
+            lines.Append($"\n+{yBonus} Ertrag");
+
+        string nextMilestone = DescribeNextMilestone(data, level);
+        if (!string.IsNullOrEmpty(nextMilestone))
+            lines.Append($"\n<color=#D9A15B>{nextMilestone}</color>");
+
+        return lines.ToString();
     }
 
     private void BuyTool(ToolType tool)
@@ -794,6 +826,199 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         ClearRows(upgradeContentRoot);
         BuildUpgradeRows();
         UpdateMoneyText();
+    }
+
+    // ── Upgrade-Bestätigung ──────────────────────────────────────────────────
+    //
+    // Klick auf "Upgraden" ruft nicht mehr direkt UpgradeTool() auf, sondern öffnet
+    // dieses Popup mit Vorher/Nachher-Vergleich. Baut sich beim ersten Gebrauch selbst
+    // zusammen (kein Prefab-Setup in Unity nötig) — gleiches Prinzip wie das
+    // Rückkehr-zum-Menü-Popup in GameSceneMenuController.
+
+    [Header("Upgrade-Bestätigung — Optik")]
+    [Tooltip("Panel-Hintergrund. Im Projekt bereits vorhanden: MenuClean_Panel " +
+             "(Assets/UI/MenuSheetClean.png) — dieselbe Grafik, die auch hinter jeder " +
+             "Shop-Zeile liegt. Leer lassen = einfarbiges Rechteck als Fallback.")]
+    [SerializeField] private Sprite confirmPanelSprite;
+
+    [Tooltip("Bestätigen-Button. Im Projekt bereits vorhanden: MenuClean_GreenButton " +
+             "(Assets/UI/MenuSheetClean.png).")]
+    [SerializeField] private Sprite confirmOkButtonSprite;
+
+    [Tooltip("Abbrechen-Button. Im Projekt bereits vorhanden: MenuClean_NormalButton " +
+             "(Assets/UI/MenuSheetClean.png) — dieselbe Grafik wie der Sekundär-Button " +
+             "in jeder Shop-Zeile.")]
+    [SerializeField] private Sprite confirmCancelButtonSprite;
+
+    private GameObject confirmRoot;
+    private TextMeshProUGUI confirmText;
+    private Button confirmOkButton;
+    private TextMeshProUGUI confirmOkText;
+
+    public bool IsUpgradeConfirmationOpen => confirmRoot != null && confirmRoot.activeSelf;
+
+    private void ShowUpgradeConfirmation(ToolType tool)
+    {
+        if (ToolRegistry.Instance == null) return;
+
+        ToolData data = ToolRegistry.Instance.GetData(tool);
+        if (data == null) return;
+
+        int level = ToolRegistry.Instance.GetLevel(tool);
+        int cost = ToolRegistry.Instance.GetUpgradeCost(tool);
+        if (cost < 0) return; // bereits MAX, sollte hier eh nie ankommen
+
+        float durNow = data.GetDuration(level);
+        float durNext = data.GetDuration(level + 1);
+
+        var body = new System.Text.StringBuilder();
+        body.Append($"{data.displayName}: Stufe {level} → {level + 1}\n\n");
+        body.Append($"Tempo: {durNow:F1}s → {durNext:F1}s pro Feld");
+
+        // Nur ankündigen wenn die NÄCHSTE Stufe wirklich ein Meilenstein ist — nicht
+        // irgendein zukünftiger, sonst verspricht das Popup etwas das gerade gar nicht passiert.
+        ToolMilestone milestone = data.GetMilestoneAt(level + 1);
+        if (milestone != null)
+            body.Append($"\n\n<color=#D9A15B>Neu: {DescribeMilestoneUnlock(milestone)}</color>");
+
+        body.Append($"\n\nKosten: {cost} G");
+
+        EnsureConfirmPopup();
+        confirmText.text = body.ToString();
+        confirmOkText.text = "Upgraden";
+        confirmOkButton.onClick.RemoveAllListeners();
+        confirmOkButton.onClick.AddListener(() =>
+        {
+            HideUpgradeConfirmation();
+            UpgradeTool(tool);
+        });
+
+        confirmRoot.SetActive(true);
+        confirmRoot.transform.SetAsLastSibling();
+    }
+
+    private void HideUpgradeConfirmation()
+    {
+        if (confirmRoot != null)
+            confirmRoot.SetActive(false);
+    }
+
+    private static string DescribeMilestoneUnlock(ToolMilestone milestone)
+    {
+        if (!string.IsNullOrWhiteSpace(milestone.unlockText)) return milestone.unlockText;
+        if (milestone.aoSize > 0) return $"Fläche {milestone.aoSize}×{milestone.aoSize}";
+        if (milestone.wateringPower > 1) return $"Gießt {milestone.wateringPower}× pro Einsatz";
+        if (milestone.queueSize > 0) return $"Warteschlange {milestone.queueSize}";
+        if (milestone.yieldBonus > 0) return $"+{milestone.yieldBonus} Ertrag";
+        return "Meilenstein";
+    }
+
+    private void EnsureConfirmPopup()
+    {
+        if (confirmRoot != null) return;
+
+        Canvas canvas = upgradeContentRoot != null ? upgradeContentRoot.GetComponentInParent<Canvas>() : null;
+        if (canvas == null) canvas = GetComponentInParent<Canvas>();
+        if (canvas == null) canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) return;
+
+        confirmRoot = CreatePopupUiObject("UpgradeConfirmation", canvas.transform);
+        confirmRoot.transform.SetAsLastSibling();
+
+        Canvas popupCanvas = confirmRoot.AddComponent<Canvas>();
+        popupCanvas.overrideSorting = true;
+        popupCanvas.sortingOrder = 300;
+        confirmRoot.AddComponent<GraphicRaycaster>();
+
+        RectTransform rootRect = confirmRoot.GetComponent<RectTransform>();
+        rootRect.anchorMin = Vector2.zero;
+        rootRect.anchorMax = Vector2.one;
+        rootRect.offsetMin = Vector2.zero;
+        rootRect.offsetMax = Vector2.zero;
+
+        // Blocker: fängt Klicks ab, die sonst durch auf die Zeilen dahinter durchschlagen.
+        Image blocker = confirmRoot.AddComponent<Image>();
+        blocker.color = new Color(0f, 0f, 0f, 0.55f);
+        blocker.raycastTarget = true;
+
+        GameObject panel = CreatePopupUiObject("Panel", confirmRoot.transform);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = new Vector2(420f, 260f);
+
+        Image panelImage = panel.AddComponent<Image>();
+        panelImage.sprite = confirmPanelSprite;
+        panelImage.type = confirmPanelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
+        panelImage.color = confirmPanelSprite != null ? Color.white : new Color(1f, 0.86f, 0.62f, 1f);
+
+        GameObject textObj = CreatePopupUiObject("Text", panel.transform);
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = new Vector2(0.08f, 0.32f);
+        textRect.anchorMax = new Vector2(0.92f, 0.92f);
+        textRect.offsetMin = textRect.offsetMax = Vector2.zero;
+
+        confirmText = textObj.AddComponent<TextMeshProUGUI>();
+        confirmText.fontSize = 20f;
+        confirmText.color = new Color(0.22f, 0.12f, 0.06f, 1f);
+        confirmText.alignment = TextAlignmentOptions.Center;
+        confirmText.textWrappingMode = TextWrappingModes.Normal;
+        confirmText.raycastTarget = false;
+
+        CreatePopupButton(panel.transform, "CancelButton", new Vector2(-95f, -95f),
+            "Abbrechen", confirmCancelButtonSprite, HideUpgradeConfirmation, out _);
+
+        confirmOkButton = CreatePopupButton(panel.transform, "OkButton", new Vector2(95f, -95f),
+            "Upgraden", confirmOkButtonSprite, HideUpgradeConfirmation, out confirmOkText);
+        // OkButton-Klick-Listener wird pro Aufruf in ShowUpgradeConfirmation neu gesetzt
+        // (RemoveAllListeners + AddListener) — der hier ist nur der Platzhalter beim Bau.
+
+        confirmRoot.SetActive(false);
+    }
+
+    private Button CreatePopupButton(Transform parent, string objectName, Vector2 position,
+        string label, Sprite sprite, UnityEngine.Events.UnityAction action, out TextMeshProUGUI text)
+    {
+        GameObject go = CreatePopupUiObject(objectName, parent);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = new Vector2(180f, 56f);
+
+        Image image = go.AddComponent<Image>();
+        image.sprite = sprite;
+        image.type = sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+        image.color = sprite != null ? Color.white : new Color(0.96f, 0.78f, 0.4f, 1f);
+
+        Button button = go.AddComponent<Button>();
+        button.targetGraphic = image;
+        ColorBlock colors = button.colors;
+        colors.highlightedColor = new Color(0.86f, 0.86f, 0.86f, 1f);
+        colors.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
+        button.colors = colors;
+        button.onClick.AddListener(action);
+
+        GameObject textObj = CreatePopupUiObject("Text", go.transform);
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = textRect.offsetMax = Vector2.zero;
+
+        text = textObj.AddComponent<TextMeshProUGUI>();
+        text.text = label;
+        text.fontSize = 18f;
+        text.fontStyle = FontStyles.Bold;
+        text.color = new Color(0.22f, 0.12f, 0.06f, 1f);
+        text.alignment = TextAlignmentOptions.Center;
+        text.raycastTarget = false;
+
+        return button;
+    }
+
+    private static GameObject CreatePopupUiObject(string objectName, Transform parent)
+    {
+        GameObject go = new(objectName, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        return go;
     }
 
     private void BuySeed(PlantType plant, int amount)

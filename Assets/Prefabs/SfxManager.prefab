@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6381639862000870175}
   - component: {fileID: 8461616645006311145}
   - component: {fileID: 4722078580778325058}
+  - component: {fileID: 3293056694731530161}
   m_Layer: 0
   m_Name: SfxManager
   m_TagString: Untagged
@@ -148,6 +149,8 @@ MonoBehaviour:
   departToFarm:
   - {fileID: 8300000, guid: 51de296334cac3d468e627a89c850a3d, type: 3}
   volume: 0.2
+  arrivalFade: 0.4
+  minPlayTime: 1.2
 --- !u!114 &8461616645006311145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,3 +189,20 @@ MonoBehaviour:
   defaultAmbience: 0.5
   defaultSfx: 0.9
   defaultUi: 0.8
+--- !u!114 &3293056694731530161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913714462878296318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11e1cd750aed6be48a43b66c7d5916ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CropSfx
+  enableCropSounds: 1
+  volumeScale: 1
+  fallbackPlantSfx: []
+  fallbackHarvestSfx:
+  - {fileID: 8300000, guid: 8b979037c790fda4abc2d33c2ff98040, type: 3}

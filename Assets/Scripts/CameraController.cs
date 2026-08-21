@@ -21,6 +21,17 @@ public class CameraController : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float farmCameraPadding = 24f;
 
+    [Header("Marktplatz-Kameragrenzen")]
+    [Tooltip("Begrenzt die Kamera in der Marktplatz-Szene (nur X-Achse, Z ist ohnehin gesperrt).\n" +
+             "Anders als bei der Farm gibt es hier kein GridManager-Raster als Referenz — " +
+             "die Werte unten also im Play Mode austesten: an den gewünschten linken/rechten " +
+             "Rand fahren, transform.position.x im Inspector ablesen, hier eintragen.")]
+    [SerializeField] private bool limitMarketplaceCameraMovement = true;
+    [Tooltip("Kleinster erlaubter X-Wert für den Punkt, auf den die Bildschirmmitte zeigt.")]
+    [SerializeField] private float marketplaceMinX = -20f;
+    [Tooltip("Größter erlaubter X-Wert für den Punkt, auf den die Bildschirmmitte zeigt.")]
+    [SerializeField] private float marketplaceMaxX = 40f;
+
     [Header("Kamera-Clipping")]
     [Tooltip("Schiebt eine orthografische Kamera beim Herauszoomen entlang ihrer Blickachse " +
              "zurueck. Dadurch geraten Boden und niedrige Objekte am unteren Bildrand nicht " +
@@ -80,6 +91,7 @@ public class CameraController : MonoBehaviour
         HandleRotate();
         ApplyNearPlaneProtection();
         ClampFarmCameraToBounds();
+        ClampMarketplaceCameraToBounds();
         ApplyShadowDistance();
     }
 
@@ -280,5 +292,27 @@ public class CameraController : MonoBehaviour
             Mathf.Clamp(focus.z, minZ, maxZ));
 
         transform.position += clampedFocus - focus;
+    }
+
+    /// <summary>
+    /// Gegenstück zu <see cref="ClampFarmCameraToBounds"/> für den Marktplatz. Dort gibt es
+    /// kein Grid als Referenz und die Kamera bewegt sich ohnehin nur auf der X-Achse
+    /// (<see cref="LockMarketplaceZIfNeeded"/> hält Z fest) — deshalb reicht ein einfaches
+    /// X-Clamping über denselben Bildschirmmitte-auf-Bodenebene-Ansatz wie bei der Farm.
+    /// </summary>
+    private void ClampMarketplaceCameraToBounds()
+    {
+        if (!limitMarketplaceCameraMovement || !IsXAxisOnlyScene() || cam == null)
+            return;
+
+        Ray centerRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, groundPlaneHeight, 0f));
+        if (!groundPlane.Raycast(centerRay, out float distance))
+            return;
+
+        Vector3 focus = centerRay.GetPoint(distance);
+        float clampedX = Mathf.Clamp(focus.x, marketplaceMinX, marketplaceMaxX);
+
+        transform.position += Vector3.right * (clampedX - focus.x);
     }
 }
