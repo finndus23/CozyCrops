@@ -14,6 +14,13 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float rotateSpeed = 0.3f;
     [SerializeField] private string xAxisOnlySceneName = "Marketplace";
 
+    [Header("Farm-Kameragrenzen")]
+    [Tooltip("Begrenzt den Mittelpunkt der Kamera auf die Farm. Die große Landschaft bleibt Kulisse.")]
+    [SerializeField] private bool limitFarmCameraMovement = true;
+    [Tooltip("Wie weit der Kameramittelpunkt über die vollständig ausgebaute Farm hinaus darf.")]
+    [Min(0f)]
+    [SerializeField] private float farmCameraPadding = 24f;
+
     [Header("Kamera-Clipping")]
     [Tooltip("Schiebt eine orthografische Kamera beim Herauszoomen entlang ihrer Blickachse " +
              "zurueck. Dadurch geraten Boden und niedrige Objekte am unteren Bildrand nicht " +
@@ -72,6 +79,7 @@ public class CameraController : MonoBehaviour
         HandleDrag();
         HandleRotate();
         ApplyNearPlaneProtection();
+        ClampFarmCameraToBounds();
         ApplyShadowDistance();
     }
 
@@ -238,5 +246,39 @@ public class CameraController : MonoBehaviour
         Vector3 position = transform.position;
         position.z = lockedMarketplaceZ;
         transform.position = position;
+    }
+
+    /// <summary>
+    /// Begrenzt den Punkt auf der Bodenebene, den die Bildschirmmitte zeigt. Das bleibt
+    /// auch bei Rotation, Zoom und dem Clipping-Rueckzug stabiler als rohe X/Z-Grenzen
+    /// auf der hoch und schraeg stehenden Kamera selbst.
+    /// </summary>
+    private void ClampFarmCameraToBounds()
+    {
+        if (!limitFarmCameraMovement || IsXAxisOnlyScene() || cam == null)
+            return;
+
+        GridManager grid = GridManager.Instance;
+        if (grid == null)
+            return;
+
+        Ray centerRay = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0f, groundPlaneHeight, 0f));
+        if (!groundPlane.Raycast(centerRay, out float distance))
+            return;
+
+        Vector3 focus = centerRay.GetPoint(distance);
+        Vector3 gridOrigin = grid.transform.position;
+        float minX = gridOrigin.x + grid.FarmMinX * grid.CellSize - farmCameraPadding;
+        float maxX = gridOrigin.x + grid.FarmMaxXExclusive * grid.CellSize + farmCameraPadding;
+        float minZ = gridOrigin.z + grid.FarmMinZ * grid.CellSize - farmCameraPadding;
+        float maxZ = gridOrigin.z + grid.FarmMaxZExclusive * grid.CellSize + farmCameraPadding;
+
+        Vector3 clampedFocus = new Vector3(
+            Mathf.Clamp(focus.x, minX, maxX),
+            focus.y,
+            Mathf.Clamp(focus.z, minZ, maxZ));
+
+        transform.position += clampedFocus - focus;
     }
 }

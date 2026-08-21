@@ -174,9 +174,9 @@ public class PlantManager : MonoBehaviour
         GridManager grid = GridManager.Instance;
         if (grid == null) return;
 
-        for (int x = 0; x < grid.Width; x++)
+        for (int x = grid.MinX; x < grid.MaxXExclusive; x++)
         {
-            for (int z = 0; z < grid.Height; z++)
+            for (int z = grid.MinZ; z < grid.MaxZExclusive; z++)
             {
                 GridCell cell = grid.GetCell(x, z);
                 if (cell == null || !cell.HasPlant) continue;

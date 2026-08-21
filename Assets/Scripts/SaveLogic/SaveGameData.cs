@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [Serializable]
 public class SaveGameData
 {
-    public int version = 2;
+    public int version = 4;
     public int slotIndex = 1;
     public long savedAtUnix;
     public string playerName = "";

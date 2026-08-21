@@ -45,6 +45,19 @@ public class GridZone : MonoBehaviour
         zoneCollider.isTrigger = true; // Kein Physics — nur Bounds-Detection
     }
 
+    /// <summary>Konfiguriert eine zur Laufzeit erzeugte Erweiterungszone.</summary>
+    public void Configure(string id, int cost, Vector3 worldCenter, Vector3 worldSize)
+    {
+        saveId = id;
+        unlockCost = Mathf.Max(0, cost);
+        transform.position = worldCenter;
+
+        zoneCollider ??= GetComponent<BoxCollider>();
+        zoneCollider.center = Vector3.zero;
+        zoneCollider.size = worldSize;
+        zoneCollider.isTrigger = true;
+    }
+
     /// <summary>Liegt der Tile-Mittelpunkt innerhalb dieser Zone?</summary>
     public bool ContainsTile(Vector3 worldPos) =>
         zoneCollider.bounds.Contains(worldPos);
@@ -75,6 +88,10 @@ public class GridZone : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
 
         OnUnlocked?.Invoke();
+        // Erst nach dem Event deaktivieren: ZoneManager braucht die Bounds noch, um die
+        // zugehörigen Tiles zu entsperren. Danach soll die unsichtbare Klickfläche keine
+        // benachbarten bzw. überlappenden Erweiterungszonen mehr verdecken.
+        zoneCollider.enabled = false;
         Debug.Log($"[GridZone] '{gameObject.name}' freigeschaltet.");
 
         if (FarmSaveManager.Instance != null)
@@ -96,6 +113,8 @@ public class GridZone : MonoBehaviour
         else
         {
             IsUnlocked = false;
+            if (zoneCollider != null)
+                zoneCollider.enabled = true;
         }
     }
 

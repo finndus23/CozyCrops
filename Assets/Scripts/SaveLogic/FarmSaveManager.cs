@@ -228,6 +228,16 @@ public class FarmSaveManager : MonoBehaviour
             yield break;
         }
 
+        // Ein neuer Slot wird absichtlich nicht vollständig geladen, damit leere Missions-
+        // und Tile-Listen nicht die vorbereitete Farm bzw. das Tutorial überschreiben.
+        // Geld und Spieltempo aus dem Erstellungsdialog müssen nach dem Scene-Wechsel aber
+        // trotzdem auf das neu erzeugte PlayerInventory übertragen werden.
+        if (TryReadSlotData(activeSlot, out SaveGameData newSlotDefaults))
+        {
+            yield return WaitForInventoryDependencies();
+            ApplyInventory(newSlotDefaults);
+        }
+
         isLoading = false;
         allowSaveRequests = true;
         saveRequested = false;
@@ -631,7 +641,7 @@ public class FarmSaveManager : MonoBehaviour
 
         SaveGameData data = new SaveGameData
         {
-            version = 2,
+            version = 4,
             slotIndex = slot,
             playerName = playerName,
             money = startingMoney,
@@ -642,9 +652,16 @@ public class FarmSaveManager : MonoBehaviour
 
         // Sofort auch auf das laufende Inventar anwenden: der Slot wird direkt nach dem
         // Anlegen bespielt, und der noch nicht initialisierte Save wird bewusst nicht
-        // geladen (siehe LoadNow) — das Tempo käme sonst erst nach dem ersten echten Save an.
+        // vollständig geladen (siehe LoadNow). Ohne das bliebe insbesondere der sichtbare
+        // Geldstand vom vorherigen Slot erhalten bzw. stünde bei einem frischen Start auf 0.
         if (PlayerInventory.Instance != null)
+        {
             PlayerInventory.Instance.Pace = pace;
+            PlayerInventory.Instance.ApplyLoadedData(
+                startingMoney,
+                new List<InventoryStackSaveData>(),
+                new List<InventoryStackSaveData>());
+        }
 
         string path = GetSavePath(slot);
         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -673,7 +690,11 @@ public class FarmSaveManager : MonoBehaviour
 
         EnsureSaveLists(data);
 
-        data.version = 2;
+        // Einen alten Farm-Spielstand erst in der Farm auf v4 migrieren. Die neuen
+        // Außen-Zonen besitzen absichtlich eigene IDs und kollidieren dadurch nicht mehr
+        // mit den ehemaligen Innenzonen zone_1..zone_4.
+        if (GridManager.Instance != null || data.version >= 4)
+            data.version = 4;
         data.slotIndex = activeSlot;
         data.savedAtUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         data.isInitialized = true;
@@ -759,12 +780,18 @@ public class FarmSaveManager : MonoBehaviour
         GridManager grid = GridManager.Instance;
         if (grid == null) return;
 
-        for (int x = 0; x < grid.Width; x++)
+        for (int x = grid.MinX; x < grid.MaxXExclusive; x++)
         {
-            for (int z = 0; z < grid.Height; z++)
+            for (int z = grid.MinZ; z < grid.MaxZExclusive; z++)
             {
                 GridCell cell = grid.GetCell(x, z);
                 if (cell == null) continue;
+
+                // Der äußere Horizont wird ausschließlich statisch in der Unity-Scene
+                // dekoriert. Er gehört nicht zum Spielerfortschritt und damit auch nicht
+                // in den Tile-Spielstand.
+                if (grid.IsDecorationArea(x, z))
+                    continue;
 
                 TileSaveData tileData = new TileSaveData
                 {
