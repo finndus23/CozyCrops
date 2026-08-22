@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,8 +40,33 @@ public class ZoneManager : MonoBehaviour
     [SerializeField] private Color expansionHoverFillColor = new Color(1f, 0.72f, 0.18f, 0.1f);
     [Tooltip("Randfarbe der Flaechenvorschau beim Hover.")]
     [SerializeField] private Color expansionHoverOutlineColor = new Color(1f, 0.72f, 0.18f, 0.9f);
+
+    [Header("Baeume auf gesperrten Erweiterungen")]
+    [Tooltip("Dekoriert noch nicht gekaufte Erweiterungen mit Baeumen. Beim Kauf werden sie mit der Zone entfernt.")]
+    [SerializeField] private bool enableLockedExpansionTrees = true;
+    [SerializeField] private GameObject[] lockedExpansionTreePrefabs;
+    [Tooltip("Entspricht der Baumdichte der statischen Aussendekoration pro Quadrat- bzw. Tile-Einheit.")]
+    [Min(0f)]
+    [SerializeField] private float lockedExpansionTreeDensity = 0.0041f;
+    [SerializeField] private int lockedExpansionTreeSeed = 29411;
+    [Min(0.01f)]
+    [SerializeField] private float lockedExpansionTreeMinScale = 0.55f;
+    [Min(0.01f)]
+    [SerializeField] private float lockedExpansionTreeMaxScale = 1.6f;
+    [Min(0f)]
+    [SerializeField] private float lockedExpansionTreeEdgePadding = 0.8f;
+    [Min(0f)]
+    [SerializeField] private float purchaseButtonTreeClearRadius = 1.6f;
+
+    [Header("Kaufwelle")]
+    [Tooltip("Verzoegerung pro Tile-Distanz vom Kaufbutton. Entspricht der Bau-Ripple-Geschwindigkeit.")]
+    [Min(0f)]
+    [SerializeField] private float expansionWaveDelayPerTile = 0.035f;
+
     private GridZone[] zones;
     private readonly Dictionary<GridZone, RectInt> zoneTileRects = new();
+    private readonly Dictionary<GridZone, Transform> lockedTreeRoots = new();
+    private readonly HashSet<GridZone> pendingPurchaseWaves = new();
     private GameObject fenceTemplate;
     private Vector3 fenceTemplateScale = Vector3.one;
     private Transform runtimeFenceRoot;
@@ -70,6 +96,11 @@ public class ZoneManager : MonoBehaviour
             {
                 UnlockZoneTiles(captured);
                 RefreshFarmFence();
+
+                if (pendingPurchaseWaves.Remove(captured))
+                    PlayExpansionPurchaseWave(captured);
+                else
+                    lockedTreeRoots.Remove(captured);
             };
         }
 
@@ -152,6 +183,201 @@ public class ZoneManager : MonoBehaviour
             purchaseButtonWorldScale,
             expansionHoverFillColor,
             expansionHoverOutlineColor);
+        SpawnLockedExpansionTrees(zone, id, minX, minZ, tileWidth, tileHeight);
+    }
+
+    private void SpawnLockedExpansionTrees(
+        GridZone zone,
+        string zoneId,
+        int minX,
+        int minZ,
+        int tileWidth,
+        int tileHeight)
+    {
+        if (!enableLockedExpansionTrees || zone == null)
+            return;
+        if (lockedExpansionTreePrefabs == null || lockedExpansionTreePrefabs.Length == 0)
+            return;
+        if (lockedExpansionTreeDensity <= 0f || tileWidth <= 0 || tileHeight <= 0)
+            return;
+
+        int treeCount = Mathf.Max(1,
+            Mathf.RoundToInt(tileWidth * tileHeight * lockedExpansionTreeDensity));
+        var random = new System.Random(GetExpansionTreeSeed(zoneId, minX, minZ));
+        var root = new GameObject("Locked Expansion Trees").transform;
+        root.SetParent(zone.transform, false);
+        lockedTreeRoots[zone] = root;
+
+        GridManager grid = GridManager.Instance;
+        float cellSize = grid.CellSize;
+        float padding = Mathf.Min(
+            lockedExpansionTreeEdgePadding,
+            Mathf.Max(0f, Mathf.Min(tileWidth, tileHeight) * cellSize * 0.5f - 0.05f));
+        float minWorldX = grid.transform.position.x + minX * cellSize + padding;
+        float maxWorldX = grid.transform.position.x + (minX + tileWidth) * cellSize - padding;
+        float minWorldZ = grid.transform.position.z + minZ * cellSize + padding;
+        float maxWorldZ = grid.transform.position.z + (minZ + tileHeight) * cellSize - padding;
+        Vector2 zoneCenter = new(zone.transform.position.x, zone.transform.position.z);
+
+        for (int i = 0; i < treeCount; i++)
+        {
+            GameObject prefab = PickDecorationPrefab(lockedExpansionTreePrefabs, random);
+            if (prefab == null) continue;
+
+            Vector2 positionXZ = zoneCenter;
+            for (int attempt = 0; attempt < 12; attempt++)
+            {
+                positionXZ = new Vector2(
+                    NextFloat(random, minWorldX, maxWorldX),
+                    NextFloat(random, minWorldZ, maxWorldZ));
+                if (Vector2.Distance(positionXZ, zoneCenter) >= purchaseButtonTreeClearRadius)
+                    break;
+            }
+
+            float scale = NextFloat(random,
+                Mathf.Min(lockedExpansionTreeMinScale, lockedExpansionTreeMaxScale),
+                Mathf.Max(lockedExpansionTreeMinScale, lockedExpansionTreeMaxScale));
+            GameObject tree = Instantiate(
+                prefab,
+                new Vector3(positionXZ.x, grid.transform.position.y, positionXZ.y),
+                Quaternion.Euler(0f, NextFloat(random, 0f, 360f), 0f),
+                root);
+            tree.name = $"Locked Tree {i + 1}";
+            tree.transform.localScale = prefab.transform.localScale * scale;
+
+            // Baeume sind reine Kaufzonen-Dekoration und duerfen weder Klicks noch
+            // Spielerbewegung oder die Tile-Auswahl blockieren.
+            foreach (Collider treeCollider in tree.GetComponentsInChildren<Collider>(true))
+                treeCollider.enabled = false;
+        }
+    }
+
+    private int GetExpansionTreeSeed(string zoneId, int minX, int minZ)
+    {
+        unchecked
+        {
+            int hash = lockedExpansionTreeSeed;
+            hash = hash * 397 ^ minX;
+            hash = hash * 397 ^ minZ;
+            if (!string.IsNullOrEmpty(zoneId))
+            {
+                foreach (char character in zoneId)
+                    hash = hash * 31 + character;
+            }
+
+            return hash;
+        }
+    }
+
+    private static GameObject PickDecorationPrefab(GameObject[] prefabs, System.Random random)
+    {
+        for (int attempt = 0; attempt < prefabs.Length; attempt++)
+        {
+            GameObject prefab = prefabs[random.Next(prefabs.Length)];
+            if (prefab != null) return prefab;
+        }
+
+        return null;
+    }
+
+    private static float NextFloat(System.Random random, float min, float max) =>
+        min + (max - min) * (float)random.NextDouble();
+
+    /// <summary>
+    /// Wird nach erfolgreicher Bezahlung, aber vor GridZone.Unlock aufgerufen. Die
+    /// Baumgruppe wird aus der Zone geloest, damit der normale Unlock Button und Preview
+    /// sofort entfernen kann, waehrend die Baeume auf die ankommende Tile-Welle warten.
+    /// </summary>
+    public void PrepareZonePurchase(GridZone zone)
+    {
+        if (zone == null)
+            return;
+
+        pendingPurchaseWaves.Add(zone);
+        if (lockedTreeRoots.TryGetValue(zone, out Transform treeRoot) && treeRoot != null)
+            treeRoot.SetParent(transform, true);
+    }
+
+    private void PlayExpansionPurchaseWave(GridZone zone)
+    {
+        if (zone == null || !zoneTileRects.TryGetValue(zone, out RectInt rect))
+            return;
+
+        GridManager grid = GridManager.Instance;
+        if (grid == null)
+            return;
+
+        Vector2 waveOrigin = new(zone.transform.position.x, zone.transform.position.z);
+        for (int x = rect.xMin; x < rect.xMax; x++)
+        {
+            for (int z = rect.yMin; z < rect.yMax; z++)
+            {
+                GameObject tile = grid.GetTileObject(x, z);
+                if (tile == null) continue;
+
+                Vector3 tilePosition = grid.GridToWorld(x, z);
+                float distanceInTiles = Vector2.Distance(
+                    waveOrigin,
+                    new Vector2(tilePosition.x, tilePosition.z)) / grid.CellSize;
+                TileConvertFx.Ensure(tile)?.PlayNudge(distanceInTiles * expansionWaveDelayPerTile);
+            }
+        }
+
+        if (!lockedTreeRoots.TryGetValue(zone, out Transform treeRoot) || treeRoot == null)
+            return;
+
+        lockedTreeRoots.Remove(zone);
+        StartCoroutine(HideTreesWhenWaveArrives(treeRoot, waveOrigin, grid.CellSize));
+    }
+
+    private IEnumerator HideTreesWhenWaveArrives(
+        Transform treeRoot,
+        Vector2 waveOrigin,
+        float cellSize)
+    {
+        var timedTrees = new List<TimedTree>(treeRoot.childCount);
+        for (int i = 0; i < treeRoot.childCount; i++)
+        {
+            GameObject tree = treeRoot.GetChild(i).gameObject;
+            Vector3 position = tree.transform.position;
+            float distanceInTiles = Vector2.Distance(
+                waveOrigin,
+                new Vector2(position.x, position.z)) / cellSize;
+            timedTrees.Add(new TimedTree(
+                distanceInTiles * expansionWaveDelayPerTile,
+                tree));
+        }
+
+        timedTrees.Sort((a, b) => a.Delay.CompareTo(b.Delay));
+
+        float elapsed = 0f;
+        foreach (TimedTree timedTree in timedTrees)
+        {
+            float wait = timedTree.Delay - elapsed;
+            if (wait > 0f)
+                yield return new WaitForSeconds(wait);
+
+            elapsed = timedTree.Delay;
+            if (timedTree.Tree == null) continue;
+
+            timedTree.Tree.SetActive(false);
+            Destroy(timedTree.Tree);
+        }
+
+        if (treeRoot != null)
+            Destroy(treeRoot.gameObject);
+    }
+
+    private readonly struct TimedTree
+    {
+        public float Delay { get; }
+        public GameObject Tree { get; }
+
+        public TimedTree(float delay, GameObject tree)
+        {
+            Delay = delay;
+            Tree = tree;
+        }
     }
 
     private int CostAt(int index)

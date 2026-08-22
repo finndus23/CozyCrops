@@ -140,6 +140,7 @@ public class UiSfx : MonoBehaviour
     private void SubscribeGlobal()
     {
         PlayerInventory.OnSeedBoughtStatic += HandleSeedBought;
+        GridZone.OnZonePurchasedStatic += HandleZonePurchased;
 
         // OnCropSoldStatic wird bewusst nicht abonniert: der Verkaufsklang hängt am
         // Münzflug und wird von dort ausgelöst (CropSfx.PlaySell), sobald die Münzen
@@ -154,6 +155,7 @@ public class UiSfx : MonoBehaviour
     private void UnsubscribeGlobal()
     {
         PlayerInventory.OnSeedBoughtStatic -= HandleSeedBought;
+        GridZone.OnZonePurchasedStatic -= HandleZonePurchased;
 
         ToolRegistry.OnToolUpgradedStatic -= HandleToolUpgraded;
         ToolRegistry.OnToolAcquiredStatic -= HandleToolAcquired;
@@ -191,6 +193,11 @@ public class UiSfx : MonoBehaviour
     }
 
     private void HandleSeedBought(PlantType type, int amount) => Play(library?.purchase);
+
+    private void HandleZonePurchased(string _)
+        => Play(Fallback(
+            library?.expansionPurchased,
+            Fallback(library?.objectiveCompleted, library?.purchase)));
 
     private void HandleMissionStarted(MissionData mission) => Play(library?.missionStarted);
 

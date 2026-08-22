@@ -30,6 +30,9 @@ public class UiSfxLibrary : ScriptableObject
     [Tooltip("Kauf getätigt — Werkzeug, Saatgut, Upgrade.")]
     public AudioClip[] purchase;
 
+    [Tooltip("Farm-Erweiterung erfolgreich gekauft. Leer = Ziel-erfüllt- oder Kauf-Klang.")]
+    public AudioClip[] expansionPurchased;
+
     [Tooltip("Verkauf / Geld eingenommen. Klingt idealerweise wie Münzen.")]
     public AudioClip[] sell;
 

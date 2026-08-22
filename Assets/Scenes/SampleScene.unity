@@ -140275,6 +140275,17 @@ MonoBehaviour:
   purchaseButtonWorldScale: 0.012
   expansionHoverFillColor: {r: 1, g: 0.72, b: 0.18, a: 0.1}
   expansionHoverOutlineColor: {r: 1, g: 0.72, b: 0.18, a: 0.9}
+  enableLockedExpansionTrees: 1
+  lockedExpansionTreePrefabs:
+  - {fileID: 1923626025211512298, guid: f236388441bd2494693c3f4c78ae7ee0, type: 3}
+  - {fileID: 2121971925846843879, guid: b214a049616de1a4badde43d2a617311, type: 3}
+  lockedExpansionTreeDensity: 0.0041
+  lockedExpansionTreeSeed: 29411
+  lockedExpansionTreeMinScale: 0.55
+  lockedExpansionTreeMaxScale: 1.6
+  lockedExpansionTreeEdgePadding: 0.8
+  purchaseButtonTreeClearRadius: 1.6
+  expansionWaveDelayPerTile: 0.035
 --- !u!4 &1392990177
 Transform:
   m_ObjectHideFlags: 0
@@ -204621,7 +204632,7 @@ MonoBehaviour:
   farmPlotPrefab: {fileID: 6023751674650765824, guid: c0208682fab71cf499fa3d149c2943d5, type: 3}
   pathTilePrefab: {fileID: 3199415762879224910, guid: af28fc435bc9c6d4ea16577e844c3ba5, type: 3}
   borderTilePrefab: {fileID: 6023751674650765824, guid: e95829df5d608a04abbe2f361da43789, type: 3}
-  enableGrassTileDecoration: 0
+  enableGrassTileDecoration: 1
   grassPlantDecorationPrefabs:
   - {fileID: 3063428822502621040, guid: 5d4d4abe7e7de45ed8fa6ff01c8aba81, type: 3}
   - {fileID: 3063428822502621040, guid: 5d4d4abe7e7de45ed8fa6ff01c8aba81, type: 3}
@@ -204629,13 +204640,12 @@ MonoBehaviour:
   - {fileID: 860000000000000001, guid: a81d0d94c50b4a98a2322d0f5b6a7c81, type: 3}
   - {fileID: 860000000000000001, guid: a81d0d94c50b4a98a2322d0f5b6a7c81, type: 3}
   - {fileID: 860000000000000001, guid: a81d0d94c50b4a98a2322d0f5b6a7c81, type: 3}
-  - {fileID: 1810836374240917309, guid: 962996e23ffcbc44d92fb20cd03940cd, type: 3}
   grassDecorationSeed: 7319
   grassDecorationSurfaceOffset: 0.055
   grassPlantDecorationMinScale: 0.55
   grassPlantDecorationMaxScale: 0.8
-  grassTileDecorationChance: 0.12
-  secondGrassDecorationChance: 0.04
+  grassTileDecorationChance: 0.08
+  secondGrassDecorationChance: 0.15
   grassDecorationBlockedAreas:
   - serializedVersion: 2
     x: 0
@@ -204657,6 +204667,16 @@ MonoBehaviour:
     y: 0
     width: 0
     height: 0
+  enablePathTileDecoration: 1
+  pathStoneDecorationPrefabs:
+  - {fileID: 3167933080424967449, guid: 6729c2d78ee9040829d69b1c626b3903, type: 3}
+  - {fileID: 6908711010690672192, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
+  pathDecorationSeed: 18743
+  pathDecorationSurfaceOffset: 0.055
+  pathStoneDecorationMinScale: 0.22
+  pathStoneDecorationMaxScale: 0.42
+  pathTileDecorationChance: 1
+  secondPathStoneChance: 0.7
   tileRippleRadius: 2
   tileRippleDelayPerTile: 0.035
 --- !u!4 &2084970582

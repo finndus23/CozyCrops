@@ -38,8 +38,8 @@ public class GridManager : MonoBehaviour
 
     [Header("Grass-Tile Kleindeko")]
     [Tooltip("Aktiviert kleine Laufzeit-Dekoration auf den bearbeitbaren Farm-Grass-Tiles.")]
-    [SerializeField] private bool enableGrassTileDecoration = false;
-    [Tooltip("Kleine Blumen und Graeser, die nur auf Grass-Tiles leben.")]
+    [SerializeField] private bool enableGrassTileDecoration = true;
+    [Tooltip("Reine Gras-Prefabs, die nur auf Grass-Tiles leben.")]
     [SerializeField] private GameObject[] grassPlantDecorationPrefabs;
     [Tooltip("Deterministischer Seed: Dasselbe Grid-Tile erhaelt nach dem Laden dieselbe Dekoration.")]
     [SerializeField] private int grassDecorationSeed = 7319;
@@ -50,11 +50,27 @@ public class GridManager : MonoBehaviour
     [Min(0.01f)]
     [SerializeField] private float grassPlantDecorationMaxScale = 0.8f;
     [Range(0f, 1f)]
-    [SerializeField] private float grassTileDecorationChance = 0.12f;
+    [SerializeField] private float grassTileDecorationChance = 0.08f;
     [Range(0f, 1f)]
-    [SerializeField] private float secondGrassDecorationChance = 0.04f;
+    [SerializeField] private float secondGrassDecorationChance = 0.15f;
     [Tooltip("Welt-X/Z-Rechtecke, in denen keine Grass-Tile-Deko erscheinen darf (Gebaeude, Zufahrt usw.).")]
     [SerializeField] private Rect[] grassDecorationBlockedAreas;
+
+    [Header("Path-Tile Kleindeko")]
+    [Tooltip("Legt kleine, nicht blockierende Steine auf einen Teil der Path-Tiles.")]
+    [SerializeField] private bool enablePathTileDecoration = true;
+    [SerializeField] private GameObject[] pathStoneDecorationPrefabs;
+    [SerializeField] private int pathDecorationSeed = 18743;
+    [Min(0f)]
+    [SerializeField] private float pathDecorationSurfaceOffset = 0.055f;
+    [Min(0.01f)]
+    [SerializeField] private float pathStoneDecorationMinScale = 0.22f;
+    [Min(0.01f)]
+    [SerializeField] private float pathStoneDecorationMaxScale = 0.42f;
+    [Range(0f, 1f)]
+    [SerializeField] private float pathTileDecorationChance = 1f;
+    [Range(0f, 1f)]
+    [SerializeField] private float secondPathStoneChance = 0.7f;
 
     [Header("Feel-Good")]
     [Tooltip("Radius in Tiles, in dem Nachbarn beim Umwandeln mithüpfen. 0 = aus.")]
@@ -173,7 +189,7 @@ public class GridManager : MonoBehaviour
             GridCell cell = GetCell(x, z);
             cell.TileVisual = child.GetComponent<FarmTileVisual>();
             cell.Type = marker.tileType;
-            AddGrassTileDecoration(child.gameObject, x, z, cell.Type);
+            AddTileDecoration(child.gameObject, x, z, cell.Type);
         }
 
         // Die bestehende Scene enthält nur die ursprüngliche Farm. Die fünf Felder
@@ -523,19 +539,30 @@ public class GridManager : MonoBehaviour
         cell.TileVisual = go.GetComponent<FarmTileVisual>();
 
         EnsureMarker(go, type);
-        AddGrassTileDecoration(go, x, z, type);
+        AddTileDecoration(go, x, z, type);
+    }
+
+    private void AddTileDecoration(GameObject tileObject, int x, int z, TileType type)
+    {
+        if (!Application.isPlaying || tileObject == null)
+            return;
+
+        if (type == TileType.Grass)
+            AddGrassTileDecoration(tileObject, x, z);
+        else if (type == TileType.Path)
+            AddPathTileDecoration(tileObject, x, z);
     }
 
     /// <summary>
-    /// Erzeugt auf einem Teil der Grass-Tiles ein, selten zwei, kleine Blumen oder
-    /// Graeser. Beim Ersetzen des Tiles verschwinden sie automatisch mit dem alten
+    /// Erzeugt auf einem Teil der Grass-Tiles kleine Graeser in derselben Dichte und
+    /// Groesse wie auf der Aussendeko. Beim Ersetzen verschwinden sie mit dem alten
     /// GameObject; wird wieder Gras gebaut, erzeugt SpawnTile sie erneut.
     /// </summary>
-    private void AddGrassTileDecoration(GameObject tileObject, int x, int z, TileType type)
+    private void AddGrassTileDecoration(GameObject tileObject, int x, int z)
     {
         const string rootName = "Grass Tile Misc Decoration";
 
-        if (!enableGrassTileDecoration || !Application.isPlaying || tileObject == null || type != TileType.Grass)
+        if (!enableGrassTileDecoration)
             return;
         if (grassPlantDecorationPrefabs == null || grassPlantDecorationPrefabs.Length == 0)
             return;
@@ -599,6 +626,79 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Kleine Steine sind Kinder des Path-Tiles. Dadurch verschwinden sie beim
+    /// Zurueckbauen oder Umwandeln gemeinsam mit dem alten Tile-Objekt.
+    /// </summary>
+    private void AddPathTileDecoration(GameObject tileObject, int x, int z)
+    {
+        const string rootName = "Path Tile Stone Decoration";
+
+        if (!enablePathTileDecoration)
+            return;
+        if (pathStoneDecorationPrefabs == null || pathStoneDecorationPrefabs.Length == 0)
+            return;
+        if (tileObject.transform.Find(rootName) != null)
+            return;
+
+        var random = new System.Random(GetPathDecorationSeed(x, z));
+        if (random.NextDouble() >= pathTileDecorationChance)
+            return;
+
+        int decorationCount = random.NextDouble() < secondPathStoneChance ? 2 : 1;
+        var root = CreateDecorationRoot(tileObject, rootName);
+
+        float baseAngle = NextFloat(random, 0f, Mathf.PI * 2f);
+        for (int i = 0; i < decorationCount; i++)
+        {
+            GameObject prefab = PickGrassDecorationPrefab(pathStoneDecorationPrefabs, random);
+            if (prefab == null) continue;
+
+            float angle = baseAngle + Mathf.PI * 2f * i / decorationCount +
+                          NextFloat(random, -0.35f, 0.35f);
+            float radius = NextFloat(random, cellSize * 0.12f, cellSize * 0.35f);
+            float scale = NextFloat(random,
+                Mathf.Min(pathStoneDecorationMinScale, pathStoneDecorationMaxScale),
+                Mathf.Max(pathStoneDecorationMinScale, pathStoneDecorationMaxScale));
+
+            GameObject decoration = Instantiate(prefab, root.transform);
+            decoration.name = $"Path Stone {i + 1}";
+            decoration.transform.localPosition = new Vector3(
+                Mathf.Cos(angle) * radius,
+                pathDecorationSurfaceOffset,
+                Mathf.Sin(angle) * radius);
+            decoration.transform.localRotation = Quaternion.Euler(
+                0f, NextFloat(random, 0f, 360f), 0f);
+            decoration.transform.localScale = prefab.transform.localScale * scale;
+            MakeDecorationNonBlocking(decoration, disableShadows: true);
+        }
+    }
+
+    private static GameObject CreateDecorationRoot(GameObject tileObject, string rootName)
+    {
+        var root = new GameObject(rootName);
+        root.transform.SetParent(tileObject.transform, false);
+        root.transform.localPosition = Vector3.zero;
+        root.transform.localRotation = Quaternion.identity;
+
+        Vector3 tileWorldScale = tileObject.transform.lossyScale;
+        root.transform.localScale = new Vector3(
+            SafeInverseScale(tileWorldScale.x),
+            SafeInverseScale(tileWorldScale.y),
+            SafeInverseScale(tileWorldScale.z));
+        return root;
+    }
+
+    private static void MakeDecorationNonBlocking(GameObject decoration, bool disableShadows)
+    {
+        foreach (Collider decorationCollider in decoration.GetComponentsInChildren<Collider>(true))
+            decorationCollider.enabled = false;
+
+        if (!disableShadows) return;
+        foreach (Renderer decorationRenderer in decoration.GetComponentsInChildren<Renderer>(true))
+            decorationRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+    }
+
     private bool IsGrassDecorationBlocked(Vector3 worldPosition)
     {
         if (grassDecorationBlockedAreas == null)
@@ -635,6 +735,17 @@ public class GridManager : MonoBehaviour
         unchecked
         {
             int hash = grassDecorationSeed;
+            hash = hash * 397 ^ x;
+            hash = hash * 397 ^ z;
+            return hash;
+        }
+    }
+
+    private int GetPathDecorationSeed(int x, int z)
+    {
+        unchecked
+        {
+            int hash = pathDecorationSeed;
             hash = hash * 397 ^ x;
             hash = hash * 397 ^ z;
             return hash;
@@ -738,39 +849,91 @@ public class GridManager : MonoBehaviour
         const string groundName = "Persistent Decoration Ground";
         Transform existing = transform.Find(groundName);
         if (existing != null)
+        {
+            existing.gameObject.SetActive(false);
             Destroy(existing.gameObject);
+        }
 
-        GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        ground.name = groundName;
-        ground.transform.SetParent(transform, false);
+        var groundRoot = new GameObject(groundName);
+        groundRoot.transform.SetParent(transform, false);
 
-        float worldWidth = (EnvironmentMaxXExclusive - EnvironmentMinX) * cellSize;
-        float worldHeight = (EnvironmentMaxZExclusive - EnvironmentMinZ) * cellSize;
-        ground.transform.localPosition = new Vector3(
-            (EnvironmentMinX + EnvironmentMaxXExclusive) * cellSize * 0.5f,
-            -0.08f,
-            (EnvironmentMinZ + EnvironmentMaxZExclusive) * cellSize * 0.5f);
-        ground.transform.localScale = new Vector3(worldWidth, 0.05f, worldHeight);
-
-        Collider groundCollider = ground.GetComponent<Collider>();
-        if (groundCollider != null)
-            groundCollider.enabled = false;
-
-        Renderer groundRenderer = ground.GetComponent<Renderer>();
         Renderer grassRenderer = grassTilePrefab != null
             ? grassTilePrefab.GetComponentInChildren<Renderer>()
             : null;
+        Material grassMaterial = grassRenderer != null ? grassRenderer.sharedMaterial : null;
 
-        if (groundRenderer != null)
-        {
-            groundRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            groundRenderer.receiveShadows = true;
-            if (grassRenderer != null)
-                groundRenderer.sharedMaterial = grassRenderer.sharedMaterial;
-        }
+        float environmentMinWorldX = EnvironmentMinX * cellSize;
+        float environmentMaxWorldX = EnvironmentMaxXExclusive * cellSize;
+        float environmentMinWorldZ = EnvironmentMinZ * cellSize;
+        float environmentMaxWorldZ = EnvironmentMaxZExclusive * cellSize;
+        float farmMinWorldX = FarmMinX * cellSize;
+        float farmMaxWorldX = FarmMaxXExclusive * cellSize;
+        float farmMinWorldZ = FarmMinZ * cellSize;
+        float farmMaxWorldZ = FarmMaxZExclusive * cellSize;
 
-        Debug.Log($"[GridManager] Dekorationsgrund: {worldWidth}x{worldHeight} Welt-Einheiten; " +
-                  $"interaktives Grid bleibt {Width}x{Height} Tiles.");
+        // Vier nicht ueberlappende Platten umschliessen das komplette Farm-Grid.
+        // Unter der benutzbaren Flaeche liegt dadurch kein Dekorationsboden mehr.
+        CreateDecorationGroundSection(
+            "Decoration Ground Left",
+            environmentMinWorldX, farmMinWorldX,
+            environmentMinWorldZ, environmentMaxWorldZ,
+            groundRoot.transform, grassMaterial);
+        CreateDecorationGroundSection(
+            "Decoration Ground Right",
+            farmMaxWorldX, environmentMaxWorldX,
+            environmentMinWorldZ, environmentMaxWorldZ,
+            groundRoot.transform, grassMaterial);
+        CreateDecorationGroundSection(
+            "Decoration Ground Bottom",
+            farmMinWorldX, farmMaxWorldX,
+            environmentMinWorldZ, farmMinWorldZ,
+            groundRoot.transform, grassMaterial);
+        CreateDecorationGroundSection(
+            "Decoration Ground Top",
+            farmMinWorldX, farmMaxWorldX,
+            farmMaxWorldZ, environmentMaxWorldZ,
+            groundRoot.transform, grassMaterial);
+
+        Debug.Log($"[GridManager] Dekorationsgrund als vier Randflaechen erzeugt; " +
+                  $"unter dem {Width}x{Height}-Farm-Grid bleibt er ausgespart.");
+    }
+
+    private static void CreateDecorationGroundSection(
+        string sectionName,
+        float minX,
+        float maxX,
+        float minZ,
+        float maxZ,
+        Transform parent,
+        Material material)
+    {
+        float width = maxX - minX;
+        float depth = maxZ - minZ;
+        if (width <= 0f || depth <= 0f)
+            return;
+
+        GameObject section = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        section.name = sectionName;
+        section.transform.SetParent(parent, false);
+        section.transform.localPosition = new Vector3(
+            (minX + maxX) * 0.5f,
+            0f,
+            (minZ + maxZ) * 0.5f);
+        // Grass-Tiles sind ebenfalls 0.1 Welt-Einheiten dick und liegen auf Y = 0.
+        section.transform.localScale = new Vector3(width, 0.1f, depth);
+
+        Collider sectionCollider = section.GetComponent<Collider>();
+        if (sectionCollider != null)
+            sectionCollider.enabled = false;
+
+        Renderer sectionRenderer = section.GetComponent<Renderer>();
+        if (sectionRenderer == null)
+            return;
+
+        sectionRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        sectionRenderer.receiveShadows = true;
+        if (material != null)
+            sectionRenderer.sharedMaterial = material;
     }
 
     private void SpawnBorderRing()

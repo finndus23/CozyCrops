@@ -71,6 +71,7 @@ public class GridZone : MonoBehaviour
         if (IsUnlocked) return false;
         if (!PlayerInventory.Instance.TrySpendMoney(unlockCost)) return false;
 
+        ZoneManager.Instance?.PrepareZonePurchase(this);
         Unlock();
         OnZonePurchasedStatic?.Invoke(SaveId);
         return true;
@@ -83,9 +84,14 @@ public class GridZone : MonoBehaviour
 
         IsUnlocked = true;
 
-        // Alle Kinder-Objekte (Blocker) zerstören
+        // Alle Kinder-Objekte (Button, Vorschau und Naturdeko) sofort ausblenden und
+        // anschließend zerstören. Destroy() allein würde sie noch bis zum Frame-Ende zeigen.
         for (int i = transform.childCount - 1; i >= 0; i--)
-            Destroy(transform.GetChild(i).gameObject);
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+            child.SetActive(false);
+            Destroy(child);
+        }
 
         OnUnlocked?.Invoke();
         // Erst nach dem Event deaktivieren: ZoneManager braucht die Bounds noch, um die
