@@ -48,6 +48,13 @@ public class ToolUseHandler : MonoBehaviour
              "Aus = altes Verhalten: nur Tiles annehmen, auf denen das Werkzeug sofort wirkt.")]
     [SerializeField] private bool allowLayering;
 
+    [Header("Dünger")]
+    [Tooltip("Wie viel schneller eine Aktion auf einer GEDÜNGTEN Tile läuft. 0.35 = 35% " +
+             "kürzere Dauer für den Anteil der Fläche, der gedüngt ist — bei einer AoE aus " +
+             "gemischten Tiles wirkt das anteilig (z.B. 3 von 9 gedüngt → 1/3 des Bonus).")]
+    [Range(0f, 0.6f)]
+    [SerializeField] private float fertilizedActionSpeedBonus = 0.35f;
+
     // ── Zustand ───────────────────────────────────────────────────────────────
 
     private readonly List<ToolJob> running = new();
@@ -162,12 +169,6 @@ public class ToolUseHandler : MonoBehaviour
 
         var origin = new Vector2Int(x, z);
 
-        // Dieselbe Tile nicht doppelt einplanen. Beim Ziehen über das Feld würde man
-        // sonst pro Frame denselben Job nachschieben.
-        // Ohne Layering blockiert jede eingeplante Tile; mit Layering nur dieselbe
-        // Tile für dasselbe Werkzeug.
-        if (IsTileScheduled(origin, allowLayering ? tool : ToolType.None)) return false;
-
         if (queued.Count >= maxQueuedJobs) return false;
 
         // Kapazität pro Werkzeug: die Warteschlange ist ein eigener Progressionsstrang.
@@ -193,6 +194,14 @@ public class ToolUseHandler : MonoBehaviour
         var tiles = new List<Vector2Int>();
         foreach (var tile in candidates)
         {
+            // Pro Tile aussortieren statt die ganze Aktion abzubrechen: sonst reicht
+            // beim Ziehen über mehrere Felder EINE bereits laufende/eingeplante Tile
+            // in der AoE-Fläche, um sämtliche übrigen, noch freien Tiles mit
+            // zu blockieren. Ohne Layering blockiert jedes Werkzeug (alte Regel);
+            // mit Layering nur dasselbe Werkzeug — ein zweites darf noch drauf.
+            if (IsTileScheduled(tile, allowLayering ? tool : ToolType.None))
+                continue;
+
             if (CanApplyTool(tile.x, tile.y, tool))
             {
                 tiles.Add(tile);
@@ -205,6 +214,12 @@ public class ToolUseHandler : MonoBehaviour
             if (allowLayering && IsTileScheduled(tile, ToolType.None))
                 tiles.Add(tile);
         }
+
+        // Scythe darf laut CanApplyTool sowohl reife Pflanzen als auch Gras treffen — aber
+        // nur EIN Verhalten pro Aktion. Steckt irgendwo ein Erntefeld in der Fläche, war
+        // das die Absicht, die Gras-Tiles fliegen raus.
+        if (tool == ToolType.Scythe)
+            FilterScytheTiles(tiles);
 
         if (tiles.Count == 0) return false;
 
@@ -241,11 +256,34 @@ public class ToolUseHandler : MonoBehaviour
             }
         }
 
+        // Dünger reservieren — exakt dasselbe Prinzip wie beim Saatgut oben: reicht der
+        // Vorrat nicht für die ganze Fläche, wird gedüngt was geht statt die Aktion zu
+        // verweigern.
+        if (tool == ToolType.Fertilize)
+        {
+            int available = PlayerInventory.Instance != null
+                ? PlayerInventory.Instance.Fertilizer
+                : 0;
+
+            int budget = available - CountScheduledFertilizerUses();
+            if (budget <= 0) return false;
+
+            if (tiles.Count > budget)
+            {
+                tiles.Sort((a, b) =>
+                    (a - origin).sqrMagnitude.CompareTo((b - origin).sqrMagnitude));
+
+                tiles.RemoveRange(budget, tiles.Count - budget);
+            }
+        }
+
         // Nicht mehr stur perTile × Anzahl: ToolData rechnet den Mengenrabatt ein, damit
         // eine größere Wirkungsfläche auch wirklich schneller ist und nicht nur Klicks spart.
         float duration = ToolRegistry.Instance != null
             ? ToolRegistry.Instance.GetJobDuration(tool, tiles.Count)
             : 0f;
+        duration *= 1f - FertilizedShare(tiles) * fertilizedActionSpeedBonus;
+        duration *= CropActionSpeedMultiplier(tool, seed, tiles);
         int yieldBonus = tool == ToolType.Scythe
             ? ToolRegistry.Instance?.GetYieldBonus(tool) ?? 0
             : 0;
@@ -509,8 +547,17 @@ public class ToolUseHandler : MonoBehaviour
                 applied = PlantManager.Instance.TryWater(x, z);
                 break;
 
+            case ToolType.Fertilize:
+                applied = PlantManager.Instance.TryFertilize(x, z);
+                break;
+
             case ToolType.Scythe:
-                applied = PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
+                // Gemischte AoE möglich: manche Tiles haben eine reife Pflanze, andere sind
+                // einfach Gras. CanApplyTool lässt beides durch, hier wird pro Tile entschieden.
+                var scytheCell = GridManager.Instance?.GetCell(x, z);
+                applied = scytheCell != null && scytheCell.Type == TileType.Grass && !scytheCell.HasPlant
+                    ? PlantManager.Instance.TryGatherGrass(x, z)
+                    : PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
                 break;
         }
 
@@ -533,6 +580,19 @@ public class ToolUseHandler : MonoBehaviour
         return count;
     }
 
+    private int CountScheduledFertilizerUses()
+    {
+        int count = 0;
+
+        foreach (var job in running)
+            if (job.Tool == ToolType.Fertilize) count += job.Tiles.Count;
+
+        foreach (var job in queued)
+            if (job.Tool == ToolType.Fertilize) count += job.Tiles.Count;
+
+        return count;
+    }
+
     // ── Validierung ──────────────────────────────────────────────────────────
 
     /// <summary>
@@ -551,12 +611,113 @@ public class ToolUseHandler : MonoBehaviour
             // Wachstumsphase schon hat, ist kein gültiges Ziel mehr. Sonst reiht man
             // Gieß-Jobs auf Felder ein, auf denen nichts passiert.
             ToolType.WateringCan => cell.HasPlant && cell.Plant != null && cell.Plant.NeedsWatering,
-            ToolType.Scythe      => cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown,
+            // Zusätzlich zum Ernten: Gras mähen. Kein Ertrag, aber eine Chance auf einen
+            // Not-Samen (PlantManager.TryGatherGrass) — Rettungsanker gegen den Softlock
+            // "kein Geld, keine Samen mehr".
+            ToolType.Scythe      => (cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
+                                    || cell.Type == TileType.Grass,
             ToolType.Seed        => cell.IsTilled && !cell.HasPlant
                                     && Hotbar.Instance.SelectedSeed != null
                                     && PlayerInventory.Instance.GetSeedCount(Hotbar.Instance.SelectedSeed) > 0,
+            // Jedes Feld, egal ob schon gehackt oder bepflanzt — der Dünger wirkt auf den
+            // Rest des laufenden Anbauzyklus. Bereits gedüngte Felder sind kein Ziel mehr,
+            // sonst könnte man denselben Vorrat mehrfach auf dieselbe Tile kippen.
+            ToolType.Fertilize   => cell.Type == TileType.FarmPlot && !cell.IsFertilized
+                                    && PlayerInventory.Instance.Fertilizer > 0,
             _                    => false
         };
+    }
+
+    /// <summary>
+    /// Reine Gras-Fläche bleibt unangetastet (mäht normal). Ist auch nur ein Erntefeld
+    /// dabei, fliegen alle Gras-Tiles aus der Liste — sonst würde ein einzelnes Erntefeld
+    /// am Rand einer großen Wiese eine Handvoll ungewollte Not-Samen-Würfe auslösen, nur
+    /// weil die AoE zufällig viel Gras mitnimmt.
+    /// </summary>
+    private void FilterScytheTiles(List<Vector2Int> tiles)
+    {
+        bool hasHarvestTile = false;
+        foreach (var tile in tiles)
+        {
+            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
+            if (cell != null && cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
+            {
+                hasHarvestTile = true;
+                break;
+            }
+        }
+
+        if (!hasHarvestTile) return;
+
+        for (int i = tiles.Count - 1; i >= 0; i--)
+        {
+            var cell = GridManager.Instance?.GetCell(tiles[i].x, tiles[i].y);
+            if (cell != null && cell.Type == TileType.Grass && !cell.HasPlant)
+                tiles.RemoveAt(i);
+        }
+    }
+
+    /// <summary>
+    /// Anteil der Fläche, der gedüngt ist — 0 (keine) bis 1 (alle Tiles). Skaliert den
+    /// Dünger-Geschwindigkeitsbonus anteilig bei gemischten AoE-Flächen.
+    /// </summary>
+    private static float FertilizedShare(List<Vector2Int> tiles)
+    {
+        if (tiles == null || tiles.Count == 0) return 0f;
+
+        int fertilized = 0;
+        foreach (var tile in tiles)
+        {
+            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
+            if (cell != null && cell.IsFertilized)
+                fertilized++;
+        }
+
+        return fertilized / (float)tiles.Count;
+    }
+
+    /// <summary>
+    /// Sorten-eigenes Tempo (PlantType.actionSpeedMultiplier) für die aktuelle Aktion.
+    ///
+    /// Bei Seed steht die Sorte VORHER fest (Hotbar-Auswahl) — direkt deren Wert nehmen.
+    /// Bei WateringCan/Scythe kann die AoE mehrere Sorten gemischt treffen, deshalb der
+    /// Durchschnitt über alle Tiles mit Pflanze. Hacke und Dünger haben keinen Sorten-Bezug
+    /// (noch keine Pflanze bzw. wirkt auf die Tile selbst) — dort bleibt der Faktor 1.
+    /// </summary>
+    private static float CropActionSpeedMultiplier(ToolType tool, PlantType seed, List<Vector2Int> tiles)
+    {
+        switch (tool)
+        {
+            case ToolType.Seed:
+                return seed != null ? Mathf.Max(0.1f, seed.actionSpeedMultiplier) : 1f;
+
+            case ToolType.WateringCan:
+            case ToolType.Scythe:
+                return AveragePlantActionSpeedMultiplier(tiles);
+
+            default:
+                return 1f;
+        }
+    }
+
+    private static float AveragePlantActionSpeedMultiplier(List<Vector2Int> tiles)
+    {
+        if (tiles == null || tiles.Count == 0) return 1f;
+
+        float sum = 0f;
+        int count = 0;
+
+        foreach (var tile in tiles)
+        {
+            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
+            if (cell != null && cell.HasPlant && cell.Plant?.Type != null)
+            {
+                sum += Mathf.Max(0.1f, cell.Plant.Type.actionSpeedMultiplier);
+                count++;
+            }
+        }
+
+        return count > 0 ? sum / count : 1f;
     }
 
     // ── AoE-Berechnung ────────────────────────────────────────────────────────

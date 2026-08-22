@@ -230,6 +230,7 @@ public class GridManager : MonoBehaviour
 
         cell.Type = type;
         cell.IsTilled = false;
+        cell.IsFertilized = false;
         cell.ClearLoadedPlant();
 
         ReplaceTile(x, z, GetPrefabForType(type), type);
@@ -246,6 +247,7 @@ public class GridManager : MonoBehaviour
 
         cell.Type = TileType.Grass;
         cell.IsTilled = false;
+        cell.IsFertilized = false;
         cell.ClearLoadedPlant();
 
         ReplaceTile(x, z, grassTilePrefab, TileType.Grass);
@@ -409,6 +411,7 @@ public class GridManager : MonoBehaviour
         // enthalten noch Locks der früheren Innenzonen und dürfen die neue Startfarm
         // deshalb nicht erneut blockieren.
         cell.IsTilled = loadedType == TileType.FarmPlot && tileData.isTilled;
+        cell.IsFertilized = loadedType == TileType.FarmPlot && tileData.isFertilized;
         cell.ClearLoadedPlant();
 
         if (GetTileObject(tileData.x, tileData.z) == null || previousType != loadedType)

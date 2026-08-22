@@ -3428,7 +3428,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "​"
+  m_text: "\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4646,7 +4646,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Spielstand auswählen"
+  m_text: "Spielstand ausw\xE4hlen"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7152,7 +7152,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Wie soll deine Farm heißen?"
+  m_text: "Wie soll deine Farm hei\xDFen?"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8051,7 +8051,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Lautstärke"
+  m_text: "Lautst\xE4rke"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8748,6 +8748,8 @@ MonoBehaviour:
   saveOnApplicationQuit: 0
   useAutoSave: 0
   autoSaveInterval: 10
+  saveOnRequest: 1
+  saveDebounce: 2
   enableDebugHotkeys: 1
   saveKey: 98
   loadKey: 99
@@ -8801,6 +8803,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f09978ff7f1d950418bd4a4e09326dbf, type: 2}
   - {fileID: 11400000, guid: 7d21acf2ae878ea42934abdcf037d59a, type: 2}
   - {fileID: 11400000, guid: 7493683d8e0f0e54eb68a0038ed9e66a, type: 2}
+  - {fileID: 11400000, guid: d9edf252bac74ce89f5e4df6d528badf, type: 2}
   startLevels: []
   statsPreview: (Keine Tools geladen)
 --- !u!1 &1987454519

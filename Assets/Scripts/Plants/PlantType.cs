@@ -16,6 +16,38 @@ public class PlantType : ScriptableObject
     public int seedPrice = 10;
     public int sellPrice = 25;
 
+    [Header("Balancing")]
+    [Tooltip("Multiplikator auf die Wachstumszeit JEDER Phase (GrowthStage.timeToNextStage). " +
+             "1 = wie in den Phasen eingetragen. Unter 1 = wächst schneller, über 1 = " +
+             "langsamer.\n\n" +
+             "Eigener Hebel getrennt von den einzelnen Phasenzeiten — damit du am " +
+             "Gesamttempo einer Sorte drehen kannst, ohne jede Phase einzeln nachzuziehen. " +
+             "Wirkt multiplikativ mit dem Dünger-Bonus (GridCell.IsFertilized).")]
+    [Range(0.3f, 2f)]
+    public float growthSpeedMultiplier = 1f;
+
+    [Tooltip("Multiplikator auf die Dauer von Werkzeug-Aktionen AN DIESER SORTE: Säen " +
+             "(Seed-Tool), Gießen und Ernten (Sichel). 1 = Standard, unter 1 = Aktionen an " +
+             "dieser Sorte gehen schneller (z.B. Karotte — zart, schnell weg), über 1 = " +
+             "langsamer (z.B. Sonnenblume — robuster, mehr Aufwand pro Stück).\n\n" +
+             "Betrifft NICHT die Hacke (noch keine Pflanze auf der Tile) oder den Dünger " +
+             "(wirkt auf die Tile, nicht auf eine bestimmte Sorte). Bei Gießen/Ernten mit " +
+             "gemischter AoE-Fläche zählt der Durchschnitt über alle betroffenen Pflanzen.")]
+    [Range(0.5f, 2f)]
+    public float actionSpeedMultiplier = 1f;
+
+    [Header("Kompostieren")]
+    [Tooltip("Wie viel Dünger-Wert 1 Stück dieser Frucht beim Kompostieren beisteuert " +
+             "(ComposterInteraction.cropsPerFertilizer ist der Nenner darunter — 1.0 = " +
+             "Standard-Sorte).\n\n" +
+             "Niedriger für schnell wachsende Sorten (z.B. Karotte): weniger Wert pro Stück, " +
+             "aber mehr Ernten pro Zeit gleichen das wieder aus — mehr Klicks, aber auch mehr " +
+             "Dünger/Minute.\n" +
+             "Höher für langsame Sorten (z.B. Blumenkohl), die \"AFK-Variante\": weniger " +
+             "Klicks nötig, dafür ist jedes einzelne Stück beim Kompostieren mehr wert.")]
+    [Range(0.1f, 3f)]
+    public float compostValue = 1f;
+
     [Header("Sound")]
     [Tooltip("Gesät. Optional — liegt zusätzlich über dem Klang aus dem Werkzeug. Leise " +
              "halten, das Werkzeug trägt die Aktion.")]

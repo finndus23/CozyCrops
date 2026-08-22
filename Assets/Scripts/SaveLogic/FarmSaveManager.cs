@@ -701,7 +701,9 @@ public class FarmSaveManager : MonoBehaviour
 
         data.seeds.Clear();
         data.crops.Clear();
+        data.composterComposition.Clear();
         SaveInventory(data);
+        SaveComposter(data);
 
         if (GridManager.Instance != null)
         {
@@ -750,6 +752,7 @@ public class FarmSaveManager : MonoBehaviour
         if (inventory == null) return;
 
         data.money = inventory.Money;
+        data.fertilizer = inventory.Fertilizer;
         data.gamePace = (int)inventory.Pace;
 
         foreach (var kvp in inventory.GetAllSeeds())
@@ -768,6 +771,33 @@ public class FarmSaveManager : MonoBehaviour
             if (kvp.Key == null || kvp.Value <= 0) continue;
 
             data.crops.Add(new InventoryStackSaveData
+            {
+                plantId = PlantDatabase.GetPlantId(kvp.Key),
+                amount = kvp.Value
+            });
+        }
+    }
+
+    /// <summary>
+    /// Nichts zu tun wenn kein Komposter in der Szene steht (z.B. Marktplatz) — dann bleibt
+    /// der zuletzt gespeicherte Zustand einfach unangetastet, wie bei SaveGrid ohne GridManager.
+    /// </summary>
+    private void SaveComposter(SaveGameData data)
+    {
+        if (ComposterInteraction.Instance == null) return;
+
+        data.composterBrewing = ComposterInteraction.Instance.IsBrewing;
+        data.composterTimeRemaining = ComposterInteraction.Instance.TimeRemaining;
+        data.composterFertilizerYield = ComposterInteraction.Instance.PendingFertilizerYield;
+        data.composterTotalBrewTime = ComposterInteraction.Instance.TotalBrewTime;
+
+        // Zusammensetzung des laufenden Batches — nötig, damit "Abbrechen" auch nach einem
+        // Neuladen mitten im Brauvorgang die richtige Ernte zurückgeben kann.
+        foreach (var kvp in ComposterInteraction.Instance.BrewingComposition)
+        {
+            if (kvp.Key == null || kvp.Value <= 0) continue;
+
+            data.composterComposition.Add(new InventoryStackSaveData
             {
                 plantId = PlantDatabase.GetPlantId(kvp.Key),
                 amount = kvp.Value
@@ -800,6 +830,7 @@ public class FarmSaveManager : MonoBehaviour
                     tileType = cell.Type.ToString(),
                     isLocked = cell.IsLocked,
                     isTilled = cell.IsTilled,
+                    isFertilized = cell.IsFertilized,
                     hasPlant = cell.HasPlant
                 };
 
@@ -839,6 +870,7 @@ public class FarmSaveManager : MonoBehaviour
             ApplyZones(data);
             ApplyGrid(data);
             ApplyInventory(data);
+            ApplyComposter(data);
             ApplyToolLevels(data);
             ApplyMissions(data);
         }
@@ -880,7 +912,19 @@ public class FarmSaveManager : MonoBehaviour
         // Tempo VOR dem Geld setzen: sonst liefe ein direkt danach ausgelöster Verkauf
         // noch mit dem Standardfaktor.
         inventory.Pace = (GamePace)data.gamePace;
-        inventory.ApplyLoadedData(data.money, data.seeds, data.crops);
+        inventory.ApplyLoadedData(data.money, data.seeds, data.crops, data.fertilizer);
+    }
+
+    private void ApplyComposter(SaveGameData data)
+    {
+        if (ComposterInteraction.Instance == null) return;
+
+        ComposterInteraction.Instance.ApplyLoadedData(
+            data.composterBrewing,
+            data.composterTimeRemaining,
+            data.composterFertilizerYield,
+            data.composterTotalBrewTime,
+            data.composterComposition);
     }
 
     private void ApplyGrid(SaveGameData data)
@@ -922,6 +966,7 @@ public class FarmSaveManager : MonoBehaviour
 
         if (data.seeds == null) data.seeds = new List<InventoryStackSaveData>();
         if (data.crops == null) data.crops = new List<InventoryStackSaveData>();
+        if (data.composterComposition == null) data.composterComposition = new List<InventoryStackSaveData>();
         if (data.tiles == null) data.tiles = new List<TileSaveData>();
         if (data.zones == null) data.zones = new List<ZoneSaveData>();
         if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();

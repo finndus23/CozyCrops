@@ -60,6 +60,7 @@ public class AoEPreview : MonoBehaviour
         new() { tool = ToolType.Seed,        color = new Color(0.45f, 0.85f, 0.35f, 1f) },
         new() { tool = ToolType.WateringCan, color = new Color(0.35f, 0.72f, 1f,    1f) },
         new() { tool = ToolType.Scythe,      color = new Color(1f,    0.83f, 0.30f, 1f) },
+        new() { tool = ToolType.Fertilize,   color = new Color(0.55f, 0.35f, 0.75f, 1f) },
     };
 
     [Tooltip("Alpha-Faktor für den Hover gegenüber der Warteschlange. Der Hover ist nur " +

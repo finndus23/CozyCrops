@@ -10,26 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fb13ce36d1f44f45830b80630040463, type: 3}
-  m_Name: Scythe
+  m_Name: Fertilizer
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
-  toolType: 4
-  displayName: Scythe
-  icon: {fileID: -306484, guid: 9da78f0a6e0127644b5f4ca486ac7fed, type: 3}
+  toolType: 5
+  displayName: "D\xFCnger"
+  icon: {fileID: 21300000, guid: ca582652d8e43994fbe14a331af06b90, type: 3}
   maxLevel: 30
   baseAoSize: 1
   extraTileCost: 0.9
   baseQueueSize: 3
   baseWateringPower: 1
   multiWateringEfficiency: 0.85
-  baseDuration: 2
-  durationReductionPerLevel: 0.04
-  minDuration: 0.35
-  buyPrice: 110
-  baseCost: 50
-  costScalingPerLevel: 12
-  useLoop: {fileID: 8300000, guid: b6976af115162c34e8b812cf78a1396e, type: 3}
+  baseDuration: 1.5
+  durationReductionPerLevel: 0.03
+  minDuration: 0.3
+  buyPrice: 60
+  baseCost: 40
+  costScalingPerLevel: 10
+  useLoop: {fileID: 0}
   impactClips: []
-  sfxVolume: 0.1
+  sfxVolume: 0.6
   milestones:
   - level: 5
     aoSize: 0
@@ -73,6 +73,3 @@ MonoBehaviour:
     queueSize: 16
     wateringPower: 0
     unlockText: "Fl\xE4che 4\xD74 \u2014 Vollausbau"
-  baseFertilizedHarvestChance: 0.2
-  fertilizedHarvestChancePerLevel: 0.01
-  maxFertilizedHarvestChance: 0.5

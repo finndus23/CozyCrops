@@ -11,9 +11,24 @@ public class SaveGameData
     public bool isInitialized;
 
     public int money;
+    public int fertilizer;
 
     public List<InventoryStackSaveData> seeds = new();
     public List<InventoryStackSaveData> crops = new();
+
+    /// <summary>Läuft der Komposter gerade? Fehlender Batch (kein Aufruf von
+    /// Composter.StartBrew) heißt composterBrewing = false, alles andere 0/leer.</summary>
+    public bool composterBrewing;
+    public float composterTimeRemaining;
+    public int composterFertilizerYield;
+
+    /// <summary>Gesamtdauer des laufenden Brauvorgangs — nötig, damit der Fortschrittsring
+    /// nach einem Neuladen weiß wie weit er ist, statt bei 0% neu anzufangen.</summary>
+    public float composterTotalBrewTime;
+
+    /// <summary>Was aktuell im Komposter brodelt, pro Sorte — nötig, damit "Abbrechen" die
+    /// richtige Ernte zurückerstatten kann, auch nach einem Neuladen mitten im Brauvorgang.</summary>
+    public List<InventoryStackSaveData> composterComposition = new();
 
     public List<TileSaveData> tiles = new();
     public List<ZoneSaveData> zones = new();
@@ -47,6 +62,7 @@ public class TileSaveData
     public string tileType;
     public bool isLocked;
     public bool isTilled;
+    public bool isFertilized;
 
     public bool hasPlant;
     public string plantId;

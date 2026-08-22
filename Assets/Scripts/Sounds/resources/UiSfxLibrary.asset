@@ -22,7 +22,8 @@ MonoBehaviour:
   sell:
   - {fileID: 8300000, guid: f1329c70696e5774d8b1c770638063c1, type: 3}
   denied: []
-  toolUpgraded: []
+  toolUpgraded:
+  - {fileID: 8300000, guid: fb46be3164d271e47b3ba092f0e2bae3, type: 3}
   toolAcquired: []
   missionStarted: []
   objectiveCompleted:
@@ -30,6 +31,7 @@ MonoBehaviour:
   missionCompleted:
   - {fileID: 8300000, guid: 866aad4a9ceff494b9311a81776f6720, type: 3}
   rewardCollected: []
+  starterSeedFound: []
   coinFlight:
   - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
   volume: 0.3
