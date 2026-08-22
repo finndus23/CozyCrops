@@ -79,14 +79,20 @@ public class SoftlockHintTrigger : MonoBehaviour
     {
         if (alreadyShown || hintDialogue == null) return;
 
-        // SampleScene.PlayerInventory startet mit startingMoney=0 und leeren Seeds — das
-        // sind reine Platzhalterwerte für den kurzen Moment zwischen Scene-Awake und dem
-        // Moment, in dem FarmSaveManager den echten Spielstand einspielt (PlayerInventory.
-        // ApplyLoadedData). Ohne diese Sperre sah IsStuck() in genau diesem Fenster IMMER
-        // "0 Geld, 0 Samen" — der Dialog feuerte dann fälschlich, obwohl der Spieler laut
-        // Save längst Geld und Samen hatte. FarmSaveManager.IsLoading deckt exakt dieses
-        // Fenster ab (true ab Szenen-Load-Start bis ApplySaveData fertig ist).
-        if (FarmSaveManager.Instance != null && FarmSaveManager.Instance.IsLoading) return;
+        // SampleScene.PlayerInventory startet mit startingMoney=0 und leeren Seeds — reine
+        // Platzhalterwerte für den Moment zwischen Scene-Awake und dem Einspielen des
+        // Spielstands (PlayerInventory.ApplyLoadedData). Wer in diesem Fenster urteilt,
+        // sieht immer "0 Geld, 0 Samen" und hält jeden Spieler für festgefahren.
+        //
+        // IsLoading allein reichte NICHT, weshalb der Hinweis bei jeder Rückkehr vom
+        // Marktplatz feuerte: Diese Fahrt läuft über FarmMarketSceneTransition →
+        // SceneLoadingScreen.LoadScene() am Save-Manager vorbei, isLoading bleibt also
+        // durchgehend false. Das Nachladen stößt erst FarmSceneAutoLoad an — und das
+        // läuft NACH dem OnEnable dieses Objekts. Die Lücke war nicht "wird gerade
+        // geladen", sondern "wurde noch gar nicht geladen": genau das sagt
+        // InventoryRestored.
+        var save = FarmSaveManager.Instance;
+        if (save != null && (save.IsLoading || !save.InventoryRestored)) return;
 
         bool dialogueBusy = DialogueManager.Instance == null || DialogueManager.Instance.IsActive;
         bool stuck = IsStuck();

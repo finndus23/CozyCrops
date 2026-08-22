@@ -71,5 +71,45 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1eb9800696136e9448656ad38f4e574b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5268411175856280251}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1eb9800696136e9448656ad38f4e574b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5884324585179593257}
   m_SourcePrefab: {fileID: 100100000, guid: 1eb9800696136e9448656ad38f4e574b, type: 3}
+--- !u!1 &2582875128571546930 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1eb9800696136e9448656ad38f4e574b, type: 3}
+  m_PrefabInstance: {fileID: 3393848176094998627}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-5268411175856280251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582875128571546930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
+  startHighlighted: 0
+--- !u!114 &-5884324585179593257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582875128571546930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 02000000
+  highlightId: 
+  plantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  showOffScreenIndicator: 1
