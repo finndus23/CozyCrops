@@ -63,6 +63,21 @@ public class UiSfxLibrary : ScriptableObject
              "jetzt der Münzflug selbst, damit er beim Verkauf genauso kommt.")]
     public AudioClip[] rewardCollected;
 
+    [Tooltip("Sichel findet beim Gras-Mähen einen Not-Samen (Anti-Softlock). Leer = " +
+             "rewardCollected. Soll sich nach einem kleinen Glücksfund anhören, nicht wie " +
+             "ein normaler Pickup — passiert selten und meist genau dann, wenn's brennt.")]
+    public AudioClip[] starterSeedFound;
+
+    [Tooltip("Dünger aus dem Komposter abgeholt (Klick auf den fertigen Komposter). " +
+             "Leer = rewardCollected.")]
+    public AudioClip[] fertilizerCollected;
+
+    [Tooltip("Komposter ist FERTIG GEBRAUT — spielt einmalig genau in dem Moment, in dem " +
+             "der Timer bei 0 ankommt, nicht erst beim Abholen. Soll auffallen, damit man's " +
+             "über den Farmlärm hinweg mitbekommt, auch wenn man gerade woanders steht. " +
+             "Leer = rewardCollected.")]
+    public AudioClip[] compostReady;
+
     [Header("Münzflug")]
     [Tooltip("Klingt, sobald fliegende Münzen ankommen — bei Missions-Belohnungen genauso " +
              "wie beim Verkauf.\n\n" +

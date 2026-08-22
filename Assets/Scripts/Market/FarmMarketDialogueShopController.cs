@@ -684,7 +684,7 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             return;
         }
 
-        ToolType[] upgradableTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed };
+        ToolType[] upgradableTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed, ToolType.Fertilize };
 
         foreach (ToolType tool in upgradableTools)
         {

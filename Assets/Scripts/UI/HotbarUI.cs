@@ -24,6 +24,31 @@ public class HotbarUI : MonoBehaviour
     [Header("Seed-Slot")]
     [SerializeField] private Sprite emptySeedSprite;
 
+    [Tooltip("Zeichen fürs Badge oben rechts auf dem Seed-Slot, solange KEINE Sorte gewählt " +
+             "ist (nicht bei 0 Bestand einer bereits gewählten Sorte — das bleibt wie bisher " +
+             "stumm). Leer = kein Badge, alles andere funktioniert trotzdem normal.\n\n" +
+             "TMP-Text statt Sprite/Image: Textfarbe ist eine echte Füllung, kein Multiply-" +
+             "Tint über eine Bild-Textur — needsSeedIndicatorColor kommt damit IMMER exakt so " +
+             "an wie eingestellt, unabhängig vom Ausgangsmaterial (bei Sprites wie Unitys " +
+             "eingebautem DropdownArrow ist das nicht garantiert, die sind oft dunkelgrau " +
+             "statt weiß und lassen sich kaum hell tinten).")]
+    [SerializeField] private string needsSeedIndicatorCharacter = "^";
+
+    [Tooltip("Z-Rotation in Grad, nur fürs Badge. \"^\" zeigt bei 0° schon nach oben, andere " +
+             "Zeichen ggf. anders ausrichten.")]
+    [SerializeField] private float needsSeedIndicatorRotationZ = 0f;
+
+    [Tooltip("Größe des Badges in UI-Einheiten (bestimmt auch die Schriftgröße).")]
+    [SerializeField] private Vector2 needsSeedIndicatorSize = new(36f, 36f);
+
+    [Tooltip("Versatz von der oberen rechten Ecke des Slots (negative Werte = nach innen). " +
+             "Bei Bedarf anpassen, falls es über den Slot-Rand hinausragt oder zu weit " +
+             "reingerückt wirkt.")]
+    [SerializeField] private Vector2 needsSeedIndicatorOffset = new(-6f, -6f);
+
+    [Tooltip("Farbe des Zeichens selbst — echte Füllfarbe, kommt 1:1 an.")]
+    [SerializeField] private Color needsSeedIndicatorColor = new(1f, 0.75f, 0.2f, 1f);
+
     [Header("Scene Hotbar Sprites")]
     [SerializeField] private Sprite normalSlotSprite;
     [SerializeField] private Sprite highlightedSlotSprite;
@@ -53,6 +78,13 @@ public class HotbarUI : MonoBehaviour
     private GameObject buildToggleSlot;
     private HotbarSlotUI buildToggleSlotUI;
 
+    /// <summary>Badge oben rechts auf dem Seed-Slot — zeigt "hier musst du noch was
+    /// auswählen", solange Hotbar.SelectedSeed null ist. Nur für den einen Slot gebraucht,
+    /// deshalb hier statt in HotbarSlotUI (das teilen sich auch die Build-Slots). TMP-Text
+    /// statt Sprite/Image, damit needsSeedIndicatorColor eine echte Füllfarbe ist statt ein
+    /// Multiply-Tint über eine Bild-Textur.</summary>
+    private TMPro.TextMeshProUGUI seedNeedsSelectionBadge;
+
     void Awake() => Instance = this;
 
     void Start()
@@ -70,11 +102,13 @@ public class HotbarUI : MonoBehaviour
         Hotbar.Instance.OnToolChanged += OnToolChanged;
         Hotbar.Instance.OnSeedChanged += _ => UpdateSeedSlot();
         PlayerInventory.Instance.OnSeedsChanged += (_, _) => UpdateSeedSlot();
+        PlayerInventory.Instance.OnFertilizerChanged += _ => UpdateFertilizerSlot();
         BuildModeManager.Instance.OnBuildModeChanged += OnBuildModeChanged;
         BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
 
         UpdateHighlight(Hotbar.Instance.ActiveTool);
         UpdateSeedSlot();
+        UpdateFertilizerSlot();
     }
 
     void OnDestroy()
@@ -119,8 +153,12 @@ public class HotbarUI : MonoBehaviour
         if (keyboard.digit0Key.wasPressedThisFrame || keyboard.tabKey.wasPressedThisFrame)
             Hotbar.Instance.SetTool(ToolType.None);
 
-        // Leertaste → Dropdown öffnen wenn Seed-Slot aktiv
-        if (keyboard.spaceKey.wasPressedThisFrame && Hotbar.Instance.ActiveTool == ToolType.Seed)
+        // Leertaste ODER Enter → Dropdown öffnen wenn Seed-Slot aktiv
+        bool wantsSeedDropdown = keyboard.spaceKey.wasPressedThisFrame
+            || keyboard.enterKey.wasPressedThisFrame
+            || keyboard.numpadEnterKey.wasPressedThisFrame;
+
+        if (wantsSeedDropdown && Hotbar.Instance.ActiveTool == ToolType.Seed)
             SeedDropdownUI.Instance?.Toggle();
     }
 
@@ -131,12 +169,21 @@ public class HotbarUI : MonoBehaviour
     private void SyncOwnedToolsToHotbar()
     {
         if (ToolRegistry.Instance == null) return;
-        ToolType[] allTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed };
+        ToolType[] allTools = { ToolType.Hoe, ToolType.WateringCan, ToolType.Scythe, ToolType.Seed, ToolType.Fertilize };
         foreach (var tool in allTools)
         {
             if (ToolRegistry.Instance.IsOwned(tool) && !HasTool(tool))
-                SpawnSlot(new HotbarSlotConfig { toolType = tool, showCount = tool == ToolType.Seed, hasDropdown = tool == ToolType.Seed });
+            {
+                SpawnSlot(new HotbarSlotConfig
+                {
+                    toolType = tool,
+                    showCount = tool is ToolType.Seed or ToolType.Fertilize,
+                    hasDropdown = tool == ToolType.Seed
+                });
+            }
         }
+
+        UpdateFertilizerSlot();
     }
 
     /// <summary>Vom Shop aufgerufen wenn ein neues Tool freigeschaltet wird.</summary>
@@ -174,10 +221,33 @@ public class HotbarUI : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Zentrale Stelle für Slotwahl per Linksklick ODER Zifferntaste — beide landen hier,
+    /// darum reicht eine Regel für beide Eingabewege.
+    ///
+    /// Für den Seed-Slot gilt zusätzlich: ein simples "Tool aktivieren" ist NICHT immer die
+    /// richtige Reaktion. Zwei Fälle brauchen stattdessen das Dropdown:
+    ///  • Noch gar keine Sorte gewählt — sonst aktiviert man ein Werkzeug, das im selben
+    ///    Moment nichts tun kann, ohne zu wissen warum.
+    ///  • Der Slot ist SCHON aktiv und man klickt/drückt ihn nochmal — ein Reselect auf
+    ///    denselben Zustand wäre ein No-Op, das Dropdown zu öffnen ist die einzig sinnvolle
+    ///    Reaktion auf "ich will hier nochmal was tun".
+    /// </summary>
     private void SelectSlot(int index)
     {
         if (index < 0 || index >= slotConfigs.Count) return;
-        Hotbar.Instance.SetTool(slotConfigs[index].toolType);
+
+        var config = slotConfigs[index];
+        bool alreadyActive = Hotbar.Instance.ActiveTool == config.toolType;
+
+        if (config.hasDropdown && (alreadyActive || Hotbar.Instance.SelectedSeed == null))
+        {
+            Hotbar.Instance.SetTool(config.toolType);
+            SeedDropdownUI.Instance?.Toggle();
+            return;
+        }
+
+        Hotbar.Instance.SetTool(config.toolType);
     }
 
     private void SpawnSlot(HotbarSlotConfig config)
@@ -223,10 +293,40 @@ public class HotbarUI : MonoBehaviour
         button.onClick.AddListener(() => SelectSlot(captured));
 
         if (config.hasDropdown)
+        {
             AddRightClickHandler(go, () => SeedDropdownUI.Instance.Toggle());
+            CreateSeedNeedsSelectionBadge(go.transform);
+        }
 
         slotConfigs.Add(config);
         slotInstances.Add(slotUI);
+    }
+
+    /// <summary>Oben rechts auf dem Seed-Slot — die anderen beiden Ecken sind schon belegt
+    /// (Shortcut-Badge oben links, Mengen-Badge unten rechts, siehe HotbarSlot.prefab).
+    /// Rein prozedural statt im Prefab verankert, weil nur dieser eine Slot es braucht.
+    ///
+    /// TMP-Text statt Sprite/Image: Textfarbe ist eine echte Füllung, kein Multiply-Tint über
+    /// eine Bild-Textur — die eingestellte Farbe kommt damit garantiert 1:1 an, unabhängig
+    /// davon wie hell/dunkel ein Sprite von Haus aus wäre.</summary>
+    private void CreateSeedNeedsSelectionBadge(Transform parent)
+    {
+        GameObject go = new("NeedsSelectionBadge", typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(1f, 1f);
+        rect.anchoredPosition = needsSeedIndicatorOffset;
+        rect.sizeDelta = needsSeedIndicatorSize;
+        rect.localEulerAngles = new Vector3(0f, 0f, needsSeedIndicatorRotationZ);
+
+        seedNeedsSelectionBadge = go.AddComponent<TMPro.TextMeshProUGUI>();
+        seedNeedsSelectionBadge.fontStyle = TMPro.FontStyles.Bold;
+        seedNeedsSelectionBadge.alignment = TMPro.TextAlignmentOptions.Center;
+        seedNeedsSelectionBadge.raycastTarget = false;
+
+        go.SetActive(false); // UpdateSeedSlot() entscheidet den Startzustand
     }
 
     private void OnBuildModeChanged(bool buildModeActive)
@@ -457,6 +557,38 @@ public class HotbarUI : MonoBehaviour
             : 0;
 
         UpdateSeedCountBadge(slotUI, selected != null, seedCount);
+
+        // "Hier fehlt noch eine Entscheidung" — nur wenn wirklich NICHTS gewählt ist.
+        // 0 Bestand einer bereits gewählten Sorte bleibt bewusst stumm wie bisher.
+        if (seedNeedsSelectionBadge != null)
+        {
+            // Alle Optik-Werte hier NOCHMAL setzen, nicht nur beim Erstellen des Slots: sonst
+            // zeigt eine Inspector-Änderung im Play Mode erst nach einem Neustart Wirkung,
+            // weil CreateSeedNeedsSelectionBadge() nur einmal beim Slot-Aufbau lief.
+            seedNeedsSelectionBadge.text = needsSeedIndicatorCharacter;
+            seedNeedsSelectionBadge.color = needsSeedIndicatorColor;
+            seedNeedsSelectionBadge.rectTransform.sizeDelta = needsSeedIndicatorSize;
+            seedNeedsSelectionBadge.rectTransform.anchoredPosition = needsSeedIndicatorOffset;
+            seedNeedsSelectionBadge.rectTransform.localEulerAngles = new Vector3(0f, 0f, needsSeedIndicatorRotationZ);
+            // Schriftgröße an die Box koppeln statt eigenem Feld — bei einem einzelnen
+            // Zeichen ist "Boxhöhe = Zeichengröße" genau das erwartete Verhalten.
+            seedNeedsSelectionBadge.fontSize = needsSeedIndicatorSize.y * 0.8f;
+
+            bool needsSelection = selected == null && !string.IsNullOrEmpty(needsSeedIndicatorCharacter);
+            seedNeedsSelectionBadge.gameObject.SetActive(needsSelection);
+        }
+    }
+
+    /// <summary>Zeigt den Dünger-Bestand als Zahlen-Badge auf dem Fertilize-Slot — genau wie
+    /// beim Samen-Slot, nur ohne Sorten-Auswahl (Dünger ist nicht nach Frucht sortiert).
+    /// Tut nichts, falls der Slot noch nicht gekauft/gespawnt ist.</summary>
+    private void UpdateFertilizerSlot()
+    {
+        int slotIndex = slotConfigs.FindIndex(c => c.toolType == ToolType.Fertilize);
+        if (slotIndex < 0) return;
+
+        int count = PlayerInventory.Instance != null ? PlayerInventory.Instance.Fertilizer : 0;
+        UpdateSeedCountBadge(slotInstances[slotIndex], true, count);
     }
 
     private void UpdateSeedCountBadge(HotbarSlotUI slotUI, bool show, int count)

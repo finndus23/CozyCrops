@@ -20,13 +20,18 @@ public class PlayerInventory : MonoBehaviour
     [SerializeField] private StartingSeed[] startingSeeds;
 
     private int money;
+    private int fertilizer;
     private readonly Dictionary<PlantType, int> seeds = new();
     private readonly Dictionary<PlantType, int> crops = new();
 
     public int Money => money;
 
+    /// <summary>Dünger aus dem Komposter. Eigene Ressource, kein PlantType — wie Money.</summary>
+    public int Fertilizer => fertilizer;
+
     // Events — UI kann sich hier einhängen
     public event Action<int> OnMoneyChanged;
+    public event Action<int> OnFertilizerChanged;
     public event Action<PlantType, int> OnSeedsChanged;
     public event Action<PlantType, int> OnCropsChanged;
 
@@ -80,6 +85,31 @@ public class PlayerInventory : MonoBehaviour
         // gar keine Quelle — Missionen mit "Verdiene X Gold" wären nie fertig geworden.
         if (amount > 0)
             OnMoneyEarnedStatic?.Invoke(amount);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+    }
+
+    // --- Dünger ---
+
+    public bool TrySpendFertilizer(int amount)
+    {
+        if (fertilizer < amount) return false;
+        fertilizer -= amount;
+        OnFertilizerChanged?.Invoke(fertilizer);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
+        return true;
+    }
+
+    public void AddFertilizer(int amount)
+    {
+        if (amount <= 0) return;
+
+        fertilizer += amount;
+        OnFertilizerChanged?.Invoke(fertilizer);
 
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
@@ -157,14 +187,35 @@ public class PlayerInventory : MonoBehaviour
     public IReadOnlyDictionary<PlantType, int> GetAllSeeds() => seeds;
     public IReadOnlyDictionary<PlantType, int> GetAllCrops() => crops;
 
+    /// <summary>
+    /// Nimmt exakt <paramref name="amount"/> einer bestimmten Frucht aus dem Inventar —
+    /// für den Komposter, der (anders als der Verkauf) kein Geld gutschreibt. Analog zu
+    /// <see cref="TrySellCrop"/>, nur ohne die Bezahlung.
+    /// </summary>
+    public bool TryRemoveCrop(PlantType type, int amount)
+    {
+        if (type == null || amount <= 0) return false;
+        if (GetCropCount(type) < amount) return false;
+
+        crops[type] -= amount;
+        OnCropsChanged?.Invoke(type, crops[type]);
+
+        if (FarmSaveManager.Instance != null)
+            FarmSaveManager.Instance.RequestSave();
+
+        return true;
+    }
+
     // --- Save-/Load-Hilfen ---
 
     public void ApplyLoadedData(
         int loadedMoney,
         List<InventoryStackSaveData> loadedSeeds,
-        List<InventoryStackSaveData> loadedCrops)
+        List<InventoryStackSaveData> loadedCrops,
+        int loadedFertilizer = 0)
     {
         money = loadedMoney;
+        fertilizer = loadedFertilizer;
         seeds.Clear();
         crops.Clear();
 
@@ -172,6 +223,7 @@ public class PlayerInventory : MonoBehaviour
         ApplyLoadedStacks(loadedCrops, crops, false);
 
         OnMoneyChanged?.Invoke(money);
+        OnFertilizerChanged?.Invoke(fertilizer);
 
         foreach (var kvp in seeds)
             OnSeedsChanged?.Invoke(kvp.Key, kvp.Value);
@@ -179,7 +231,7 @@ public class PlayerInventory : MonoBehaviour
         foreach (var kvp in crops)
             OnCropsChanged?.Invoke(kvp.Key, kvp.Value);
 
-        Debug.Log($"[PlayerInventory] Inventar geladen. Money={money}, Seeds={seeds.Count}, Crops={crops.Count}");
+        Debug.Log($"[PlayerInventory] Inventar geladen. Money={money}, Fertilizer={fertilizer}, Seeds={seeds.Count}, Crops={crops.Count}");
     }
 
     private void ApplyLoadedStacks(

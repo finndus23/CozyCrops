@@ -147,6 +147,8 @@ public class UiSfx : MonoBehaviour
 
         ToolRegistry.OnToolUpgradedStatic += HandleToolUpgraded;
         ToolRegistry.OnToolAcquiredStatic += HandleToolAcquired;
+
+        PlantManager.OnStarterSeedFound += HandleStarterSeedFound;
     }
 
     private void UnsubscribeGlobal()
@@ -155,12 +157,17 @@ public class UiSfx : MonoBehaviour
 
         ToolRegistry.OnToolUpgradedStatic -= HandleToolUpgraded;
         ToolRegistry.OnToolAcquiredStatic -= HandleToolAcquired;
+
+        PlantManager.OnStarterSeedFound -= HandleStarterSeedFound;
     }
 
     private void HandleToolUpgraded(ToolType tool) => Play(library?.toolUpgraded);
 
     private void HandleToolAcquired(ToolType tool)
         => Play(Fallback(library?.toolAcquired, library?.purchase));
+
+    private void HandleStarterSeedFound(PlantType type, Vector3 worldPos)
+        => Play(Fallback(library?.starterSeedFound, library?.rewardCollected));
 
     // Instanz-Events eines szenengebundenen Managers. Erst abmelden, dann anmelden:
     // ist es derselbe Manager wie vorher (Szene neu geladen, Objekt überlebt), hätten
@@ -241,6 +248,11 @@ public class UiSfx : MonoBehaviour
     public static void Denied()          => Instance?.Play(Lib?.denied);
     public static void MissionComplete() => Instance?.Play(Lib?.missionCompleted);
     public static void RewardCollected() => Instance?.Play(Lib?.rewardCollected);
+    public static void FertilizerCollected() => Instance?.Play(Fallback(Lib?.fertilizerCollected, Lib?.rewardCollected));
+
+    /// <summary>Komposter fertig gebraut — einmalige Benachrichtigung, unabhängig vom
+    /// späteren Abholen (FertilizerCollected).</summary>
+    public static void CompostReady() => Instance?.Play(Fallback(Lib?.compostReady, Lib?.rewardCollected));
 
     /// <summary>
     /// Klang für ankommende Münzen. Wird vom Münzflug selbst ausgelöst, damit er überall

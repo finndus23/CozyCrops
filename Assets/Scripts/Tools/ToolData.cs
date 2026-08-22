@@ -209,6 +209,53 @@ public class ToolData : ScriptableObject
         return bonus;
     }
 
+    [Header("Dünger-Ernte-Chance (nur beim Dünger-Werkzeug relevant)")]
+    [Tooltip("Chance, dass die Ernte eines GEDÜNGTEN Feldes einen Extra-Crop abwirft — " +
+             "linear mit dem Level dieses Werkzeugs (also dem Dünger-Tool), nicht mit dem " +
+             "der Sichel. Ein RNG-Bonus statt eines garantierten Extra-Items, damit sich " +
+             "Aufwerten lohnt, ohne dass jede einzelne Ernte planbar größer wird.")]
+    [Range(0f, 1f)]
+    public float baseFertilizedHarvestChance = 0.2f;
+
+    [Tooltip("Zusätzliche Chance pro Level, bis zur Obergrenze unten.")]
+    [Range(0f, 0.05f)]
+    public float fertilizedHarvestChancePerLevel = 0.01f;
+
+    [Tooltip("Obergrenze der Chance, egal wie hoch das Level.")]
+    [Range(0f, 1f)]
+    public float maxFertilizedHarvestChance = 0.5f;
+
+    /// <summary>Chance auf den Dünger-Ernte-Bonus beim gegebenen Level dieses Werkzeugs.</summary>
+    public float GetFertilizedHarvestChance(int level)
+    {
+        float chance = baseFertilizedHarvestChance + level * fertilizedHarvestChancePerLevel;
+        return Mathf.Clamp(chance, 0f, maxFertilizedHarvestChance);
+    }
+
+    [Header("Sichel-Ernte-Bonus-Chance (nur bei der Sichel relevant)")]
+    [Tooltip("Chance auf einen Extra-Crop bei JEDER Ernte (nicht nur gedüngte Felder) — " +
+             "linear mit dem Level DIESES Werkzeugs (der Sichel). Ersetzt den alten " +
+             "garantierten Meilenstein-Ertragsbonus (war bei Level 10+ dauerhaft +1, ab " +
+             "Level 30 +3 — zu stark, weil planbar statt Glückssache). 0% auf Level 0, " +
+             "steigt um 1%/Level bis zur Obergrenze.")]
+    [Range(0f, 1f)]
+    public float baseYieldBonusChance;
+
+    [Tooltip("Zusätzliche Chance pro Level, bis zur Obergrenze unten.")]
+    [Range(0f, 0.05f)]
+    public float yieldBonusChancePerLevel = 0.01f;
+
+    [Tooltip("Obergrenze der Chance, egal wie hoch das Level.")]
+    [Range(0f, 1f)]
+    public float maxYieldBonusChance = 0.3f;
+
+    /// <summary>Chance auf den Sichel-Ernte-Bonus beim gegebenen Level dieses Werkzeugs.</summary>
+    public float GetYieldBonusChance(int level)
+    {
+        float chance = baseYieldBonusChance + level * yieldBonusChancePerLevel;
+        return Mathf.Clamp(chance, 0f, maxYieldBonusChance);
+    }
+
     /// <summary>Gibt den Meilenstein für exakt dieses Level zurück, oder null.</summary>
     public ToolMilestone GetMilestoneAt(int level)
     {

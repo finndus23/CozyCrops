@@ -8,6 +8,14 @@ public class GridCell
     // Farming-Zustand
     public bool IsLocked { get; set; }
     public bool IsTilled { get; set; }
+
+    /// <summary>
+    /// Kompost-Dünger aufgetragen — Wachstum und Feldarbeit auf dieser Tile sind schneller
+    /// (siehe PlantManager.TickGrowth/ToolUseHandler). Gilt nur für EINEN Anbauzyklus:
+    /// Harvest() setzt das zurück, genau wie IsTilled.
+    /// </summary>
+    public bool IsFertilized { get; set; }
+
     public PlantInstance Plant { get; private set; }
     public bool HasPlant => Plant != null;
     public FarmTileVisual TileVisual { get; set; }
@@ -31,11 +39,12 @@ public class GridCell
         var harvested = Plant;
         Plant = null;
         IsTilled = false;
+        IsFertilized = false;
         return harvested;
     }
 
     /// <summary>
-    /// Wird nur vom Save-/Load-System benutzt, damit private Plant-Daten sauber zur�ckgesetzt werden k�nnen.
+    /// Wird nur vom Save-/Load-System benutzt, damit private Plant-Daten sauber zur�ckgesetzt werden k�nnen.
     /// </summary>
     public void ApplyLoadedPlant(PlantInstance plant)
     {

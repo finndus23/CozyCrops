@@ -91,6 +91,7 @@ public static class MissionObjectiveFormatter
         ToolType.WateringCan => "die Gießkanne",
         ToolType.Seed       => "den Seeder",
         ToolType.Scythe     => "die Sichel",
+        ToolType.Fertilize  => "den Dünger",
         _ => null
     };
 }

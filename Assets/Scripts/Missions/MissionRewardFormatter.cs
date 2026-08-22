@@ -75,6 +75,7 @@ public static class MissionRewardFormatter
         ToolType.WateringCan => "Gießkanne",
         ToolType.Seed => "Seeder",
         ToolType.Scythe => "Sichel",
+        ToolType.Fertilize => "Dünger",
         _ => null
     };
 }
