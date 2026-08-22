@@ -8721,6 +8721,7 @@ GameObject:
   - component: {fileID: 1972460176}
   - component: {fileID: 1972460178}
   - component: {fileID: 1972460179}
+  - component: {fileID: 1972460180}
   m_Layer: 0
   m_Name: SaveSystem
   m_TagString: Untagged
@@ -8806,6 +8807,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d9edf252bac74ce89f5e4df6d528badf, type: 2}
   startLevels: []
   statsPreview: (Keine Tools geladen)
+--- !u!114 &1972460180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972460175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4771213b7fa5e604da44ebc2a970aa75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MissionHighlightDirector
+  enableHighlighting: 1
 --- !u!1 &1987454519
 GameObject:
   m_ObjectHideFlags: 0

@@ -83,6 +83,32 @@ public class FarmSaveManager : MonoBehaviour
     public bool IsLoading => isLoading;
     public bool HandlesDebugHotkeys => enableDebugHotkeys;
 
+    /// <summary>
+    /// Spiegelt das Inventar in der AKTUELL geladenen Szene bereits den Spielstand?
+    ///
+    /// Nach jedem Szenenwechsel kurz false: PlayerInventory liegt in der Szene, entsteht
+    /// also neu und startet mit 0 Gold und leeren Listen, bis der Spielstand eingespielt
+    /// ist. Wer in diesem Fenster den Spielerzustand bewertet, sieht einen Bettler statt
+    /// des echten Stands.
+    ///
+    /// <see cref="IsLoading"/> reicht dafür NICHT: Fahrten zwischen Farm und Marktplatz
+    /// laufen über SceneLoadingScreen.LoadScene() am Save-Manager vorbei, dabei bleibt
+    /// isLoading durchgehend false. Das Nachladen stößt erst FarmSceneAutoLoad an — also
+    /// nach dem Awake/OnEnable aller Szenen-Objekte. IsLoading deckt "wird gerade
+    /// geladen" ab, hier fehlte "wurde noch nicht geladen".
+    ///
+    /// Bewusst als Vergleich der Szenen-Kennung statt als bool, das bei
+    /// SceneManager.sceneLoaded zurückgesetzt wird: dieses Ereignis feuert ERST NACH dem
+    /// Awake/OnEnable der neuen Szenen-Objekte. Ein Flag stünde also ausgerechnet während
+    /// der ersten Prüfungen noch auf dem Stand der VORIGEN Szene — also genau der Fehler,
+    /// den es verhindern soll (erster Anlauf ist daran gescheitert). Ein Vergleich gegen
+    /// die aktive Szene kann per Konstruktion nicht veralten.
+    /// </summary>
+    public bool InventoryRestored =>
+        inventoryRestoredSceneHandle == SceneManager.GetActiveScene().handle;
+
+    private int inventoryRestoredSceneHandle = -1;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -913,6 +939,11 @@ public class FarmSaveManager : MonoBehaviour
         // noch mit dem Standardfaktor.
         inventory.Pace = (GamePace)data.gamePace;
         inventory.ApplyLoadedData(data.money, data.seeds, data.crops, data.fertilizer);
+
+        // Ab hier zeigt das Inventar echte Werte — aber nur für DIESE Szene. Beim
+        // nächsten Szenenwechsel entsteht ein neues PlayerInventory mit Startwerten,
+        // und der Vergleich in InventoryRestored schlägt dann von selbst wieder fehl.
+        inventoryRestoredSceneHandle = SceneManager.GetActiveScene().handle;
     }
 
     private void ApplyComposter(SaveGameData data)

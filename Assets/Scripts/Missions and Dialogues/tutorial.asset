@@ -18,64 +18,128 @@ MonoBehaviour:
   objectives:
   - type: 9
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 11
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 10
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 12
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 6
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 4
     description: 
   - type: 7
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 10
     description: 
   - type: 13
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 8
     targetPlantType: {fileID: 0}
+    targetTool: 1
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 0
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 1
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 2
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 2
     description: 
   - type: 3
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 14
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   - type: 4
     targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
     description: 
   rewards:
   - type: 0
     amount: 100
     plant: {fileID: 0}
+    tool: 0
+    zoneName: 
+    licenseId: 
   isStoryMission: 0
   unlocks: []
+  requiredMissionIds: []
+  requiredCompletedCount: 0
+  autoStartWhenAvailable: 0
+  startedByDialogue: 0
+  nextStepHint: 
   sequentialObjectives: 1

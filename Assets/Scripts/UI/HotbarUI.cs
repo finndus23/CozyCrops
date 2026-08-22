@@ -250,10 +250,44 @@ public class HotbarUI : MonoBehaviour
         Hotbar.Instance.SetTool(config.toolType);
     }
 
+    /// <summary>
+    /// Welche Missions-Ziele meinen genau diesen Slot?
+    ///
+    /// <see cref="MissionObjectiveType.SelectTool"/> ist überall dabei — dort grenzt das
+    /// Objective über sein eigenes <c>targetTool</c> ein, welcher Slot gemeint ist.
+    /// Dazu kommt die Aktion, für die man dieses Werkzeug überhaupt braucht. Genau die
+    /// fehlte vorher: Ziele wie "Pflanze etwas an" nennen kein Werkzeug, also konnte die
+    /// Werkzeug-Prüfung sie nicht eingrenzen und es leuchtete die ganze Leiste.
+    ///
+    /// Bewusst hier im Code statt am Prefab: die Zuordnung Werkzeug → Aktion ist eine
+    /// feste Spielregel (mit der Hacke wird umgegraben, nicht gegossen), und am Prefab
+    /// könnte man sie ohnehin nur einmal für alle Slots gemeinsam setzen.
+    /// </summary>
+    private static MissionObjectiveType[] GetObjectiveTypesForTool(ToolType tool) => tool switch
+    {
+        ToolType.Hoe         => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.TillField },
+        ToolType.WateringCan => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.WaterCrop },
+        ToolType.Seed        => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.PlantCrop },
+        ToolType.Scythe      => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.HarvestCrop },
+        _                    => new[] { MissionObjectiveType.SelectTool },
+    };
+
     private void SpawnSlot(HotbarSlotConfig config)
     {
         var go = Instantiate(slotPrefab, container);
         var slotUI = go.GetComponent<HotbarSlotUI>();
+
+        // Alle Slots stammen aus demselben Prefab — welches Werkzeug ein Slot meint und
+        // wofür er zuständig ist, steht erst hier fest. Beides muss gesetzt werden:
+        // ohne Werkzeug träfe "Wähle die Hacke" die ganze Leiste, ohne eigene Ziel-Typen
+        // täte es "Pflanze etwas an" ebenfalls (dieses Ziel nennt kein Werkzeug, die
+        // Werkzeug-Prüfung greift dort also gar nicht).
+        var highlight = go.GetComponent<HighlightTarget>();
+        if (highlight != null)
+        {
+            highlight.SetToolContext(config.toolType);
+            highlight.SetObjectiveTypes(GetObjectiveTypesForTool(config.toolType));
+        }
 
         int keyIndex = slotInstances.Count;
         slotUI.background.color = Color.white;
@@ -365,6 +399,14 @@ public class HotbarUI : MonoBehaviour
         buildToggleSlotUI = buildToggleSlot.GetComponent<HotbarSlotUI>();
         ConfigureVisualSlot(buildToggleSlotUI, hammerIconSprite, false);
 
+        // Der Knopf teilt sich das Prefab mit den Werkzeug-Slots, ist aber kein Werkzeug.
+        // Ohne eigene Typen würde er bei jedem "Wähle Werkzeug X" mitleuchten. Mit ihnen
+        // leuchtet er stattdessen genau dann, wenn er wirklich gemeint ist.
+        var toggleHighlight = buildToggleSlot.GetComponent<HighlightTarget>();
+        if (toggleHighlight != null)
+            toggleHighlight.SetObjectiveTypes(MissionObjectiveType.EnterBuildMode,
+                                              MissionObjectiveType.ExitBuildMode);
+
         RectTransform rect = buildToggleSlot.transform as RectTransform;
         if (rect != null)
         {
@@ -392,6 +434,19 @@ public class HotbarUI : MonoBehaviour
             ConfigureShortcutBadge(slotUI, i);
 
             TileType capturedType = buildTileTypes[i];
+
+            // Auch diese Slots sind keine Werkzeuge. Nur die Ackerland-Kachel bekommt eine
+            // Bedeutung ("Platziere ein Feld"), Gras und Weg bleiben absichtlich stumm —
+            // ein leeres Array heißt: über Typen nicht auffindbar.
+            var buildHighlight = go.GetComponent<HighlightTarget>();
+            if (buildHighlight != null)
+            {
+                if (capturedType == TileType.FarmPlot)
+                    buildHighlight.SetObjectiveTypes(MissionObjectiveType.PlaceFarmTile);
+                else
+                    buildHighlight.SetObjectiveTypes();
+            }
+
             Button button = go.GetComponent<Button>();
             ApplyButtonSpriteStates(button);
             button.onClick.AddListener(() => BuildModeManager.Instance?.SelectTile(capturedType));
