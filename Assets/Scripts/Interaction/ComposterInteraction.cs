@@ -66,8 +66,25 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     [SerializeField] private int stepAmount = 1;
 
     [Header("Brauzeit")]
+    // Dauer = Min(maxBrewTime, baseBrewTime + Anzahl * perCropBrewTime)
+    // perCropBrewTime sinkt mit der Ausbaustufe Richtung minPerCropBrewTime (siehe unten).
+
+    [Tooltip("Grundzeit pro BATCH, unabhaengig von der Menge. Wirkt als Fixkosten und " +
+             "bestraft damit viele kleine Wuerfe: drei Fruechte einzeln zu kompostieren " +
+             "kostet dreimal diese Zeit. Hochdrehen, wenn der Spieler seltener und dafuer " +
+             "groesser kompostieren soll.")]
     [SerializeField] private float baseBrewTime = 20f;
+
+    [Tooltip("Zusatzzeit pro Frucht im Batch. Der eigentliche Durchsatz-Hebel — dieser Wert " +
+             "bestimmt, wie viel Duenger pro Minute maximal moeglich ist (Obergrenze: " +
+             "compostValue / cropsPerFertilizer geteilt durch diesen Wert). Sinkt mit der " +
+             "Ausbaustufe bis auf minPerCropBrewTime.")]
     [SerializeField] private float perCropBrewTime = 2f;
+
+    [Tooltip("Harte Obergrenze der Brauzeit, egal wie gross der Batch ist. Greift erst ab " +
+             "(maxBrewTime - baseBrewTime) / perCropBrewTime Fruechten — bei den " +
+             "Standardwerten also ab 80 Stueck. Darueber wird Kompostieren pro Frucht immer " +
+             "billiger, das ist die Belohnung fuers Sammeln.")]
     [SerializeField] private float maxBrewTime = 180f;
 
     [Header("Ausbau")]
