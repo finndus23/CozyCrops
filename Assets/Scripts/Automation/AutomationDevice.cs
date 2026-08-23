@@ -14,7 +14,7 @@ using UnityEngine;
 /// greifen Doppelbearbeitungs-Sperre, Fortschrittsringe und Saatgut-Reservierung, ohne dass
 /// die Automatik dem Spieler Warteschlangen-Plätze oder Werkzeug-Slots wegnimmt.
 /// </summary>
-public class AutomationDevice : MonoBehaviour
+public class AutomationDevice : MonoBehaviour, IClickable
 {
     [Header("Definition")]
     [SerializeField] private AutomationDeviceData data;
@@ -28,6 +28,38 @@ public class AutomationDevice : MonoBehaviour
 
     [Tooltip("Nur für die Sämaschine: welche Sorte gesät wird. Pro Gerät gespeichert.")]
     [SerializeField] private PlantType seed;
+
+    [Header("Fortschrittsring")]
+    [Tooltip("Dasselbe Prefab wie bei Pflanzen und Komposter (Plant Status). Optional — " +
+             "ohne Zuweisung laeuft das Geraet einfach ohne Anzeige.")]
+    [SerializeField] private GameObject statusPrefab;
+
+    [SerializeField] private float statusHeightOffset = 0.4f;
+
+    [Tooltip("Ringfarbe waehrend das Geraet auf den naechsten Takt wartet.")]
+    [SerializeField] private Color workingColor = new(0.45f, 0.8f, 1f, 1f);
+
+    [Tooltip("Ringfarbe, wenn das Geraet nichts tun kann — kein Saatgut, nichts zu ernten.")]
+    [SerializeField] private Color idleColor = new(0.6f, 0.6f, 0.6f, 1f);
+
+    [SerializeField, Range(0f, 1f)] private float trackAlpha = 0.6f;
+    [SerializeField, Range(0.01f, 0.2f)] private float ringWidth = 0.09f;
+
+    private static readonly int BaseColorId  = Shader.PropertyToID("_BaseColor");
+    private static readonly int ProgressId   = Shader.PropertyToID("_Progress");
+    private static readonly int SymbolId     = Shader.PropertyToID("_Symbol");
+    private static readonly int TrackAlphaId = Shader.PropertyToID("_TrackAlpha");
+    private static readonly int RingWidthId  = Shader.PropertyToID("_RingWidth");
+    private const float SymbolNone = 0f;
+
+    private GameObject statusInstance;
+    private MaterialPropertyBlock statusPropertyBlock;
+    private Bounds cachedBounds;
+    private bool boundsCached;
+
+    // True, solange der letzte Versuch keine Arbeit gefunden hat — faerbt den Ring grau,
+    // damit ein stiller Leerlauf nicht wie ein Defekt aussieht.
+    private bool idle;
 
     /// <summary>Wartezeit bis zum nächsten Versuch, wenn gerade keine Kachel etwas zu tun hat.
     /// Kurz, damit das Gerät zügig anspringt, sobald wieder Arbeit anfällt.</summary>
@@ -128,11 +160,89 @@ public class AutomationDevice : MonoBehaviour
         // Update eine Subtraktion und ein Vergleich.
         if (!TryDispatch())
         {
+            idle = true;
             cooldown = RetryInterval;
             return;
         }
 
+        idle = false;
         cooldown = data.GetInterval(level);
+    }
+
+    void LateUpdate() => UpdateStatusVisual();
+
+    // ── Klick ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Oeffnet das geteilte Geraete-Popup. Kein Singleton am Geraet noetig — WorldClickHandler
+    /// sucht per GetComponentInParent&lt;IClickable&gt;, ein Collider auf dem Prefab genuegt.
+    /// </summary>
+    public void OnClick()
+    {
+        // Waehrend einer laufenden Platzierung gehoert der Klick dem Controller.
+        if (AutomationPlacementController.Instance != null
+            && AutomationPlacementController.Instance.IsPlacing) return;
+
+        AutomationDevicePopup.Instance?.Show(this);
+    }
+
+    // ── Fortschrittsring ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Zeigt ueber dem Geraet denselben Ring wie bei Pflanzen und Komposter — hier den
+    /// Fortschritt bis zum naechsten Takt.
+    /// </summary>
+    private void UpdateStatusVisual()
+    {
+        if (statusPrefab == null) return;
+
+        if (!isEnabled || data == null)
+        {
+            if (statusInstance != null) statusInstance.SetActive(false);
+            return;
+        }
+
+        if (statusInstance == null)
+        {
+            statusInstance = Instantiate(statusPrefab, transform);
+            statusPropertyBlock = new MaterialPropertyBlock();
+        }
+
+        statusInstance.SetActive(true);
+        statusInstance.transform.position = GetStatusPosition();
+
+        var rend = statusInstance.GetComponentInChildren<Renderer>();
+        if (rend == null) return;
+
+        rend.GetPropertyBlock(statusPropertyBlock);
+        statusPropertyBlock.SetColor(BaseColorId, idle ? idleColor : workingColor);
+        statusPropertyBlock.SetFloat(ProgressId, pendingJob != null ? pendingJob.Progress : TickProgress);
+        statusPropertyBlock.SetFloat(SymbolId, SymbolNone);
+        statusPropertyBlock.SetFloat(TrackAlphaId, trackAlpha);
+        statusPropertyBlock.SetFloat(RingWidthId, ringWidth);
+        rend.SetPropertyBlock(statusPropertyBlock);
+    }
+
+    private Vector3 GetStatusPosition()
+    {
+        if (!boundsCached)
+        {
+            var renderers = GetComponentsInChildren<Renderer>();
+            if (renderers.Length > 0)
+            {
+                cachedBounds = renderers[0].bounds;
+                for (int i = 1; i < renderers.Length; i++)
+                    cachedBounds.Encapsulate(renderers[i].bounds);
+            }
+            else
+            {
+                cachedBounds = new Bounds(transform.position, Vector3.one);
+            }
+
+            boundsCached = true;
+        }
+
+        return new Vector3(cachedBounds.center.x, cachedBounds.max.y + statusHeightOffset, cachedBounds.center.z);
     }
 
     // ── Initialisierung ───────────────────────────────────────────────────────

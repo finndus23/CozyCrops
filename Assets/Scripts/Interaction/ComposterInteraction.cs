@@ -394,7 +394,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        brewingRoot = CreatePopupUiObject("ComposterBrewingStatus", canvas.transform);
+        brewingRoot = RuntimePopupBuilder.CreateUiObject("ComposterBrewingStatus", canvas.transform);
         brewingRoot.transform.SetAsLastSibling();
 
         Canvas popupCanvas = brewingRoot.AddComponent<Canvas>();
@@ -412,7 +412,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         blocker.color = new Color(0f, 0f, 0f, 0.55f);
         blocker.raycastTarget = true;
 
-        GameObject panel = CreatePopupUiObject("Panel", brewingRoot.transform);
+        GameObject panel = RuntimePopupBuilder.CreateUiObject("Panel", brewingRoot.transform);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.sizeDelta = new Vector2(400f, 260f);
@@ -422,7 +422,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         panelImage.type = confirmPanelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
         panelImage.color = confirmPanelSprite != null ? Color.white : new Color(1f, 0.86f, 0.62f, 1f);
 
-        GameObject titleObj = CreatePopupUiObject("Title", panel.transform);
+        GameObject titleObj = RuntimePopupBuilder.CreateUiObject("Title", panel.transform);
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.anchoredPosition = new Vector2(0f, 95f);
@@ -436,7 +436,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.raycastTarget = false;
 
-        GameObject statusObj = CreatePopupUiObject("StatusText", panel.transform);
+        GameObject statusObj = RuntimePopupBuilder.CreateUiObject("StatusText", panel.transform);
         RectTransform statusRect = statusObj.GetComponent<RectTransform>();
         statusRect.anchorMin = statusRect.anchorMax = new Vector2(0.5f, 0.5f);
         statusRect.anchoredPosition = new Vector2(0f, 45f);
@@ -450,7 +450,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         brewingStatusText.raycastTarget = false;
 
         // Fortschrittsbalken: Hintergrund + gefüllter Vordergrund übereinander.
-        GameObject barBg = CreatePopupUiObject("ProgressBarBg", panel.transform);
+        GameObject barBg = RuntimePopupBuilder.CreateUiObject("ProgressBarBg", panel.transform);
         RectTransform barBgRect = barBg.GetComponent<RectTransform>();
         barBgRect.anchorMin = barBgRect.anchorMax = new Vector2(0.5f, 0.5f);
         barBgRect.anchoredPosition = new Vector2(0f, -5f);
@@ -460,7 +460,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         barBgImage.color = new Color(0.28f, 0.18f, 0.1f, 0.55f);
         barBgImage.raycastTarget = false;
 
-        GameObject barFill = CreatePopupUiObject("ProgressBarFill", barBg.transform);
+        GameObject barFill = RuntimePopupBuilder.CreateUiObject("ProgressBarFill", barBg.transform);
         RectTransform barFillRect = barFill.GetComponent<RectTransform>();
         barFillRect.anchorMin = Vector2.zero;
         barFillRect.anchorMax = Vector2.one;
@@ -478,10 +478,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         // brodelt einfach weiter) rechts — dieselbe Links/Rechts-Konvention wie beim
         // Upgrade-Bestätigungsfenster im Schmied: rechts ist immer der Weg, der nichts
         // kaputt macht oder rückgängig ist.
-        CreatePopupButton(panel.transform, "CancelBrewButton", new Vector2(-95f, -95f), new Vector2(170f, 52f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CancelBrewButton", new Vector2(-95f, -95f), new Vector2(170f, 52f),
             "Abbrechen", confirmCancelButtonSprite, CancelBrewing);
 
-        CreatePopupButton(panel.transform, "CloseButton", new Vector2(95f, -95f), new Vector2(170f, 52f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CloseButton", new Vector2(95f, -95f), new Vector2(170f, 52f),
             "Schließen", confirmOkButtonSprite, HideBrewingPopup);
 
         brewingRoot.SetActive(false);
@@ -525,7 +525,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     private void CreateAmountRow(PlantType type, int have, float y)
     {
-        GameObject row = CreatePopupUiObject($"Row_{type.plantName}", panelTransform);
+        GameObject row = RuntimePopupBuilder.CreateUiObject($"Row_{type.plantName}", panelTransform);
         RectTransform rowRect = row.GetComponent<RectTransform>();
         rowRect.anchorMin = rowRect.anchorMax = new Vector2(0.5f, 0.5f);
         rowRect.anchoredPosition = new Vector2(0f, y);
@@ -534,7 +534,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         if (type.icon != null)
         {
-            GameObject iconObj = CreatePopupUiObject("Icon", row.transform);
+            GameObject iconObj = RuntimePopupBuilder.CreateUiObject("Icon", row.transform);
             RectTransform iconRect = iconObj.GetComponent<RectTransform>();
             iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.anchoredPosition = new Vector2(-175f, 0f);
@@ -546,7 +546,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             iconImage.raycastTarget = false;
         }
 
-        GameObject nameObj = CreatePopupUiObject("Name", row.transform);
+        GameObject nameObj = RuntimePopupBuilder.CreateUiObject("Name", row.transform);
         RectTransform nameRect = nameObj.GetComponent<RectTransform>();
         nameRect.anchorMin = nameRect.anchorMax = new Vector2(0.5f, 0.5f);
         nameRect.anchoredPosition = new Vector2(-80f, 0f);
@@ -559,10 +559,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         nameText.alignment = TextAlignmentOptions.Left;
         nameText.raycastTarget = false;
 
-        CreatePopupButton(row.transform, "Minus", new Vector2(45f, 0f), new Vector2(34f, 34f),
+        RuntimePopupBuilder.CreateButton(row.transform, "Minus", new Vector2(45f, 0f), new Vector2(34f, 34f),
             "-", confirmCancelButtonSprite, () => AdjustTypeAmount(type, -stepAmount, have));
 
-        GameObject amountObj = CreatePopupUiObject("Amount", row.transform);
+        GameObject amountObj = RuntimePopupBuilder.CreateUiObject("Amount", row.transform);
         RectTransform amountRect = amountObj.GetComponent<RectTransform>();
         amountRect.anchorMin = amountRect.anchorMax = new Vector2(0.5f, 0.5f);
         amountRect.anchoredPosition = new Vector2(100f, 0f);
@@ -581,7 +581,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         rowAmountLabels[type] = amountLabel;
 
-        CreatePopupButton(row.transform, "Plus", new Vector2(155f, 0f), new Vector2(34f, 34f),
+        RuntimePopupBuilder.CreateButton(row.transform, "Plus", new Vector2(155f, 0f), new Vector2(34f, 34f),
             "+", confirmCancelButtonSprite, () => AdjustTypeAmount(type, stepAmount, have));
     }
 
@@ -654,7 +654,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        confirmRoot = CreatePopupUiObject("ComposterConfirmation", canvas.transform);
+        confirmRoot = RuntimePopupBuilder.CreateUiObject("ComposterConfirmation", canvas.transform);
         confirmRoot.transform.SetAsLastSibling();
 
         Canvas popupCanvas = confirmRoot.AddComponent<Canvas>();
@@ -672,7 +672,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         blocker.color = new Color(0f, 0f, 0f, 0.55f);
         blocker.raycastTarget = true;
 
-        GameObject panel = CreatePopupUiObject("Panel", confirmRoot.transform);
+        GameObject panel = RuntimePopupBuilder.CreateUiObject("Panel", confirmRoot.transform);
         panelTransform = panel.transform;
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -683,7 +683,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         panelImage.type = confirmPanelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
         panelImage.color = confirmPanelSprite != null ? Color.white : new Color(1f, 0.86f, 0.62f, 1f);
 
-        GameObject titleObj = CreatePopupUiObject("Title", panel.transform);
+        GameObject titleObj = RuntimePopupBuilder.CreateUiObject("Title", panel.transform);
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.anchoredPosition = new Vector2(0f, 210f);
@@ -697,7 +697,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.raycastTarget = false;
 
-        GameObject textObj = CreatePopupUiObject("Text", panel.transform);
+        GameObject textObj = RuntimePopupBuilder.CreateUiObject("Text", panel.transform);
         RectTransform textRect = textObj.GetComponent<RectTransform>();
         textRect.anchorMin = textRect.anchorMax = new Vector2(0.5f, 0.5f);
         textRect.anchoredPosition = new Vector2(0f, 175f);
@@ -713,79 +713,20 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         // Die Sorten-Zeilen selbst kommen erst in BuildAmountRows() — die Menge an
         // Sorten steht erst fest, wenn das Popup tatsächlich geöffnet wird.
 
-        CreatePopupButton(panel.transform, "CancelButton", new Vector2(-95f, -195f), new Vector2(180f, 56f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CancelButton", new Vector2(-95f, -195f), new Vector2(180f, 56f),
             "Abbrechen", confirmCancelButtonSprite, HideConfirmPopup);
 
-        confirmOkButton = CreatePopupButton(panel.transform, "OkButton", new Vector2(95f, -195f), new Vector2(180f, 56f),
+        confirmOkButton = RuntimePopupBuilder.CreateButton(panel.transform, "OkButton", new Vector2(95f, -195f), new Vector2(180f, 56f),
             "Kompostieren", confirmOkButtonSprite, StartBrewing);
 
         confirmRoot.SetActive(false);
     }
 
     /// <summary>
-    /// Findet den EINEN richtigen Root-Canvas statt blind irgendeinen zu nehmen — die Szene
-    /// hat mehrere (PersistentUI, UI, HUD). HotbarUI hängt nachweislich im richtigen Baum
-    /// (HotbarPanel → HUD → UI), darüber lässt sich der Wurzel-Canvas zuverlässig finden,
-    /// ohne dass jemand hudCanvas von Hand im Inspector verdrahten muss.
+    /// Delegiert an den gemeinsamen Popup-Baukasten. Das im Inspector gesetzte hudCanvas
+    /// gewinnt weiterhin, wenn es verdrahtet ist.
     /// </summary>
-    private Canvas ResolveHudCanvas()
-    {
-        if (hudCanvas != null) return hudCanvas;
-        if (HotbarUI.Instance != null)
-        {
-            var root = HotbarUI.Instance.transform.root.GetComponent<Canvas>();
-            if (root != null) return root;
-        }
-
-        return FindFirstObjectByType<Canvas>();
-    }
-
-    private static Button CreatePopupButton(Transform parent, string objectName, Vector2 position, Vector2 size,
-        string label, Sprite sprite, UnityEngine.Events.UnityAction action)
-    {
-        GameObject go = CreatePopupUiObject(objectName, parent);
-        RectTransform rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
-
-        Image image = go.AddComponent<Image>();
-        image.sprite = sprite;
-        image.type = sprite != null ? Image.Type.Sliced : Image.Type.Simple;
-        image.color = sprite != null ? Color.white : new Color(0.96f, 0.78f, 0.4f, 1f);
-
-        Button button = go.AddComponent<Button>();
-        button.targetGraphic = image;
-        ColorBlock colors = button.colors;
-        colors.highlightedColor = new Color(0.86f, 0.86f, 0.86f, 1f);
-        colors.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
-        colors.disabledColor = new Color(0.6f, 0.6f, 0.6f, 0.5f);
-        button.colors = colors;
-        button.onClick.AddListener(action);
-
-        GameObject textObj = CreatePopupUiObject("Text", go.transform);
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = textRect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI text = textObj.AddComponent<TextMeshProUGUI>();
-        text.text = label;
-        text.fontSize = 18f;
-        text.fontStyle = FontStyles.Bold;
-        text.color = new Color(0.22f, 0.12f, 0.06f, 1f);
-        text.alignment = TextAlignmentOptions.Center;
-        text.raycastTarget = false;
-
-        return button;
-    }
-
-    private static GameObject CreatePopupUiObject(string objectName, Transform parent)
-    {
-        GameObject go = new(objectName, typeof(RectTransform));
-        go.transform.SetParent(parent, false);
-        return go;
-    }
+    private Canvas ResolveHudCanvas() => RuntimePopupBuilder.ResolveHudCanvas(hudCanvas);
 
     // ── Fortschritts-Indikator über dem Komposter ───────────────────────────
     //
