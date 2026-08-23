@@ -768,8 +768,70 @@ public class FarmSaveManager : MonoBehaviour
             data.missionProgress.AddRange(MissionManager.Instance.GetSaveData());
         }
 
+        // Der Guard ist hier das Entscheidende — exakt dasselbe Muster wie bei SaveGrid und
+        // SaveComposter. Der Manager lebt nur in der Farm-Szene; ohne diese Abfrage wuerde
+        // jeder Speichervorgang auf dem Marktplatz die Liste leeren und saemtliche Geraete
+        // aus dem Spielstand wischen.
+        if (AutomationDeviceManager.Instance != null)
+        {
+            data.automationDevices.Clear();
+            SaveAutomationDevices(data);
+        }
+
         EnsureSaveLists(data);
         return data;
+    }
+
+    private void SaveAutomationDevices(SaveGameData data)
+    {
+        var manager = AutomationDeviceManager.Instance;
+        if (manager == null) return;
+
+        foreach (var device in manager.AllDevices)
+        {
+            if (device == null || device.Data == null) continue;
+
+            var tile = device.TilePosition;
+            data.automationDevices.Add(new AutomationDeviceSaveData
+            {
+                deviceType = device.Data.deviceType.ToString(),
+                x = tile.x,
+                z = tile.y,
+                level = device.Level,
+                enabled = device.IsEnabled,
+                seedId = device.Seed != null ? PlantDatabase.GetPlantId(device.Seed) : null,
+                cooldownRemaining = device.CooldownRemaining
+            });
+        }
+    }
+
+    private void ApplyAutomation(SaveGameData data)
+    {
+        var manager = AutomationDeviceManager.Instance;
+        if (manager == null) return;
+
+        manager.Clear();
+        if (data.automationDevices == null) return;
+
+        foreach (var entry in data.automationDevices)
+        {
+            if (entry == null) continue;
+            if (!Enum.TryParse(entry.deviceType, out AutomationDeviceType type)) continue;
+            if (type == AutomationDeviceType.None) continue;
+
+            var deviceData = AutomationDeviceCatalog.Get(type);
+            if (deviceData == null) continue;
+
+            var device = manager.Spawn(deviceData, entry.x, entry.z);
+            if (device == null) continue;
+
+            device.SetLevel(entry.level);
+            device.SetEnabled(entry.enabled);
+            device.SetCooldown(entry.cooldownRemaining);
+
+            if (!string.IsNullOrEmpty(entry.seedId) && PlantDatabase.Instance != null)
+                device.SetSeed(PlantDatabase.Instance.GetById(entry.seedId));
+        }
     }
 
     private void SaveInventory(SaveGameData data)
@@ -898,6 +960,13 @@ public class FarmSaveManager : MonoBehaviour
             ApplyInventory(data);
             ApplyComposter(data);
             ApplyToolLevels(data);
+
+            // Nach ApplyGrid, weil die Geraete beim Platzieren ihre Kachelliste cachen —
+            // Zellen und IsLocked muessen also schon stehen. Und nach ApplyInventory, weil
+            // die Sorte der Saemaschine ueber die PlantDatabase aufgeloest wird.
+            // Vor ApplyMissions.
+            ApplyAutomation(data);
+
             ApplyMissions(data);
         }
         finally
@@ -1004,6 +1073,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.ownedTools == null) data.ownedTools = new List<string>();
         if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
         if (data.ownedLicenses == null) data.ownedLicenses = new List<string>();
+        if (data.automationDevices == null) data.automationDevices = new List<AutomationDeviceSaveData>();
     }
 
     private void OnApplicationQuit()

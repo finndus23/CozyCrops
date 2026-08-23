@@ -185,6 +185,12 @@ public class AutomationDevice : MonoBehaviour
 
     public void SetSeed(PlantType newSeed) => seed = newSeed;
 
+    /// <summary>Restliche Wartezeit bis zum nächsten Takt — wird mitgespeichert, damit ein
+    /// frisch geladenes Gerät nicht sofort losschlägt.</summary>
+    public float CooldownRemaining => Mathf.Max(0f, cooldown);
+
+    public void SetCooldown(float value) => cooldown = Mathf.Max(0f, value);
+
     public void SetLevel(int newLevel)
     {
         int max = data != null ? data.maxLevel : newLevel;

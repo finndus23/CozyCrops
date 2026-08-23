@@ -40,6 +40,15 @@ public class SaveGameData
     public List<string> ownedLicenses = new();
 
     /// <summary>
+    /// Platzierte Automatik-Geraete. Eine Liste reicht: das Level haengt am einzelnen
+    /// Geraet und einen unplatzierten Bestand gibt es nicht.
+    ///
+    /// version bleibt bewusst bei 4 — es gibt nichts zu migrieren, JsonUtility liefert bei
+    /// Altsaves einfach eine leere Liste.
+    /// </summary>
+    public List<AutomationDeviceSaveData> automationDevices = new();
+
+    /// <summary>
     /// Beim Anlegen des Slots gewähltes Spieltempo. 0 = Normal, damit Altsaves
     /// automatisch auf dem balancierten Tempo landen.
     /// </summary>
@@ -83,4 +92,23 @@ public class ToolLevelSaveData
 {
     public string toolType;
     public int level;
+}
+
+[Serializable]
+public class AutomationDeviceSaveData
+{
+    /// <summary>AutomationDeviceType als Text — wie bei ToolLevelSaveData, damit ein
+    /// Umsortieren des Enums keine Altsaves zerlegt.</summary>
+    public string deviceType;
+
+    public int x;
+    public int z;
+
+    public int level;
+    public bool enabled = true;
+
+    /// <summary>Nur die Saemaschine: gewaehlte Sorte, ueber PlantDatabase aufgeloest.</summary>
+    public string seedId;
+
+    public float cooldownRemaining;
 }
