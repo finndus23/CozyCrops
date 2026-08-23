@@ -10,9 +10,9 @@ using UnityEngine;
 /// und führt sie dort aus. Pro Takt genau eine Kachel (ab dem Capstone-Meilenstein zwei) —
 /// Handarbeit bleibt damit immer schneller. Der Reiz ist Layout, nicht Effizienz.
 ///
-/// ETAPPE 1: ruft PlantManager direkt auf. Ab Etappe 2 läuft das über die Job-Queue des
-/// ToolUseHandler (eigene Spur), damit Doppelbearbeitung, Fortschrittsringe und die
-/// Saatgut-Reservierung greifen.
+/// Ausgeführt wird über die Job-Queue des ToolUseHandler, aber in einer eigenen Spur: so
+/// greifen Doppelbearbeitungs-Sperre, Fortschrittsringe und Saatgut-Reservierung, ohne dass
+/// die Automatik dem Spieler Warteschlangen-Plätze oder Werkzeug-Slots wegnimmt.
 /// </summary>
 public class AutomationDevice : MonoBehaviour
 {
@@ -45,6 +45,13 @@ public class AutomationDevice : MonoBehaviour
     // Ohne den würde immer wieder dieselbe innere Kachel gewinnen und die Randkacheln
     // verhungern.
     private int scanIndex;
+
+    // Der laufende Job dieses Geräts. Solange er steht, wird nichts Neues eingereiht.
+    private ToolJob pendingJob;
+
+    // Wiederverwendeter Puffer für die Zielkacheln eines Takts — spart eine Allokation
+    // pro Takt und Gerät.
+    private readonly List<Vector2Int> dispatchBuffer = new();
 
     // ── Öffentlicher Zustand ──────────────────────────────────────────────────
 
@@ -97,6 +104,22 @@ public class AutomationDevice : MonoBehaviour
     {
         if (!isEnabled || data == null) return;
         if (!EnsureInitialized()) return;
+
+        // Fertige oder abgebrochene Jobs werden hier im EIGENEN Update losgelassen, niemals
+        // aus OnJobFinished heraus. CompleteJob läuft aus ToolUseHandler.Update, und direkt
+        // danach iteriert PromoteQueued über 'queued' — ein Enqueue aus dem Event heraus
+        // würde die Indizes mitten im Durchlauf verschieben.
+        //
+        // Deshalb wird der Zustand gepollt statt abonniert: das ist O(1), kann konstruktiv
+        // nicht zur falschen Zeit feuern und hat auch kein Abo, das beim Aus- und
+        // Wiedereinschalten des Geräts verlorengehen könnte.
+        if (pendingJob != null)
+        {
+            if (pendingJob.State != ToolJobState.Finished && pendingJob.State != ToolJobState.Cancelled)
+                return;
+
+            pendingJob = null;
+        }
 
         cooldown -= Time.deltaTime;
         if (cooldown > 0f) return;
@@ -225,59 +248,55 @@ public class AutomationDevice : MonoBehaviour
     // ── Ausführung ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Sucht ab dem gemerkten Cursor die nächste Kachel mit sinnvoller Arbeit und führt die
-    /// Aktion dort aus. True, wenn mindestens eine Kachel bearbeitet wurde.
+    /// Sucht ab dem gemerkten Cursor die nächsten Kacheln mit sinnvoller Arbeit und reiht
+    /// dafür EINEN Job ein. True, wenn ein Job entstanden ist.
+    ///
+    /// Der Weg über die Job-Queue statt direkt über PlantManager.TryX ist Absicht: nur so
+    /// greifen die Sperre gegen Doppelbearbeitung, die Fortschrittsringe auf der Kachel und
+    /// die geteilte Saatgut-Reservierung.
     /// </summary>
     private bool TryDispatch()
     {
+        var handler = ToolUseHandler.Instance;
+        if (handler == null) return false;
+
         if (tilesDirty) RebuildTileCache();
         if (targetTiles.Count == 0) return false;
 
         int wanted = data.GetTilesPerTick(level);
-        int done = 0;
+        dispatchBuffer.Clear();
 
-        for (int step = 0; step < targetTiles.Count && done < wanted; step++)
+        int nextCursor = scanIndex;
+        for (int step = 0; step < targetTiles.Count && dispatchBuffer.Count < wanted; step++)
         {
             int i = (scanIndex + step) % targetTiles.Count;
             var tile = targetTiles[i];
 
-            if (!CanWorkTile(tile.x, tile.y)) continue;
-            if (!Execute(tile.x, tile.y)) continue;
+            // Gesperrte Zonen sind hier automatisch abgedeckt: CanApplyTool liefert bei
+            // IsLocked false. Ein Gerät, dessen Reichweite in eine noch nicht gekaufte Zone
+            // ragt, arbeitet dort also einfach nicht — und fängt von selbst an, sobald die
+            // Zone aufgeht.
+            if (!handler.CanApplyTool(tile.x, tile.y, data.executesTool, seed)) continue;
 
-            done++;
-            scanIndex = (i + 1) % targetTiles.Count;
+            // Werkzeugübergreifend: was der Spieler gerade bearbeitet, fasst das Gerät
+            // nicht an. Gilt so, solange allowLayering aus ist (Standard).
+            if (handler.IsTileScheduled(tile)) continue;
+
+            dispatchBuffer.Add(tile);
+            nextCursor = (i + 1) % targetTiles.Count;
         }
 
-        return done > 0;
-    }
+        if (dispatchBuffer.Count == 0) return false;
 
-    /// <summary>
-    /// Prüft, ob die Aktion des Geräts auf dieser Kachel etwas bewirkt. Gesperrte Zonen sind
-    /// dadurch automatisch mit abgedeckt — CanApplyTool liefert bei IsLocked false.
-    /// </summary>
-    private bool CanWorkTile(int x, int z)
-    {
-        var handler = ToolUseHandler.Instance;
-        if (handler == null) return false;
-        return handler.CanApplyTool(x, z, data.executesTool);
-    }
+        // Instanz-ID als Besitzer: der ToolUseHandler nutzt sie als Spur-Schlüssel, damit
+        // dieses Gerät nie zwei Jobs gleichzeitig laufen hat und dem Spieler keinen
+        // Werkzeug-Slot wegnimmt.
+        var job = handler.TryEnqueueAutomationJob(dispatchBuffer, data.executesTool, seed,
+                                                  GetInstanceID(), data.actionDuration);
+        if (job == null) return false;
 
-    /// <summary>
-    /// ETAPPE 1 — direkter Durchgriff auf den PlantManager, ohne Job-Queue.
-    /// Ab Etappe 2 ersetzt durch ToolUseHandler.TryEnqueueAutomationJob.
-    /// </summary>
-    private bool Execute(int x, int z)
-    {
-        var plants = PlantManager.Instance;
-        if (plants == null) return false;
-
-        return data.executesTool switch
-        {
-            ToolType.WateringCan => plants.TryWater(x, z),
-            ToolType.Hoe         => plants.TryTill(x, z),
-            ToolType.Seed        => seed != null && plants.TryPlant(x, z, seed),
-            ToolType.Scythe      => plants.TryHarvest(x, z),
-            _                    => false
-        };
+        pendingJob = job;
+        scanIndex = nextCursor;
+        return true;
     }
 }

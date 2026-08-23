@@ -10,6 +10,20 @@ public enum ToolJobState
 }
 
 /// <summary>
+/// Wer diesen Job eingereiht hat.
+///
+/// Die Trennung ist nötig, weil sich Spieler und Automatik sonst gegenseitig die Plätze
+/// wegnehmen: Warteschlangen-Kapazität, Parallel-Slots und der Werkzeug-Slot in
+/// PromoteQueued sind allesamt knappe Ressourcen. Vier tickende Geräte würden die Queue
+/// füllen, und jeder Spielerklick liefe danach stumm ins Leere.
+/// </summary>
+public enum ToolJobSource
+{
+    Player,
+    Automation
+}
+
+/// <summary>
 /// Eine eingeplante Tool-Aktion auf einer (oder bei AoE mehreren) Tiles.
 ///
 /// Wichtig sind die Snapshots: Tool, Saatgut und Yield-Bonus werden beim Einreihen
@@ -39,8 +53,21 @@ public class ToolJob
 
     public float Progress => Duration <= 0f ? 1f : Mathf.Clamp01(Elapsed / Duration);
 
+    /// <summary>Spieler oder Automatik — trennt die beiden Spuren in der Warteschlange.</summary>
+    public ToolJobSource Source { get; }
+
+    /// <summary>
+    /// Instanz-ID des Geräts, das diesen Job eingereiht hat. 0 = Spieler.
+    ///
+    /// Dient als Spur-Schlüssel in PromoteQueued: der Spieler behält pro Werkzeug exakt
+    /// einen Slot, jedes Gerät bekommt seinen eigenen — und nie mehr als einen gleichzeitig.
+    /// "Eine Kachel pro Takt" ist damit strukturell garantiert statt nur per Timer.
+    /// </summary>
+    public int OwnerId { get; }
+
     public ToolJob(ToolType tool, PlantType seed, int yieldBonus,
-                   Vector2Int origin, List<Vector2Int> tiles, float duration)
+                   Vector2Int origin, List<Vector2Int> tiles, float duration,
+                   ToolJobSource source = ToolJobSource.Player, int ownerId = 0)
     {
         Id = nextId++;
         Tool = tool;
@@ -49,6 +76,8 @@ public class ToolJob
         Origin = origin;
         Tiles = tiles;
         Duration = duration;
+        Source = source;
+        OwnerId = ownerId;
     }
 
     public bool CoversTile(Vector2Int tile) => Tiles.Contains(tile);
