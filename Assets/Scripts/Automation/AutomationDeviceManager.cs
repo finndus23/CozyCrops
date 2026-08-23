@@ -82,10 +82,25 @@ public class AutomationDeviceManager : MonoBehaviour
     /// </summary>
     public AutomationDevice Spawn(AutomationDeviceData data, int x, int z)
     {
-        if (data == null || data.worldPrefab == null) return null;
+        if (data == null)
+        {
+            Debug.LogWarning("[Automation] Spawn ohne AutomationDeviceData.");
+            return null;
+        }
+
+        if (data.worldPrefab == null)
+        {
+            Debug.LogWarning($"[Automation] Am Asset '{data.name}' ({data.deviceType}) ist kein " +
+                             "worldPrefab zugewiesen — ohne Prefab kann kein Geraet entstehen.", data);
+            return null;
+        }
 
         var tile = new Vector2Int(x, z);
-        if (byTile.ContainsKey(tile)) return null;
+        if (byTile.ContainsKey(tile))
+        {
+            Debug.LogWarning($"[Automation] Kachel ({x},{z}) ist bereits belegt.");
+            return null;
+        }
 
         var grid = GridManager.Instance;
         var position = grid != null ? grid.GridToWorld(x, z) : new Vector3(x, 0f, z);

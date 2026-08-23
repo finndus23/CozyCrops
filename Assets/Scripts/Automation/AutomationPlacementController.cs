@@ -169,12 +169,19 @@ public class AutomationPlacementController : MonoBehaviour
             if (inventory == null || !inventory.TrySpendMoney(pendingData.buyPrice)) return;
 
             var manager = AutomationDeviceManager.Instance;
-            var device = manager != null ? manager.Spawn(pendingData, x, z) : null;
+            if (manager == null)
+            {
+                Debug.LogWarning("[Automation] Kein AutomationDeviceManager in der Szene. " +
+                                 "Die Komponente gehoert auf das PlantManager-GameObject.");
+                inventory.AddMoney(pendingData.buyPrice);
+                return;
+            }
 
+            var device = manager.Spawn(pendingData, x, z);
             if (device == null)
             {
-                // Spawn fehlgeschlagen (fehlendes Prefab, Kachel belegt) — Gold zurück,
-                // sonst zahlt der Spieler für nichts.
+                // Spawn fehlgeschlagen — Gold zurück, sonst zahlt der Spieler für nichts.
+                // Die genaue Ursache steht als Warnung aus Spawn() in der Konsole.
                 inventory.AddMoney(pendingData.buyPrice);
                 return;
             }
