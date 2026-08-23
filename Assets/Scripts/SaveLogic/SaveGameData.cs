@@ -26,6 +26,9 @@ public class SaveGameData
     /// nach einem Neuladen weiß wie weit er ist, statt bei 0% neu anzufangen.</summary>
     public float composterTotalBrewTime;
 
+    /// <summary>Ausbaustufe des Komposters — kuerzere Brauzeit und Extra-Duenger-Chance.</summary>
+    public int composterLevel;
+
     /// <summary>Was aktuell im Komposter brodelt, pro Sorte — nötig, damit "Abbrechen" die
     /// richtige Ernte zurückerstatten kann, auch nach einem Neuladen mitten im Brauvorgang.</summary>
     public List<InventoryStackSaveData> composterComposition = new();

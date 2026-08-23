@@ -70,6 +70,56 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     [SerializeField] private float perCropBrewTime = 2f;
     [SerializeField] private float maxBrewTime = 180f;
 
+    [Header("Ausbau")]
+    [Tooltip("Hoechststufe des Komposters.")]
+    [SerializeField] private int maxLevel = 10;
+
+    [Tooltip("Goldkosten fuer die erste Stufe (0 auf 1).")]
+    [SerializeField] private int upgradeBaseCost = 150;
+
+    [Tooltip("Zusaetzliche Goldkosten pro Stufe.")]
+    [SerializeField] private int upgradeCostPerLevel = 50;
+
+    [Tooltip("Brauzeit pro Frucht auf Hoechststufe. Der Wert oben gilt auf Stufe 0, " +
+             "dazwischen wird linear interpoliert.")]
+    [SerializeField] private float minPerCropBrewTime = 0.8f;
+
+    [Tooltip("Chance auf einen Extra-Duenger pro Batch auf Hoechststufe, auf Stufe 0 null. " +
+             "Wirkt frueh am staerksten, solange Ackerflaeche knapp ist und jeder Duenger " +
+             "echtes Land kostet. Spaeter, wenn eine Station das Futter liefert, ist der " +
+             "Nachschub ohnehin im Ueberfluss da.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float maxExtraFertilizerChance = 0.5f;
+
+    /// <summary>Ausbaustufe des Komposters. Wird mitgespeichert.</summary>
+    public int Level { get; private set; }
+
+    public int MaxLevel => maxLevel;
+
+    /// <summary>Goldkosten der naechsten Stufe, oder -1 wenn schon am Maximum.</summary>
+    public int GetUpgradeCost() =>
+        Level >= maxLevel ? -1 : upgradeBaseCost + Level * upgradeCostPerLevel;
+
+    /// <summary>Brauzeit pro Frucht auf der aktuellen Stufe.</summary>
+    private float CurrentPerCropBrewTime =>
+        maxLevel <= 0 ? perCropBrewTime
+                      : Mathf.Lerp(perCropBrewTime, minPerCropBrewTime, Level / (float)maxLevel);
+
+    /// <summary>Chance auf einen Extra-Duenger auf der aktuellen Stufe.</summary>
+    public float ExtraFertilizerChance =>
+        maxLevel <= 0 ? 0f : Mathf.Lerp(0f, maxExtraFertilizerChance, Level / (float)maxLevel);
+
+    /// <summary>Setzt die Stufe (Ladepfad).</summary>
+    public void SetLevel(int level) => Level = Mathf.Clamp(level, 0, maxLevel);
+
+    /// <summary>Hebt den Komposter um eine Stufe. Gold bucht der Aufrufer ab.</summary>
+    public bool TryUpgrade()
+    {
+        if (Level >= maxLevel) return false;
+        Level++;
+        return true;
+    }
+
     [Header("Bestätigungsfenster — Optik (optional)")]
     [Tooltip("Leer = Flachfarben-Fallback. Für denselben Look wie den Schmied: " +
              "MenuClean_Panel aus Assets/UI/MenuSheetClean.png.")]
@@ -77,6 +127,9 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     [SerializeField] private Sprite confirmOkButtonSprite;
     [SerializeField] private Sprite confirmCancelButtonSprite;
     [SerializeField] private Canvas hudCanvas;
+
+    private UnityEngine.UI.Button upgradeButton;
+    private TextMeshProUGUI upgradeLabel;
 
     [Header("Status-Anzeige")]
     [Tooltip("DASSELBE Prefab, das PlantStatusOverlay für den Wachstums-Bogen benutzt " +
@@ -194,6 +247,48 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     // ── Brauen ────────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Kauft eine Ausbaustufe. Der Komposter ist die Stellschraube fuers fruehe Spiel:
+    /// solange Ackerflaeche knapp ist, kostet jeder Duenger echtes Land — spaeter liefert
+    /// eine Automations-Station das Futter ohnehin im Ueberfluss.
+    /// </summary>
+    private void TryBuyUpgrade()
+    {
+        int cost = GetUpgradeCost();
+        if (cost < 0) return;
+
+        var inventory = PlayerInventory.Instance;
+        if (inventory == null || !inventory.TrySpendMoney(cost)) return;
+
+        if (!TryUpgrade())
+        {
+            inventory.AddMoney(cost);
+            return;
+        }
+
+        UiSfx.StationUpgraded();
+        FarmSaveManager.Instance?.RequestSave();
+        RefreshUpgradeButton();
+    }
+
+    /// <summary>Beschriftet den Upgrade-Knopf mit Stufe, Kosten und Wirkung.</summary>
+    private void RefreshUpgradeButton()
+    {
+        if (upgradeButton == null || upgradeLabel == null) return;
+
+        int cost = GetUpgradeCost();
+        if (cost < 0)
+        {
+            upgradeLabel.text = $"Komposter Stufe {Level} — Hoechststufe";
+            upgradeButton.interactable = false;
+            return;
+        }
+
+        int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
+        upgradeLabel.text = $"Komposter Stufe {Level} aufwerten — {cost} G";
+        upgradeButton.interactable = money >= cost;
+    }
+
     private void StartBrewing()
     {
         HideConfirmPopup();
@@ -223,8 +318,14 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        PendingFertilizerYield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
-        TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * perCropBrewTime);
+        int yield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
+
+        // Extra-Duenger einmal pro Batch, nicht pro Frucht — sonst skaliert der Bonus mit
+        // der Batchgroesse und ein einziger grosser Wurf waere immer optimal.
+        if (Random.value < ExtraFertilizerChance) yield++;
+
+        PendingFertilizerYield = yield;
+        TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
         TotalBrewTime = TimeRemaining;
         IsBrewing = true;
         readyChimePlayed = false;
@@ -603,6 +704,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     private void RefreshConfirmText()
     {
+        // Der Ausbau-Knopf haengt an Gold und Stufe — beides kann sich geaendert haben,
+        // seit das Popup zuletzt offen war.
+        RefreshUpgradeButton();
+
         int totalItems = 0;
         float totalValue = 0f;
         foreach (var kvp in selectedPerType)
@@ -623,8 +728,14 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             if (totalItems > 0)
             {
                 int yield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
-                float brewSeconds = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * perCropBrewTime);
-                confirmText.text = $"Ergibt: {yield} Dünger\nDauer: {brewSeconds:F0}s";
+                float brewSeconds = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
+                // Der Bonus ist eine Chance — als "(+1 zu 30%)" statt als glatte Zahl,
+                // sonst wirkt ein Batch ohne Bonus wie ein Fehler.
+                string bonus = ExtraFertilizerChance > 0f
+                    ? $" (+1 zu {ExtraFertilizerChance * 100f:F0}%)"
+                    : "";
+                
+                confirmText.text = $"Ergibt: {yield}{bonus} Dünger\nDauer: {brewSeconds:F0}s";
             }
             else
             {
@@ -718,6 +829,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         confirmOkButton = RuntimePopupBuilder.CreateButton(panel.transform, "OkButton", new Vector2(95f, -195f), new Vector2(180f, 56f),
             "Kompostieren", confirmOkButtonSprite, StartBrewing);
+
+        upgradeButton = RuntimePopupBuilder.CreateButton(panel.transform, "UpgradeButton", new Vector2(0f, -245f),
+            new Vector2(370f, 44f), "", confirmOkButtonSprite, TryBuyUpgrade);
+        upgradeLabel = upgradeButton.GetComponentInChildren<TextMeshProUGUI>();
 
         confirmRoot.SetActive(false);
     }

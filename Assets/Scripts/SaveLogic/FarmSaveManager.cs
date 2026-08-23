@@ -958,6 +958,9 @@ public class FarmSaveManager : MonoBehaviour
     /// </summary>
     private void SaveComposter(SaveGameData data)
     {
+        if (ComposterInteraction.Instance != null)
+            data.composterLevel = ComposterInteraction.Instance.Level;
+
         if (ComposterInteraction.Instance == null) return;
 
         data.composterBrewing = ComposterInteraction.Instance.IsBrewing;
@@ -1103,6 +1106,8 @@ public class FarmSaveManager : MonoBehaviour
 
     private void ApplyComposter(SaveGameData data)
     {
+        ComposterInteraction.Instance?.SetLevel(data.composterLevel);
+
         if (ComposterInteraction.Instance == null) return;
 
         ComposterInteraction.Instance.ApplyLoadedData(

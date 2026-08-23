@@ -36,6 +36,12 @@ public class AutomationModule
     /// <summary>True, solange der letzte Versuch keine Arbeit gefunden hat.</summary>
     [NonSerialized] public bool idle;
 
+    /// <summary>
+    /// Sorten-Multiplikator des zuletzt eingereihten Jobs. Wird fuer den anschliessenden
+    /// Takt gebraucht — die Sorte steht erst fest, wenn die Zielkacheln gewaehlt sind.
+    /// </summary>
+    [NonSerialized] public float cropMultiplier = 1f;
+
     /// <summary>Instanziiertes Anbauteil am Gehäuse. Null, wenn das Modul kein Prefab hat.</summary>
     [NonSerialized] public GameObject attachment;
 

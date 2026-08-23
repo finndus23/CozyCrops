@@ -160,7 +160,10 @@ public class AutomationDevice : MonoBehaviour, IClickable
         }
 
         module.idle = false;
-        module.cooldown = module.data.GetInterval(module.level);
+
+        // Sorten-Multiplikator wirkt auf Dauer UND Takt — sonst waere der Effekt durch den
+        // konstanten Leerlauf verwaessert und 1,8 hiesse in Wahrheit nur 1,4.
+        module.cooldown = module.data.GetInterval(module.level) * module.cropMultiplier;
     }
 
     /// <summary>
@@ -207,13 +210,53 @@ public class AutomationDevice : MonoBehaviour, IClickable
         // Instanz-ID der Station als Besitzer. Der Spur-Schlüssel im ToolUseHandler ist
         // (Werkzeug, Besitzer) — da jedes Modul ein anderes Werkzeug führt, bekommt jedes
         // seine eigene Spur, obwohl alle dieselbe ID melden.
-        var job = handler.TryEnqueueAutomationJob(dispatchBuffer, tool, module.seed,
-                                                  GetInstanceID(), module.data.actionDuration);
+        // Die Sorte steht erst jetzt fest — bei Giessen und Ernten haengt sie an dem, was
+        // auf den Zielkacheln waechst, beim Saeen an der eingestellten Sorte.
+        module.cropMultiplier = ResolveCropMultiplier(module, dispatchBuffer);
+
+        var job = handler.TryEnqueueAutomationJob(
+            dispatchBuffer, tool, module.seed, GetInstanceID(),
+            module.data.actionDuration * module.cropMultiplier);
+
         if (job == null) return false;
 
         module.pendingJob = job;
         module.scanIndex = nextCursor;
         return true;
+    }
+
+    /// <summary>
+    /// Wie stark diese Sorte die Station ausbremst. Nur fuer die Automatik — der Spieler
+    /// hat mit PlantType.actionSpeedMultiplier seinen eigenen, davon unabhaengigen Wert.
+    ///
+    /// Die Hacke kennt keine Sorte (auf der Kachel waechst noch nichts) und bleibt neutral.
+    /// </summary>
+    private static float ResolveCropMultiplier(AutomationModule module, List<Vector2Int> tiles)
+    {
+        var tool = module.ExecutesTool;
+
+        if (tool == ToolType.Seed)
+            return module.seed != null
+                ? Mathf.Clamp(module.seed.automationDurationMultiplier, 0.3f, 3f)
+                : 1f;
+
+        if (tool != ToolType.WateringCan && tool != ToolType.Scythe) return 1f;
+
+        // Gemischte Zielkacheln: Durchschnitt ueber die betroffenen Pflanzen, genau wie
+        // CropActionSpeedMultiplier es beim Spieler macht.
+        float sum = 0f;
+        int count = 0;
+
+        foreach (var tile in tiles)
+        {
+            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
+            if (cell?.Plant?.Type == null) continue;
+
+            sum += Mathf.Clamp(cell.Plant.Type.automationDurationMultiplier, 0.3f, 3f);
+            count++;
+        }
+
+        return count > 0 ? sum / count : 1f;
     }
 
     // ── Module verwalten ──────────────────────────────────────────────────────
