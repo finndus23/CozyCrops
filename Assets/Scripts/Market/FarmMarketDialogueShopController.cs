@@ -56,6 +56,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
              "zusätzliches Szenen-Setup.")]
     [SerializeField] private GameObject licensePanel;
 
+    [Tooltip("Titel des gemeinsam genutzten Werkzeug-/Lizenz-Panels.")]
+    [SerializeField] private TMP_Text upgradePanelTitleText;
+
     [Header("Content Roots")]
     [SerializeField] private Transform buyContentRoot;
     [SerializeField] private Transform sellContentRoot;
@@ -401,6 +404,9 @@ public class FarmMarketDialogueShopController : MonoBehaviour
         bool openSell    = currentNpc.TradeMode == FarmMarketNpcTradeMode.SellInventory;
         bool openUpgrade = currentNpc.TradeMode == FarmMarketNpcTradeMode.ToolUpgrade;
         bool openLicense = currentNpc.TradeMode == FarmMarketNpcTradeMode.Licenses;
+
+        if (upgradePanelTitleText != null)
+            upgradePanelTitleText.text = openLicense ? "Lizenzen" : "Tools";
 
         // Fällt aufs Upgrade-Panel zurück wenn kein eigenes zugewiesen ist.
         GameObject licenseHost = licensePanel != null ? licensePanel : upgradePanel;

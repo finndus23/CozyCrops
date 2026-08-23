@@ -3,6 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
+/// Eine kaufbare Erweiterung in exakten Grid-Koordinaten. Dieselben Rechtecke werden
+/// fuer Kaufanzeige, Tile-Sperren, Zaun und Editor-Vorschau verwendet.
+/// </summary>
+public readonly struct FarmExpansionArea
+{
+    public string Id { get; }
+    public string DisplayName { get; }
+    public int CostIndex { get; }
+    public RectInt Tiles { get; }
+
+    public FarmExpansionArea(string id, string displayName, int costIndex, RectInt tiles)
+    {
+        Id = id;
+        DisplayName = displayName;
+        CostIndex = costIndex;
+        Tiles = tiles;
+    }
+}
+
+/// <summary>
 /// Findet beim Start alle GridZones in der Scene, setzt IsLocked auf betroffenen Tiles
 /// und stellt die Unlock-API bereit.
 ///
@@ -131,10 +151,6 @@ public class ZoneManager : MonoBehaviour
         var root = new GameObject("Directional Farm Expansions").transform;
         root.SetParent(transform, false);
 
-        int e = grid.ExpansionSize;
-        int w = grid.BaseWidth;
-        int h = grid.BaseHeight;
-
         // Eigene IDs sind wichtig: zone_1..zone_4 gehörten zum alten System INNERHALB
         // des Startzauns. Würden wir sie wiederverwenden, würde ein alter Spielstand beim
         // Laden ungewollt neue Außenflächen freischalten.
@@ -144,46 +160,72 @@ public class ZoneManager : MonoBehaviour
         // [ Oben links ] [ STARTZONE ] [ Oben rechts ]
         // [ Unten links] [ Unten Mitte] [ Unten rechts]
         // Keine Collider überlappen sich; jedes sichtbare Feld ist ein eigener Kauf.
-        CreateExpansionZone(root, "farm_expansion_left", "Top Left", CostAt(0),
-            0, h, w, e);
-        CreateExpansionZone(root, "farm_expansion_right", "Top Right", CostAt(1),
-            0, -e, w, e);
-        CreateExpansionZone(root, "farm_expansion_bottom_left", "Bottom Left", CostAt(2),
-            -e, h, e, e);
-        CreateExpansionZone(root, "farm_expansion_bottom", "Bottom Middle", CostAt(3),
-            -e, 0, e, h);
-        CreateExpansionZone(root, "farm_expansion_bottom_right", "Bottom Right", CostAt(4),
-            -e, -e, e, e);
+        foreach (FarmExpansionArea area in CreateDirectionalLayout(grid))
+            CreateExpansionZone(root, area, CostAt(area.CostIndex));
     }
 
-    private void CreateExpansionZone(Transform parent, string id, string displayName, int cost,
-        int minX, int minZ, int tileWidth, int tileHeight)
+    /// <summary>
+    /// Gemeinsame, einzige Quelle fuer die Geometrie der fuenf Erweiterungen.
+    /// Der Editor darf diese Methode ebenfalls verwenden, damit seine Vorschau nicht
+    /// noch einmal separat gepflegte und dadurch abweichende Rechtecke zeichnet.
+    /// </summary>
+    public static FarmExpansionArea[] CreateDirectionalLayout(GridManager grid)
+    {
+        if (grid == null || grid.ExpansionSize <= 0)
+            return System.Array.Empty<FarmExpansionArea>();
+
+        int e = grid.ExpansionSize;
+        int w = grid.BaseWidth;
+        int h = grid.BaseHeight;
+        return new[]
+        {
+            new FarmExpansionArea("farm_expansion_left", "Top Left", 0,
+                new RectInt(0, h, w, e)),
+            new FarmExpansionArea("farm_expansion_right", "Top Right", 1,
+                new RectInt(0, -e, w, e)),
+            new FarmExpansionArea("farm_expansion_bottom_left", "Bottom Left", 2,
+                new RectInt(-e, h, e, e)),
+            new FarmExpansionArea("farm_expansion_bottom", "Bottom Middle", 3,
+                new RectInt(-e, 0, e, h)),
+            new FarmExpansionArea("farm_expansion_bottom_right", "Bottom Right", 4,
+                new RectInt(-e, -e, e, e))
+        };
+    }
+
+    private void CreateExpansionZone(Transform parent, FarmExpansionArea area, int cost)
     {
         GridManager grid = GridManager.Instance;
         float cellSize = grid.CellSize;
+        RectInt rect = area.Tiles;
 
-        var go = new GameObject($"Farm Expansion {displayName}");
+        var go = new GameObject($"Farm Expansion {area.DisplayName}");
         go.transform.SetParent(parent, true);
         go.AddComponent<BoxCollider>();
 
         GridZone zone = go.AddComponent<GridZone>();
         Vector3 center = grid.transform.position + new Vector3(
-            (minX + tileWidth * 0.5f) * cellSize,
+            (rect.xMin + rect.width * 0.5f) * cellSize,
             0.1f,
-            (minZ + tileHeight * 0.5f) * cellSize);
-        Vector3 size = new Vector3(tileWidth * cellSize, 1f, tileHeight * cellSize);
+            (rect.yMin + rect.height * 0.5f) * cellSize);
+        Vector3 size = new Vector3(rect.width * cellSize, 1f, rect.height * cellSize);
 
-        zone.Configure(id, cost, center, size);
-        zoneTileRects[zone] = new RectInt(minX, minZ, tileWidth, tileHeight);
+        zone.Configure(area.Id, cost, center, size);
+        zoneTileRects[zone] = rect;
         FarmExpansionPurchaseView.Create(
             zone,
-            displayName,
+            area.DisplayName,
             size,
             purchaseButtonHeight,
             purchaseButtonWorldScale,
             expansionHoverFillColor,
             expansionHoverOutlineColor);
-        SpawnLockedExpansionTrees(zone, id, minX, minZ, tileWidth, tileHeight);
+        SpawnLockedExpansionTrees(
+            zone,
+            area.Id,
+            rect.xMin,
+            rect.yMin,
+            rect.width,
+            rect.height);
     }
 
     private void SpawnLockedExpansionTrees(
@@ -597,54 +639,35 @@ public class ZoneManager : MonoBehaviour
                 var cell = grid.GetCell(x, z);
                 if (cell == null) continue;
 
-                // Die ursprüngliche 30x39-Farm beginnt vollständig entsperrt.
-                // Ausschließlich die fünf Kaufzonen dürfen Grid-Zellen sperren; die
-                // Landschaftskulisse liegt inzwischen bewusst außerhalb dieses Grids.
-                cell.IsLocked = false;
-
-                Vector3 tileCenter = grid.GridToWorld(x, z);
-
-                foreach (var zone in zones)
-                {
-                    if (!zone.IsUnlocked && zone.ContainsTile(tileCenter))
-                    {
-                        cell.IsLocked = true;
-                        break; // Tile muss nur von einer Zone gesperrt sein
-                    }
-                }
+                cell.IsLocked = IsCoveredByLockedZone(x, z, grid);
             }
         }
     }
 
-    private void UnlockZoneTiles(GridZone zone)
+    private bool IsCoveredByLockedZone(int x, int z, GridManager grid)
     {
-        GridManager grid = GridManager.Instance;
-
-        for (int x = grid.MinX; x < grid.MaxXExclusive; x++)
+        var tile = new Vector2Int(x, z);
+        foreach (GridZone zone in zones)
         {
-            for (int z = grid.MinZ; z < grid.MaxZExclusive; z++)
+            if (zone == null || zone.IsUnlocked)
+                continue;
+
+            if (zoneTileRects.TryGetValue(zone, out RectInt rect))
             {
-                var cell = grid.GetCell(x, z);
-                if (cell == null || !cell.IsLocked) continue;
-
-                Vector3 tileCenter = grid.GridToWorld(x, z);
-                if (!zone.ContainsTile(tileCenter)) continue;
-
-                // Prüfen ob eine andere (noch gesperrte) Zone dieses Tile beansprucht
-                bool stillLocked = false;
-                foreach (var other in zones)
-                {
-                    if (other == zone) continue;
-                    if (!other.IsUnlocked && other.ContainsTile(tileCenter))
-                    {
-                        stillLocked = true;
-                        break;
-                    }
-                }
-
-                if (!stillLocked)
-                    cell.IsLocked = false;
+                if (rect.Contains(tile))
+                    return true;
+                continue;
             }
+
+            // Fallback fuer das alte, frei im Editor platzierte Zonen-System.
+            if (zone.ContainsTile(grid.GridToWorld(x, z)))
+                return true;
         }
+
+        return false;
     }
+
+    // Nach jedem Kauf ALLE Zellen aus den kanonischen Rechtecken neu ableiten. Das heilt
+    // auch alte Spielstaende, in denen einzelne Rand-Tiles faelschlich gesperrt blieben.
+    private void UnlockZoneTiles(GridZone _) => LockAllZoneTiles();
 }
