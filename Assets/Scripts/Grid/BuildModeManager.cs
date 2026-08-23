@@ -9,16 +9,14 @@ public class BuildModeManager : MonoBehaviour
     public TileType SelectedTileType { get; private set; } = TileType.FarmPlot;
 
     /// <summary>
-    /// Die Auswahl im Baumodus ist eine Union: entweder ein TileType zum Bemalen ODER ein
-    /// Automatik-Geraet zum Setzen, nie beides. None heisst "Kachel-Auswahl aktiv".
+    /// Die Auswahl im Baumodus ist eine Union: entweder ein TileType zum Bemalen ODER die
+    /// Automations-Station zum Setzen, nie beides.
     /// </summary>
-    public AutomationDeviceType SelectedDeviceType { get; private set; } = AutomationDeviceType.None;
-
-    public bool IsDeviceSelected => SelectedDeviceType != AutomationDeviceType.None;
+    public bool IsStationSelected { get; private set; }
 
     public event Action<bool> OnBuildModeChanged;
     public event Action<TileType> OnSelectedTileChanged;
-    public event Action<AutomationDeviceType> OnSelectedDeviceChanged;
+    public event Action<bool> OnStationSelectionChanged;
 
     public static event Action OnBuildModeEnteredStatic;
     public static event Action OnBuildModeExitedStatic;
@@ -47,12 +45,8 @@ public class BuildModeManager : MonoBehaviour
 
     public void SelectTile(TileType tileType)
     {
-        // Kachel gewaehlt heisst: kein Geraet mehr ausgewaehlt.
-        if (SelectedDeviceType != AutomationDeviceType.None)
-        {
-            SelectedDeviceType = AutomationDeviceType.None;
-            OnSelectedDeviceChanged?.Invoke(AutomationDeviceType.None);
-        }
+        // Kachel gewaehlt heisst: Station nicht mehr ausgewaehlt.
+        ClearStationSelection();
 
         if (SelectedTileType == tileType)
             return;
@@ -62,23 +56,22 @@ public class BuildModeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Waehlt ein Automatik-Geraet zum Setzen. Feuert bewusst auch dann, wenn derselbe Typ
-    /// erneut geklickt wird — so startet ein zweiter Klick die Platzierung neu, statt
-    /// wirkungslos zu sein.
+    /// Waehlt die Automations-Station zum Setzen. Feuert bewusst auch bei erneutem Klick —
+    /// so startet ein zweiter Klick die Platzierung neu, statt wirkungslos zu sein.
     /// </summary>
-    public void SelectDevice(AutomationDeviceType deviceType)
+    public void SelectStation()
     {
-        SelectedDeviceType = deviceType;
-        OnSelectedDeviceChanged?.Invoke(deviceType);
+        IsStationSelected = true;
+        OnStationSelectionChanged?.Invoke(true);
     }
 
-    /// <summary>Hebt die Geraete-Auswahl auf — z.B. wenn eine Platzierung abgebrochen wird.</summary>
-    public void ClearDeviceSelection()
+    /// <summary>Hebt die Stations-Auswahl auf — z.B. wenn eine Platzierung abgebrochen wird.</summary>
+    public void ClearStationSelection()
     {
-        if (SelectedDeviceType == AutomationDeviceType.None) return;
+        if (!IsStationSelected) return;
 
-        SelectedDeviceType = AutomationDeviceType.None;
-        OnSelectedDeviceChanged?.Invoke(AutomationDeviceType.None);
+        IsStationSelected = false;
+        OnStationSelectionChanged?.Invoke(false);
     }
 
     public void SetActive(bool active)
@@ -90,12 +83,7 @@ public class BuildModeManager : MonoBehaviour
         if (!active)
         {
             SelectionManager.Instance.ClearSelection();
-
-            if (SelectedDeviceType != AutomationDeviceType.None)
-            {
-                SelectedDeviceType = AutomationDeviceType.None;
-                OnSelectedDeviceChanged?.Invoke(AutomationDeviceType.None);
-            }
+            ClearStationSelection();
         }
         OnBuildModeChanged?.Invoke(active);
 

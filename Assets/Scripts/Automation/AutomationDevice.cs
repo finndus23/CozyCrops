@@ -2,44 +2,44 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ein platziertes Automatik-Gerät in der Welt. Hält sein EIGENES Level — Upgrades laufen
-/// pro Gerät, nicht global pro Typ.
+/// Eine platzierte Automations-Station. Hält ihr eigenes Level (= Reichweite) und bis zu
+/// vier eingesetzte <see cref="AutomationModule"/>.
 ///
-/// Arbeitsweise: alle paar Sekunden (Intervall aus <see cref="AutomationDeviceData"/>) sucht
-/// das Gerät in seiner Reichweite die nächste Kachel, auf der seine Aktion etwas bewirkt,
-/// und führt sie dort aus. Pro Takt genau eine Kachel (ab dem Capstone-Meilenstein zwei) —
-/// Handarbeit bleibt damit immer schneller. Der Reiz ist Layout, nicht Effizienz.
+/// <b>Warum eine Station statt vier einzelner Geräte:</b> vier getrennt stehende Geräte
+/// überdecken sich nur teilweise. Der Schnitt ihrer vier Quadrate misst bei Radius r genau
+/// 2r × 2r Kacheln — und das sind exakt die vier Kacheln, auf denen die Geräte selbst
+/// stehen. Auf Stufe 0 war die vollständig versorgte Ackerfläche damit null, und die Kette
+/// ernten → hacken → säen → gießen schloss sich frühestens, wenn alle vier Geräte Stufe 10
+/// hatten. Mit einem gemeinsamen Mittelpunkt ist die angezeigte Reichweite auch die
+/// tatsächlich bearbeitete Fläche.
 ///
-/// Ausgeführt wird über die Job-Queue des ToolUseHandler, aber in einer eigenen Spur: so
-/// greifen Doppelbearbeitungs-Sperre, Fortschrittsringe und Saatgut-Reservierung, ohne dass
-/// die Automatik dem Spieler Warteschlangen-Plätze oder Werkzeug-Slots wegnimmt.
+/// Die Module arbeiten unabhängig: eigener Cooldown, eigener Cursor, höchstens ein Job.
+/// Geteilt wird nur die Kachelliste. Da jedes Modul ein anderes Werkzeug ausführt, ist der
+/// Spur-Schlüssel (Werkzeug, Instanz-ID) im ToolUseHandler pro Modul eindeutig, obwohl alle
+/// dieselbe Instanz-ID melden.
 /// </summary>
 public class AutomationDevice : MonoBehaviour, IClickable
 {
     [Header("Definition")]
-    [SerializeField] private AutomationDeviceData data;
+    [SerializeField] private AutomationStationData stationData;
 
     [Header("Zustand")]
-    [Tooltip("Level dieses einzelnen Geräts. Wird mit ihm gespeichert.")]
+    [Tooltip("Level der Station — bestimmt die Reichweite. Modul-Level stecken in den Modulen.")]
     [SerializeField] private int level;
 
-    [Tooltip("Ausgeschaltete Geräte ticken nicht, bleiben aber stehen.")]
-    [SerializeField] private bool isEnabled = true;
-
-    [Tooltip("Nur für die Sämaschine: welche Sorte gesät wird. Pro Gerät gespeichert.")]
-    [SerializeField] private PlantType seed;
+    [Tooltip("Eingesetzte Module. Pro Typ höchstens eines.")]
+    [SerializeField] private List<AutomationModule> modules = new();
 
     [Header("Fortschrittsring")]
-    [Tooltip("Dasselbe Prefab wie bei Pflanzen und Komposter (Plant Status). Optional — " +
-             "ohne Zuweisung laeuft das Geraet einfach ohne Anzeige.")]
+    [Tooltip("Dasselbe Prefab wie bei Pflanzen und Komposter (Plant Status). Optional.")]
     [SerializeField] private GameObject statusPrefab;
 
     [SerializeField] private float statusHeightOffset = 0.4f;
 
-    [Tooltip("Ringfarbe waehrend das Geraet auf den naechsten Takt wartet.")]
+    [Tooltip("Ringfarbe, während mindestens ein Modul arbeitet.")]
     [SerializeField] private Color workingColor = new(0.45f, 0.8f, 1f, 1f);
 
-    [Tooltip("Ringfarbe, wenn das Geraet nichts tun kann — kein Saatgut, nichts zu ernten.")]
+    [Tooltip("Ringfarbe, wenn kein Modul etwas tun kann — kein Saatgut, nichts zu ernten.")]
     [SerializeField] private Color idleColor = new(0.6f, 0.6f, 0.6f, 1f);
 
     [SerializeField, Range(0f, 1f)] private float trackAlpha = 0.6f;
@@ -52,59 +52,30 @@ public class AutomationDevice : MonoBehaviour, IClickable
     private static readonly int RingWidthId  = Shader.PropertyToID("_RingWidth");
     private const float SymbolNone = 0f;
 
+    /// <summary>Wartezeit bis zum nächsten Versuch, wenn gerade keine Kachel Arbeit bietet.</summary>
+    private const float RetryInterval = 1f;
+
     private GameObject statusInstance;
     private MaterialPropertyBlock statusPropertyBlock;
     private Bounds cachedBounds;
     private bool boundsCached;
 
-    // True, solange der letzte Versuch keine Arbeit gefunden hat — faerbt den Ring grau,
-    // damit ein stiller Leerlauf nicht wie ein Defekt aussieht.
-    private bool idle;
-
-    /// <summary>Wartezeit bis zum nächsten Versuch, wenn gerade keine Kachel etwas zu tun hat.
-    /// Kurz, damit das Gerät zügig anspringt, sobald wieder Arbeit anfällt.</summary>
-    private const float RetryInterval = 1f;
-
     private int tileX, tileZ;
     private bool initialized;
-    private float cooldown;
 
-    // Reichweiten-Kacheln, einmal gecacht und von innen nach außen sortiert.
+    // Reichweiten-Kacheln der Station — von ALLEN Modulen geteilt.
     private readonly List<Vector2Int> targetTiles = new();
     private bool tilesDirty = true;
 
-    // Round-Robin-Cursor: der Scan startet jeden Takt dort, wo er zuletzt fündig wurde.
-    // Ohne den würde immer wieder dieselbe innere Kachel gewinnen und die Randkacheln
-    // verhungern.
-    private int scanIndex;
-
-    // Der laufende Job dieses Geräts. Solange er steht, wird nichts Neues eingereiht.
-    private ToolJob pendingJob;
-
-    // Wiederverwendeter Puffer für die Zielkacheln eines Takts — spart eine Allokation
-    // pro Takt und Gerät.
     private readonly List<Vector2Int> dispatchBuffer = new();
 
     // ── Öffentlicher Zustand ──────────────────────────────────────────────────
 
-    public AutomationDeviceData Data => data;
+    public AutomationStationData Data => stationData;
     public int Level => level;
-    public bool IsEnabled => isEnabled;
-    public PlantType Seed => seed;
     public Vector2Int TilePosition => new(tileX, tileZ);
-    public int Radius => data != null ? data.GetRadius(level) : 0;
-    public float Interval => data != null ? data.GetInterval(level) : 1f;
-
-    /// <summary>Fortschritt bis zum nächsten Takt, 0–1. Für den Welt-Fortschrittsring.</summary>
-    public float TickProgress
-    {
-        get
-        {
-            float interval = Interval;
-            if (interval <= 0f) return 1f;
-            return Mathf.Clamp01(1f - cooldown / interval);
-        }
-    }
+    public int Radius => stationData != null ? stationData.GetRadius(level) : 0;
+    public IReadOnlyList<AutomationModule> Modules => modules;
 
     /// <summary>Reichweiten-Kacheln — für die Vorschau im Popup und beim Platzieren.</summary>
     public IReadOnlyList<Vector2Int> TargetTiles
@@ -121,7 +92,6 @@ public class AutomationDevice : MonoBehaviour, IClickable
 
     void OnEnable()
     {
-        // Reichweite verändert sich, wenn Kacheln umgebaut werden oder eine Zone aufgeht.
         GridManager.OnTilesAppliedStatic += HandleTilesApplied;
         GridZone.OnZonePurchasedStatic += HandleZonePurchased;
     }
@@ -132,54 +102,282 @@ public class AutomationDevice : MonoBehaviour, IClickable
         GridZone.OnZonePurchasedStatic -= HandleZonePurchased;
     }
 
+    void Start() => RefreshAttachments();
+
     void Update()
     {
-        if (!isEnabled || data == null) return;
+        if (stationData == null) return;
         if (!EnsureInitialized()) return;
+
+        for (int i = 0; i < modules.Count; i++)
+            TickModule(modules[i]);
+    }
+
+    void LateUpdate() => UpdateStatusVisual();
+
+    // ── Takt pro Modul ────────────────────────────────────────────────────────
+
+    private void TickModule(AutomationModule module)
+    {
+        if (module == null || module.data == null || !module.enabled) return;
 
         // Fertige oder abgebrochene Jobs werden hier im EIGENEN Update losgelassen, niemals
         // aus OnJobFinished heraus. CompleteJob läuft aus ToolUseHandler.Update, und direkt
         // danach iteriert PromoteQueued über 'queued' — ein Enqueue aus dem Event heraus
         // würde die Indizes mitten im Durchlauf verschieben.
         //
-        // Deshalb wird der Zustand gepollt statt abonniert: das ist O(1), kann konstruktiv
-        // nicht zur falschen Zeit feuern und hat auch kein Abo, das beim Aus- und
-        // Wiedereinschalten des Geräts verlorengehen könnte.
-        if (pendingJob != null)
+        // Der Zustand wird deshalb gepollt statt abonniert: O(1), kann konstruktiv nicht zur
+        // falschen Zeit feuern, und es gibt kein Abo, das beim Aus- und Wiedereinschalten
+        // verlorengehen könnte.
+        if (module.pendingJob != null)
         {
-            if (pendingJob.State != ToolJobState.Finished && pendingJob.State != ToolJobState.Cancelled)
+            if (module.pendingJob.State != ToolJobState.Finished
+                && module.pendingJob.State != ToolJobState.Cancelled)
                 return;
 
-            pendingJob = null;
+            module.pendingJob = null;
         }
 
-        cooldown -= Time.deltaTime;
-        if (cooldown > 0f) return;
+        module.cooldown -= Time.deltaTime;
+        if (module.cooldown > 0f) return;
 
-        // Der Scan (max. 81 x CanApplyTool) läuft nur in diesem einen Frame — sonst ist
-        // Update eine Subtraktion und ein Vergleich.
-        if (!TryDispatch())
+        if (!TryDispatch(module))
         {
-            idle = true;
-            cooldown = RetryInterval;
+            module.idle = true;
+            module.cooldown = RetryInterval;
             return;
         }
 
-        idle = false;
-        cooldown = data.GetInterval(level);
+        module.idle = false;
+        module.cooldown = module.data.GetInterval(module.level);
     }
 
-    void LateUpdate() => UpdateStatusVisual();
+    /// <summary>
+    /// Sucht ab dem gemerkten Cursor die nächsten Kacheln mit sinnvoller Arbeit und reiht
+    /// dafür EINEN Job ein. Der Weg über die Job-Queue statt direkt über PlantManager.TryX
+    /// ist Absicht: nur so greifen die Sperre gegen Doppelbearbeitung, die Fortschrittsringe
+    /// auf der Kachel und die geteilte Saatgut-Reservierung.
+    /// </summary>
+    private bool TryDispatch(AutomationModule module)
+    {
+        var handler = ToolUseHandler.Instance;
+        if (handler == null) return false;
+
+        if (tilesDirty) RebuildTileCache();
+        if (targetTiles.Count == 0) return false;
+
+        var tool = module.ExecutesTool;
+        if (tool == ToolType.None) return false;
+
+        int wanted = module.data.GetTilesPerTick(module.level);
+        dispatchBuffer.Clear();
+
+        int nextCursor = module.scanIndex;
+        for (int step = 0; step < targetTiles.Count && dispatchBuffer.Count < wanted; step++)
+        {
+            int i = (module.scanIndex + step) % targetTiles.Count;
+            var tile = targetTiles[i];
+
+            // Gesperrte Zonen sind automatisch abgedeckt: CanApplyTool liefert bei IsLocked
+            // false. Ragt die Reichweite in eine ungekaufte Zone, arbeitet die Station dort
+            // einfach nicht — und fängt von selbst an, sobald die Zone aufgeht.
+            if (!handler.CanApplyTool(tile.x, tile.y, tool, module.seed)) continue;
+
+            // Werkzeugübergreifend: was der Spieler gerade bearbeitet, fasst die Station
+            // nicht an. Gilt so, solange allowLayering aus ist (Standard).
+            if (handler.IsTileScheduled(tile)) continue;
+
+            dispatchBuffer.Add(tile);
+            nextCursor = (i + 1) % targetTiles.Count;
+        }
+
+        if (dispatchBuffer.Count == 0) return false;
+
+        // Instanz-ID der Station als Besitzer. Der Spur-Schlüssel im ToolUseHandler ist
+        // (Werkzeug, Besitzer) — da jedes Modul ein anderes Werkzeug führt, bekommt jedes
+        // seine eigene Spur, obwohl alle dieselbe ID melden.
+        var job = handler.TryEnqueueAutomationJob(dispatchBuffer, tool, module.seed,
+                                                  GetInstanceID(), module.data.actionDuration);
+        if (job == null) return false;
+
+        module.pendingJob = job;
+        module.scanIndex = nextCursor;
+        return true;
+    }
+
+    // ── Module verwalten ──────────────────────────────────────────────────────
+
+    public AutomationModule GetModule(AutomationDeviceType type)
+    {
+        foreach (var m in modules)
+            if (m != null && m.Type == type) return m;
+        return null;
+    }
+
+    public bool HasModule(AutomationDeviceType type) => GetModule(type) != null;
+
+    /// <summary>
+    /// Setzt ein Modul ein. Pro Typ höchstens eines — ein zweites Gieß-Modul brächte nichts
+    /// als eine zweite Spur auf denselben Kacheln.
+    /// </summary>
+    public AutomationModule InstallModule(AutomationDeviceData data, int startLevel = 0)
+    {
+        if (data == null || HasModule(data.deviceType)) return null;
+
+        var module = new AutomationModule
+        {
+            data = data,
+            level = Mathf.Clamp(startLevel, 0, data.maxLevel),
+            enabled = true
+        };
+
+        modules.Add(module);
+        RefreshAttachments();
+        return module;
+    }
+
+    public bool RemoveModule(AutomationDeviceType type)
+    {
+        var module = GetModule(type);
+        if (module == null) return false;
+
+        if (module.attachment != null) Destroy(module.attachment);
+        modules.Remove(module);
+        RefreshAttachments();
+        return true;
+    }
+
+    /// <summary>
+    /// Hängt für jedes Modul sein Anbauteil ans Gehäuse. So wächst die Station sichtbar mit
+    /// jedem eingesetzten Modul, statt dass vier getrennte Maschinen nebeneinanderstehen.
+    /// </summary>
+    private void RefreshAttachments()
+    {
+        if (stationData == null) return;
+
+        for (int i = 0; i < modules.Count; i++)
+        {
+            var module = modules[i];
+            if (module == null || module.data == null) continue;
+
+            if (module.attachment == null)
+            {
+                if (module.data.worldPrefab == null) continue;
+
+                module.attachment = Instantiate(module.data.worldPrefab, transform);
+            }
+
+            module.attachment.transform.localPosition = stationData.GetSlotOffset(i);
+            module.attachment.transform.localRotation = module.data.worldPrefab != null
+                ? module.data.worldPrefab.transform.rotation
+                : Quaternion.identity;
+        }
+
+        boundsCached = false;   // Gehäuse ist gewachsen → Ringposition neu bestimmen
+    }
+
+    // ── Initialisierung und Position ──────────────────────────────────────────
+
+    private bool EnsureInitialized()
+    {
+        if (initialized) return true;
+
+        var grid = GridManager.Instance;
+        if (grid == null) return false;
+        if (!grid.WorldToGrid(transform.position, out int x, out int z)) return false;
+
+        SetTilePosition(x, z);
+        return true;
+    }
+
+    public void SetTilePosition(int x, int z, bool snapTransform = true)
+    {
+        tileX = x;
+        tileZ = z;
+        initialized = true;
+        tilesDirty = true;
+
+        foreach (var module in modules)
+            if (module != null) module.scanIndex = 0;
+
+        if (snapTransform && GridManager.Instance != null)
+        {
+            var world = GridManager.Instance.GridToWorld(x, z);
+            transform.position = new Vector3(world.x, transform.position.y, world.z);
+        }
+
+        boundsCached = false;
+    }
+
+    public void SetData(AutomationStationData newData)
+    {
+        stationData = newData;
+        tilesDirty = true;
+        RefreshAttachments();
+    }
+
+    public void SetLevel(int newLevel)
+    {
+        int max = stationData != null ? stationData.maxLevel : newLevel;
+        level = Mathf.Clamp(newLevel, 0, max);
+        tilesDirty = true;   // Radius kann sich geändert haben
+    }
+
+    /// <summary>Hebt die Reichweite um eine Stufe. Gold bucht der Aufrufer ab.</summary>
+    public bool TryUpgrade()
+    {
+        if (stationData == null || level >= stationData.maxLevel) return false;
+        SetLevel(level + 1);
+        return true;
+    }
+
+    // ── Kachel-Cache ──────────────────────────────────────────────────────────
+
+    private void HandleTilesApplied(TileType type, Vector3 worldPos, int count) => tilesDirty = true;
+    private void HandleZonePurchased(string zoneId) => tilesDirty = true;
+
+    /// <summary>
+    /// Quadratisch (Chebyshev) um die Station, von innen nach außen. Gesperrte Zonen fliegen
+    /// nicht raus — das erledigt CanApplyTool zur Laufzeit, und nach einem Zonenkauf wäre
+    /// der Cache sonst zusätzlich falsch.
+    /// </summary>
+    private void RebuildTileCache()
+    {
+        targetTiles.Clear();
+        tilesDirty = false;
+
+        foreach (var module in modules)
+            if (module != null) module.scanIndex = 0;
+
+        var grid = GridManager.Instance;
+        if (grid == null || stationData == null) return;
+
+        int radius = stationData.GetRadius(level);
+
+        for (int ring = 1; ring <= radius; ring++)
+        {
+            for (int dx = -ring; dx <= ring; dx++)
+            {
+                for (int dz = -ring; dz <= ring; dz++)
+                {
+                    if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)) != ring) continue;
+
+                    int x = tileX + dx;
+                    int z = tileZ + dz;
+                    if (!grid.IsInBounds(x, z)) continue;
+
+                    targetTiles.Add(new Vector2Int(x, z));
+                }
+            }
+        }
+
+        // Die eigene Kachel bleibt draußen — die Station steht darauf.
+    }
 
     // ── Klick ─────────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Oeffnet das geteilte Geraete-Popup. Kein Singleton am Geraet noetig — WorldClickHandler
-    /// sucht per GetComponentInParent&lt;IClickable&gt;, ein Collider auf dem Prefab genuegt.
-    /// </summary>
     public void OnClick()
     {
-        // Waehrend einer laufenden Platzierung gehoert der Klick dem Controller.
         if (AutomationPlacementController.Instance != null
             && AutomationPlacementController.Instance.IsPlacing) return;
 
@@ -189,14 +387,29 @@ public class AutomationDevice : MonoBehaviour, IClickable
     // ── Fortschrittsring ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Zeigt ueber dem Geraet denselben Ring wie bei Pflanzen und Komposter — hier den
-    /// Fortschritt bis zum naechsten Takt.
+    /// Zeigt den Fortschritt des Moduls, das als nächstes dran ist. Grau, wenn kein einziges
+    /// Modul etwas zu tun findet — ein stiller Leerlauf soll nicht wie ein Defekt aussehen.
     /// </summary>
     private void UpdateStatusVisual()
     {
         if (statusPrefab == null) return;
 
-        if (!isEnabled || data == null)
+        bool anyActive = false;
+        bool allIdle = true;
+        float progress = 0f;
+
+        foreach (var module in modules)
+        {
+            if (module == null || module.data == null || !module.enabled) continue;
+
+            anyActive = true;
+            if (!module.idle) allIdle = false;
+
+            float p = module.Progress;
+            if (p > progress) progress = p;
+        }
+
+        if (!anyActive || stationData == null)
         {
             if (statusInstance != null) statusInstance.SetActive(false);
             return;
@@ -215,8 +428,8 @@ public class AutomationDevice : MonoBehaviour, IClickable
         if (rend == null) return;
 
         rend.GetPropertyBlock(statusPropertyBlock);
-        statusPropertyBlock.SetColor(BaseColorId, idle ? idleColor : workingColor);
-        statusPropertyBlock.SetFloat(ProgressId, pendingJob != null ? pendingJob.Progress : TickProgress);
+        statusPropertyBlock.SetColor(BaseColorId, allIdle ? idleColor : workingColor);
+        statusPropertyBlock.SetFloat(ProgressId, progress);
         statusPropertyBlock.SetFloat(SymbolId, SymbolNone);
         statusPropertyBlock.SetFloat(TrackAlphaId, trackAlpha);
         statusPropertyBlock.SetFloat(RingWidthId, ringWidth);
@@ -243,176 +456,5 @@ public class AutomationDevice : MonoBehaviour, IClickable
         }
 
         return new Vector3(cachedBounds.center.x, cachedBounds.max.y + statusHeightOffset, cachedBounds.center.z);
-    }
-
-    // ── Initialisierung ───────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Gitterposition aus der Weltposition ableiten. Lazy, weil der GridManager beim Start
-    /// eines von Hand in die Szene gezogenen Geräts noch nicht bereit sein kann.
-    /// </summary>
-    private bool EnsureInitialized()
-    {
-        if (initialized) return true;
-
-        var grid = GridManager.Instance;
-        if (grid == null) return false;
-        if (!grid.WorldToGrid(transform.position, out int x, out int z)) return false;
-
-        SetTilePosition(x, z, snapTransform: true);
-        return true;
-    }
-
-    /// <summary>Setzt das Gerät auf eine Gitterkachel. Vom Platzierungs-Controller und vom Laden benutzt.</summary>
-    public void SetTilePosition(int x, int z, bool snapTransform = true)
-    {
-        tileX = x;
-        tileZ = z;
-        initialized = true;
-        tilesDirty = true;
-        scanIndex = 0;
-
-        if (snapTransform && GridManager.Instance != null)
-        {
-            var world = GridManager.Instance.GridToWorld(x, z);
-            transform.position = new Vector3(world.x, transform.position.y, world.z);
-        }
-    }
-
-    // ── Zustands-Setter ───────────────────────────────────────────────────────
-
-    public void SetData(AutomationDeviceData newData)
-    {
-        data = newData;
-        tilesDirty = true;
-    }
-
-    public void SetEnabled(bool value)
-    {
-        isEnabled = value;
-        if (!value) cooldown = 0f;
-    }
-
-    public void SetSeed(PlantType newSeed) => seed = newSeed;
-
-    /// <summary>Restliche Wartezeit bis zum nächsten Takt — wird mitgespeichert, damit ein
-    /// frisch geladenes Gerät nicht sofort losschlägt.</summary>
-    public float CooldownRemaining => Mathf.Max(0f, cooldown);
-
-    public void SetCooldown(float value) => cooldown = Mathf.Max(0f, value);
-
-    public void SetLevel(int newLevel)
-    {
-        int max = data != null ? data.maxLevel : newLevel;
-        level = Mathf.Clamp(newLevel, 0, max);
-        tilesDirty = true;   // Radius kann sich geändert haben
-    }
-
-    /// <summary>Hebt das Gerät um eine Stufe. Gold wird vom Aufrufer abgebucht.</summary>
-    public bool TryUpgrade()
-    {
-        if (data == null || level >= data.maxLevel) return false;
-        SetLevel(level + 1);
-        return true;
-    }
-
-    // ── Kachel-Cache ──────────────────────────────────────────────────────────
-
-    private void HandleTilesApplied(TileType type, Vector3 worldPos, int count) => tilesDirty = true;
-    private void HandleZonePurchased(string zoneId) => tilesDirty = true;
-
-    /// <summary>
-    /// Baut die Reichweiten-Liste neu auf: quadratisch (Chebyshev) um das Gerät, sortiert von
-    /// innen nach außen. Gesperrte Zonen fliegen nicht raus — das erledigt CanApplyTool zur
-    /// Laufzeit, und nach einem Zonenkauf wäre der Cache sonst zusätzlich falsch.
-    /// </summary>
-    private void RebuildTileCache()
-    {
-        targetTiles.Clear();
-        tilesDirty = false;
-        scanIndex = 0;
-
-        var grid = GridManager.Instance;
-        if (grid == null || data == null) return;
-
-        int radius = data.GetRadius(level);
-
-        // Ringweise von innen nach außen: so bearbeitet ein frisch platziertes Gerät zuerst
-        // das, was direkt daneben liegt.
-        for (int ring = 1; ring <= radius; ring++)
-        {
-            for (int dx = -ring; dx <= ring; dx++)
-            {
-                for (int dz = -ring; dz <= ring; dz++)
-                {
-                    // Nur der äußere Rand dieses Rings — der Rest kam schon in Ring-1 dran.
-                    if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)) != ring) continue;
-
-                    int x = tileX + dx;
-                    int z = tileZ + dz;
-                    if (!grid.IsInBounds(x, z)) continue;
-
-                    targetTiles.Add(new Vector2Int(x, z));
-                }
-            }
-        }
-
-        // Die eigene Kachel bleibt bewusst draußen: das Gerät steht auf Weg oder Gras, und
-        // eine Erntemaschine würde dort sonst endlos ihren eigenen Untergrund mähen.
-    }
-
-    // ── Ausführung ────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Sucht ab dem gemerkten Cursor die nächsten Kacheln mit sinnvoller Arbeit und reiht
-    /// dafür EINEN Job ein. True, wenn ein Job entstanden ist.
-    ///
-    /// Der Weg über die Job-Queue statt direkt über PlantManager.TryX ist Absicht: nur so
-    /// greifen die Sperre gegen Doppelbearbeitung, die Fortschrittsringe auf der Kachel und
-    /// die geteilte Saatgut-Reservierung.
-    /// </summary>
-    private bool TryDispatch()
-    {
-        var handler = ToolUseHandler.Instance;
-        if (handler == null) return false;
-
-        if (tilesDirty) RebuildTileCache();
-        if (targetTiles.Count == 0) return false;
-
-        int wanted = data.GetTilesPerTick(level);
-        dispatchBuffer.Clear();
-
-        int nextCursor = scanIndex;
-        for (int step = 0; step < targetTiles.Count && dispatchBuffer.Count < wanted; step++)
-        {
-            int i = (scanIndex + step) % targetTiles.Count;
-            var tile = targetTiles[i];
-
-            // Gesperrte Zonen sind hier automatisch abgedeckt: CanApplyTool liefert bei
-            // IsLocked false. Ein Gerät, dessen Reichweite in eine noch nicht gekaufte Zone
-            // ragt, arbeitet dort also einfach nicht — und fängt von selbst an, sobald die
-            // Zone aufgeht.
-            if (!handler.CanApplyTool(tile.x, tile.y, data.executesTool, seed)) continue;
-
-            // Werkzeugübergreifend: was der Spieler gerade bearbeitet, fasst das Gerät
-            // nicht an. Gilt so, solange allowLayering aus ist (Standard).
-            if (handler.IsTileScheduled(tile)) continue;
-
-            dispatchBuffer.Add(tile);
-            nextCursor = (i + 1) % targetTiles.Count;
-        }
-
-        if (dispatchBuffer.Count == 0) return false;
-
-        // Instanz-ID als Besitzer: der ToolUseHandler nutzt sie als Spur-Schlüssel, damit
-        // dieses Gerät nie zwei Jobs gleichzeitig laufen hat und dem Spieler keinen
-        // Werkzeug-Slot wegnimmt.
-        var job = handler.TryEnqueueAutomationJob(dispatchBuffer, data.executesTool, seed,
-                                                  GetInstanceID(), data.actionDuration);
-        if (job == null) return false;
-
-        pendingJob = job;
-        scanIndex = nextCursor;
-        return true;
     }
 }

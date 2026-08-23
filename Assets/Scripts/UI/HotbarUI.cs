@@ -67,9 +67,10 @@ public class HotbarUI : MonoBehaviour
     [SerializeField] private Sprite pathTileIconSprite;
     [SerializeField] private Sprite farmTileIconSprite;
 
-    [Header("Automatik-Geraete")]
-    [Tooltip("Alle AutomationDeviceData-Assets, die im Baumodus kaufbar sein sollen.")]
-    [SerializeField] private AutomationDeviceData[] buildDevices;
+    [Header("Automations-Station")]
+    [Tooltip("Das AutomationStationData-Asset. Die Station ist das einzige, was im Baumodus " +
+             "gekauft wird — die Module kommen danach ueber das Popup an der Station dazu.")]
+    [SerializeField] private AutomationStationData buildStation;
 
     [Tooltip("Farbe des Geraete-Slots, wenn das Gold nicht reicht.")]
     [SerializeField] private Color unaffordableColor = new(0.45f, 0.45f, 0.45f, 1f);
@@ -117,7 +118,7 @@ public class HotbarUI : MonoBehaviour
         PlayerInventory.Instance.OnFertilizerChanged += _ => UpdateFertilizerSlot();
         BuildModeManager.Instance.OnBuildModeChanged += OnBuildModeChanged;
         BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
-        BuildModeManager.Instance.OnSelectedDeviceChanged += UpdateDeviceHighlight;
+        BuildModeManager.Instance.OnStationSelectionChanged += UpdateStationHighlight;
         PlayerInventory.Instance.OnMoneyChanged += _ => UpdateDeviceAffordability();
 
         UpdateDeviceAffordability();
@@ -132,7 +133,7 @@ public class HotbarUI : MonoBehaviour
         {
             BuildModeManager.Instance.OnBuildModeChanged -= OnBuildModeChanged;
             BuildModeManager.Instance.OnSelectedTileChanged -= UpdateBuildHighlight;
-            BuildModeManager.Instance.OnSelectedDeviceChanged -= UpdateDeviceHighlight;
+            BuildModeManager.Instance.OnStationSelectionChanged -= UpdateStationHighlight;
         }
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
@@ -484,15 +485,12 @@ public class HotbarUI : MonoBehaviour
     /// </summary>
     private void SpawnDeviceSlots()
     {
-        if (buildDevices == null) return;
+        if (buildStation == null) return;
 
-        for (int i = 0; i < buildDevices.Length; i++)
+        var data = buildStation;
         {
-            var data = buildDevices[i];
-            if (data == null) continue;
-
             GameObject go = Instantiate(slotPrefab, container);
-            go.name = $"DeviceSlot_{data.deviceType}";
+            go.name = "DeviceSlot_Station";
 
             HotbarSlotUI slotUI = go.GetComponent<HotbarSlotUI>();
 
@@ -514,9 +512,9 @@ public class HotbarUI : MonoBehaviour
             button.onClick.AddListener(() =>
             {
                 // Reihenfolge zaehlt: BeginBuy bricht intern eine laufende Platzierung ab
-                // und raeumt dabei die Geraete-Auswahl. Erst danach die neue setzen.
+                // und raeumt dabei die Auswahl. Erst danach die neue setzen.
                 AutomationPlacementController.Instance?.BeginBuy(capturedData);
-                BuildModeManager.Instance?.SelectDevice(capturedData.deviceType);
+                BuildModeManager.Instance?.SelectStation();
             });
 
             go.SetActive(false);
@@ -527,18 +525,16 @@ public class HotbarUI : MonoBehaviour
     /// <summary>Graut Geraete-Slots aus, deren Kaufpreis das Gold uebersteigt.</summary>
     private void UpdateDeviceAffordability()
     {
-        if (buildDevices == null) return;
+        if (buildStation == null) return;
 
         int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
+        bool affordable = money >= buildStation.buyPrice;
 
-        for (int i = 0; i < deviceSlotInstances.Count && i < buildDevices.Length; i++)
+        foreach (var slotUI in deviceSlotInstances)
         {
-            var data = buildDevices[i];
-            var slotUI = deviceSlotInstances[i];
-            if (data == null || slotUI == null || slotUI.icon == null) continue;
+            if (slotUI == null || slotUI.icon == null) continue;
 
-            bool affordable = money >= data.buyPrice;
-            slotUI.icon.color = data.icon == null
+            slotUI.icon.color = buildStation.icon == null
                 ? Color.clear
                 : (affordable ? Color.white : unaffordableColor);
 
@@ -547,17 +543,13 @@ public class HotbarUI : MonoBehaviour
         }
     }
 
-    private void UpdateDeviceHighlight(AutomationDeviceType selectedType)
+    private void UpdateStationHighlight(bool selected)
     {
-        if (buildDevices == null) return;
+        if (buildStation == null) return;
 
-        for (int i = 0; i < deviceSlotInstances.Count && i < buildDevices.Length; i++)
+        foreach (var slotUI in deviceSlotInstances)
         {
-            var slotUI = deviceSlotInstances[i];
-            if (slotUI == null || slotUI.background == null || buildDevices[i] == null) continue;
-
-            bool selected = buildDevices[i].deviceType == selectedType
-                            && selectedType != AutomationDeviceType.None;
+            if (slotUI == null || slotUI.background == null) continue;
 
             slotUI.background.sprite = selected && highlightedSlotSprite != null
                 ? highlightedSlotSprite

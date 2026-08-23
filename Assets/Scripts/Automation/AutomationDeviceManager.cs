@@ -80,18 +80,18 @@ public class AutomationDeviceManager : MonoBehaviour
     /// das macht der Aufrufer (Platzierungs-Controller bzw. der Ladepfad).
     /// Gibt null zurück, wenn die Kachel schon belegt ist oder das Prefab fehlt.
     /// </summary>
-    public AutomationDevice Spawn(AutomationDeviceData data, int x, int z)
+    public AutomationDevice Spawn(AutomationStationData data, int x, int z)
     {
         if (data == null)
         {
-            Debug.LogWarning("[Automation] Spawn ohne AutomationDeviceData.");
+            Debug.LogWarning("[Automation] Spawn ohne AutomationStationData.");
             return null;
         }
 
         if (data.worldPrefab == null)
         {
-            Debug.LogWarning($"[Automation] Am Asset '{data.name}' ({data.deviceType}) ist kein " +
-                             "worldPrefab zugewiesen — ohne Prefab kann kein Geraet entstehen.", data);
+            Debug.LogWarning($"[Automation] Am Stations-Asset '{data.name}' ist kein " +
+                             "worldPrefab zugewiesen — ohne Prefab kann keine Station entstehen.", data);
             return null;
         }
 
@@ -106,7 +106,7 @@ public class AutomationDeviceManager : MonoBehaviour
         var position = grid != null ? grid.GridToWorld(x, z) : new Vector3(x, 0f, z);
 
         var go = Instantiate(data.worldPrefab, position, data.worldPrefab.transform.rotation, DeviceRoot);
-        go.name = $"{data.deviceType} ({x},{z})";
+        go.name = $"Automations-Station ({x},{z})";
 
         var device = go.GetComponent<AutomationDevice>();
         if (device == null) device = go.AddComponent<AutomationDevice>();

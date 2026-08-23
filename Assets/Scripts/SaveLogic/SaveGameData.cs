@@ -97,17 +97,27 @@ public class ToolLevelSaveData
 [Serializable]
 public class AutomationDeviceSaveData
 {
-    /// <summary>AutomationDeviceType als Text — wie bei ToolLevelSaveData, damit ein
-    /// Umsortieren des Enums keine Altsaves zerlegt.</summary>
-    public string deviceType;
-
     public int x;
     public int z;
+
+    /// <summary>Level der Station — bestimmt die Reichweite.</summary>
+    public int level;
+
+    /// <summary>Eingesetzte Module. Leer = leeres Gehaeuse.</summary>
+    public List<AutomationModuleSaveData> modules = new();
+}
+
+[Serializable]
+public class AutomationModuleSaveData
+{
+    /// <summary>AutomationDeviceType als Text — wie bei ToolLevelSaveData, damit ein
+    /// Umsortieren des Enums keine Altsaves zerlegt.</summary>
+    public string moduleType;
 
     public int level;
     public bool enabled = true;
 
-    /// <summary>Nur die Saemaschine: gewaehlte Sorte, ueber PlantDatabase aufgeloest.</summary>
+    /// <summary>Nur das Saat-Modul: gewaehlte Sorte, ueber PlantDatabase aufgeloest.</summary>
     public string seedId;
 
     public float cooldownRemaining;

@@ -29,7 +29,7 @@ public class AutomationPlacementController : MonoBehaviour
     private enum PlacementMode { None, Buy, Move }
 
     private PlacementMode mode;
-    private AutomationDeviceData pendingData;
+    private AutomationStationData pendingData;
     private AutomationDevice movingDevice;
     private Vector2Int moveOrigin;
 
@@ -72,8 +72,8 @@ public class AutomationPlacementController : MonoBehaviour
 
     // ── Starten ───────────────────────────────────────────────────────────────
 
-    /// <summary>Kauf-Modus: ein neues Gerät dieses Typs setzen.</summary>
-    public void BeginBuy(AutomationDeviceData data)
+    /// <summary>Kauf-Modus: eine neue, leere Station setzen. Module kommen danach dazu.</summary>
+    public void BeginBuy(AutomationStationData data)
     {
         if (data == null) { Cancel(); return; }
 
@@ -217,7 +217,7 @@ public class AutomationPlacementController : MonoBehaviour
 
         // Slot-Hervorhebung in der Hotbar wieder loesen, sonst sieht das Geraet nach dem
         // Setzen oder Abbrechen weiter ausgewaehlt aus.
-        BuildModeManager.Instance?.ClearDeviceSelection();
+        BuildModeManager.Instance?.ClearStationSelection();
     }
 
     // ── Vorschau ──────────────────────────────────────────────────────────────
@@ -273,7 +273,7 @@ public class AutomationPlacementController : MonoBehaviour
         if (grid == null || pendingData == null) return;
 
         int level = movingDevice != null ? movingDevice.Level : 0;
-        int radius = pendingData.GetRadius(level);
+        int radius = pendingData.GetRadius(level);   // Reichweite gehört der Station
 
         for (int dx = -radius; dx <= radius; dx++)
         {

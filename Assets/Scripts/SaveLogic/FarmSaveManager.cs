@@ -787,21 +787,33 @@ public class FarmSaveManager : MonoBehaviour
         var manager = AutomationDeviceManager.Instance;
         if (manager == null) return;
 
-        foreach (var device in manager.AllDevices)
+        foreach (var station in manager.AllDevices)
         {
-            if (device == null || device.Data == null) continue;
+            if (station == null || station.Data == null) continue;
 
-            var tile = device.TilePosition;
-            data.automationDevices.Add(new AutomationDeviceSaveData
+            var tile = station.TilePosition;
+            var entry = new AutomationDeviceSaveData
             {
-                deviceType = device.Data.deviceType.ToString(),
                 x = tile.x,
                 z = tile.y,
-                level = device.Level,
-                enabled = device.IsEnabled,
-                seedId = device.Seed != null ? PlantDatabase.GetPlantId(device.Seed) : null,
-                cooldownRemaining = device.CooldownRemaining
-            });
+                level = station.Level
+            };
+
+            foreach (var module in station.Modules)
+            {
+                if (module == null || module.data == null) continue;
+
+                entry.modules.Add(new AutomationModuleSaveData
+                {
+                    moduleType = module.data.deviceType.ToString(),
+                    level = module.level,
+                    enabled = module.enabled,
+                    seedId = module.seed != null ? PlantDatabase.GetPlantId(module.seed) : null,
+                    cooldownRemaining = Mathf.Max(0f, module.cooldown)
+                });
+            }
+
+            data.automationDevices.Add(entry);
         }
     }
 
@@ -813,24 +825,44 @@ public class FarmSaveManager : MonoBehaviour
         manager.Clear();
         if (data.automationDevices == null) return;
 
+        var stationData = AutomationDeviceCatalog.Station;
+        if (stationData == null)
+        {
+            if (data.automationDevices.Count > 0)
+                Debug.LogWarning("[Automation] Kein Stations-Asset im AutomationDeviceCatalog " +
+                                 "hinterlegt — gespeicherte Stationen koennen nicht geladen werden.");
+            return;
+        }
+
         foreach (var entry in data.automationDevices)
         {
             if (entry == null) continue;
-            if (!Enum.TryParse(entry.deviceType, out AutomationDeviceType type)) continue;
-            if (type == AutomationDeviceType.None) continue;
 
-            var deviceData = AutomationDeviceCatalog.Get(type);
-            if (deviceData == null) continue;
+            var station = manager.Spawn(stationData, entry.x, entry.z);
+            if (station == null) continue;
 
-            var device = manager.Spawn(deviceData, entry.x, entry.z);
-            if (device == null) continue;
+            station.SetLevel(entry.level);
 
-            device.SetLevel(entry.level);
-            device.SetEnabled(entry.enabled);
-            device.SetCooldown(entry.cooldownRemaining);
+            if (entry.modules == null) continue;
 
-            if (!string.IsNullOrEmpty(entry.seedId) && PlantDatabase.Instance != null)
-                device.SetSeed(PlantDatabase.Instance.GetById(entry.seedId));
+            foreach (var saved in entry.modules)
+            {
+                if (saved == null) continue;
+                if (!Enum.TryParse(saved.moduleType, out AutomationDeviceType type)) continue;
+                if (type == AutomationDeviceType.None) continue;
+
+                var moduleData = AutomationDeviceCatalog.Get(type);
+                if (moduleData == null) continue;
+
+                var module = station.InstallModule(moduleData, saved.level);
+                if (module == null) continue;
+
+                module.enabled = saved.enabled;
+                module.cooldown = Mathf.Max(0f, saved.cooldownRemaining);
+
+                if (!string.IsNullOrEmpty(saved.seedId) && PlantDatabase.Instance != null)
+                    module.seed = PlantDatabase.Instance.GetById(saved.seedId);
+            }
         }
     }
 

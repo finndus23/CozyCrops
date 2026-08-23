@@ -1,12 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// Definiert ein Automatik-Gerät mit allen Upgrade-Stufen.
-/// Lege pro Gerät ein eigenes Asset an: Rechtsklick → Create → CozyCrops → Automation Device Data
+/// Definiert ein MODUL einer Automations-Station — eine Aktion der Kette.
+/// Lege pro Modul ein eigenes Asset an: Rechtsklick → Create → CozyCrops → Automation Device Data
 ///
 /// Aufbau exakt analog <see cref="ToolData"/>: alle Werte sind eine Funktion des Levels,
-/// das Asset selbst hält keinen Zustand. Das Level lebt auf der einzelnen
-/// <see cref="AutomationDevice"/>-Instanz — Upgrades laufen pro Gerät, nicht global pro Typ.
+/// das Asset selbst hält keinen Zustand. Das Level lebt im eingesetzten
+/// <see cref="AutomationModule"/> — aufgewertet wird pro Modul, nicht global pro Typ.
+///
+/// Die Reichweite steht hier bewusst NICHT. Sie gehört der Station
+/// (<see cref="AutomationStationData"/>), damit alle Module denselben Mittelpunkt teilen und
+/// die angezeigte Fläche auch die tatsächlich bearbeitete ist. Das Modul bestimmt nur, wie
+/// schnell und wie viel auf dieser Fläche passiert.
 /// </summary>
 [CreateAssetMenu(fileName = "NewAutomationDeviceData", menuName = "CozyCrops/Automation Device Data")]
 public class AutomationDeviceData : ScriptableObject
@@ -21,18 +26,15 @@ public class AutomationDeviceData : ScriptableObject
     public string displayName;
     public Sprite icon;
 
-    [Tooltip("Prefab das beim Platzieren in die Welt gesetzt wird. Braucht einen Collider " +
-             "(WorldClickHandler raycastet ohne LayerMask) und eine AutomationDevice-Komponente.")]
+    [Tooltip("Anbauteil, das am Gehäuse der Station erscheint, sobald dieses Modul " +
+             "eingesetzt ist. Rein optisch — Collider und AutomationDevice-Komponente " +
+             "braucht nur das Stations-Prefab. Optional: ohne Prefab funktioniert das " +
+             "Modul, es ist nur nicht zu sehen.")]
     public GameObject worldPrefab;
 
     [Header("Upgrade-Limits")]
     [Tooltip("Maximales Level das dieses Gerät erreichen kann.")]
     public int maxLevel = 20;
-
-    [Header("Reichweite")]
-    [Tooltip("Reichweiten-Radius auf Level 0 (Chebyshev, also quadratisch um das Gerät).\n" +
-             "1 = 3×3, 2 = 5×5, 3 = 7×7 …")]
-    public int baseRadius = 1;
 
     [Header("Takt (Sekunden)")]
     [Tooltip("Leerlauf ZWISCHEN zwei Jobs auf Level 0 — nicht die Dauer des Jobs selbst.")]
@@ -54,7 +56,7 @@ public class AutomationDeviceData : ScriptableObject
     public int baseTilesPerTick = 1;
 
     [Header("Kosten")]
-    [Tooltip("Kaufpreis. Wird erst beim tatsächlichen Setzen abgezogen, nicht beim Auswählen.")]
+    [Tooltip("Kaufpreis des Moduls. Wird beim Einsetzen in die Station abgebucht.")]
     public int buyPrice = 200;
 
     [Tooltip("Goldkosten für das erste Upgrade (Level 0 → 1).")]
@@ -64,7 +66,9 @@ public class AutomationDeviceData : ScriptableObject
     public int costScalingPerLevel = 15;
 
     [Header("Meilensteine")]
-    [Tooltip("Besondere Effekte bei bestimmten Levels. Nach Level sortieren.")]
+    [Tooltip("Besondere Effekte bei bestimmten Levels. Nach Level sortieren. Für Module " +
+             "zählen nur 'intervalMultiplier' und 'tilesPerTick' — ein 'radius' wird hier " +
+             "ignoriert, der gehört auf das Stations-Asset.")]
     public AutomationMilestone[] milestones;
 
     // ── Berechnete Werte ──────────────────────────────────────────────────────
@@ -74,25 +78,6 @@ public class AutomationDeviceData : ScriptableObject
     {
         if (currentLevel >= maxLevel) return -1;
         return baseCost + currentLevel * costScalingPerLevel;
-    }
-
-    /// <summary>Reichweiten-Radius für das gegebene Level. Letzter gültiger Meilenstein gewinnt.</summary>
-    public int GetRadius(int level)
-    {
-        int radius = baseRadius;
-
-        if (milestones != null)
-        {
-            for (int i = 0; i < milestones.Length; i++)
-            {
-                var m = milestones[i];
-                if (m == null) continue;
-                if (m.level > level) break;
-                if (m.radius > 0) radius = m.radius;
-            }
-        }
-
-        return Mathf.Max(0, radius);
     }
 
     /// <summary>Leerlauf zwischen zwei Jobs für das gegebene Level.</summary>
@@ -135,9 +120,6 @@ public class AutomationDeviceData : ScriptableObject
 
         return Mathf.Max(1, tiles);
     }
-
-    /// <summary>Kantenlänge der Reichweite in Kacheln — für Anzeigetexte wie "5×5".</summary>
-    public int GetSideLength(int level) => GetRadius(level) * 2 + 1;
 
     /// <summary>Gibt den Meilenstein für exakt dieses Level zurück, oder null.</summary>
     public AutomationMilestone GetMilestoneAt(int level)
