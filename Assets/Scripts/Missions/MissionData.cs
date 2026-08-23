@@ -12,6 +12,15 @@ public class MissionData : ScriptableObject
     [Header("Aufgaben")]
     public MissionObjectiveData[] objectives;
 
+    [Tooltip("Zaehlen Aktionen von Automatik-Geraeten fuer diese Mission?
+
+" +
+             "Standard aus: sonst hakt eine Maschine abseits vom Bildschirm Tutorial-Ziele " +
+             "ab, waehrend der Tutorial-Highlight noch auf etwas Erledigtes zeigt. Ein neuer " +
+             "bool ist auf allen bestehenden MissionData-Assets false — genau der gewuenschte " +
+             "Default, kein Asset muss angefasst werden.")]
+    public bool countsAutomatedActions;
+
     [Header("Belohnung")]
     public MissionReward[] rewards;
 

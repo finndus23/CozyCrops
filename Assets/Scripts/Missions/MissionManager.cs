@@ -327,9 +327,15 @@ public class MissionManager : MonoBehaviour
                                 ToolType tool = ToolType.None, string zoneId = null,
                                 string licenseId = null)
     {
+        // Ein einziger Filter fuer alles: laeuft der Fortschritt aus einem Automatik-Job,
+        // zaehlt er nur fuer Missionen, die das ausdruecklich erlauben.
+        bool fromAutomation = ToolUseHandler.CurrentJobSource == ToolJobSource.Automation;
+
         for (int m = activeMissions.Count - 1; m >= 0; m--)
         {
             var state = activeMissions[m];
+            if (fromAutomation && !state.Data.countsAutomatedActions) continue;
+
             bool missionUpdated = false;
 
             // Sequential: nur das erste unvollständige Objective kann Fortschritt machen

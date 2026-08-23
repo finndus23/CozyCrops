@@ -697,12 +697,33 @@ public class ToolUseHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Quelle des gerade angewendeten Jobs. Der MissionManager liest das, um automatische
+    /// Aktionen von Spieler-Aktionen zu unterscheiden.
+    ///
+    /// Ein Schalter statt eines zweiten Event-Satzes: PlantManager.TryX feuert die
+    /// statischen Events, an denen auch CropSfx und StarterSeedFoundFx haengen — eine
+    /// automatische Ernte SOLL klingen und funkeln. Gefiltert wird deshalb ausschliesslich
+    /// am Empfaenger im MissionManager, nicht beim Feuern.
+    /// </summary>
+    public static ToolJobSource CurrentJobSource { get; private set; } = ToolJobSource.Player;
+
     private void CompleteJob(ToolJob job)
     {
         job.State = ToolJobState.Finished;
 
-        foreach (var tile in job.Tiles)
-            ApplyTool(tile.x, tile.y, job);
+        var previousSource = CurrentJobSource;
+        CurrentJobSource = job.Source;
+
+        try
+        {
+            foreach (var tile in job.Tiles)
+                ApplyTool(tile.x, tile.y, job);
+        }
+        finally
+        {
+            CurrentJobSource = previousSource;
+        }
 
         OnJobFinished?.Invoke(job);
     }
