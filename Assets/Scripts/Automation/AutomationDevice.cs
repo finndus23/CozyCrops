@@ -39,6 +39,20 @@ public class AutomationDevice : MonoBehaviour, IClickable
     [Tooltip("Weltgroesse der Anzeige. Groesser = aus der Ferne lesbar, aber aufdringlicher.")]
     [SerializeField] private float statusScale = 0.012f;
 
+    [Tooltip("Zeichenreihenfolge. Muss ueber dem liegen, was sonst in der Welt gezeichnet " +
+             "wird — Kachel-Highlights und Fortschrittsringe haengen beide in derselben " +
+             "Transparenz-Warteschlange. Hoeher = weiter vorn.")]
+    [SerializeField] private int sortingOrder = 200;
+
+    [Tooltip("Hintergrund hinter Icon und Zahl. Ohne Sprite wird eine einfarbige Flaeche " +
+             "gezeichnet — irgendein Panel-Sprite aus dem MenuClean-Satz sieht besser aus.")]
+    [SerializeField] private Sprite backgroundSprite;
+
+    [SerializeField] private Color backgroundColor = new(0.12f, 0.09f, 0.06f, 0.72f);
+
+    [Tooltip("Schriftgroesse der Zahl, in Canvas-Einheiten.")]
+    [SerializeField] private float countFontSize = 26f;
+
     [Tooltip("Farbe der Zahl, solange noch Samen da sind.")]
     [SerializeField] private Color countColor = new(1f, 1f, 1f, 1f);
 
@@ -498,9 +512,29 @@ public class AutomationDevice : MonoBehaviour, IClickable
         var canvas = seedDisplay.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
 
+        // Ohne eigene Sortierung verschwindet die Anzeige hinter den Kachel-Highlights und
+        // den Fortschrittsringen: die haengen alle in derselben Transparenz-Warteschlange,
+        // und wer dort zuletzt gezeichnet wird, gewinnt.
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = sortingOrder;
+
         var rect = seedDisplay.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(100f, 48f);
+        rect.sizeDelta = new Vector2(104f, 46f);
         rect.localScale = Vector3.one * Mathf.Max(0.001f, statusScale);
+
+        // Hintergrund, damit Icon und Zahl nicht im Ackerbraun untergehen.
+        var bgObj = new GameObject("Background", typeof(RectTransform));
+        bgObj.transform.SetParent(seedDisplay.transform, false);
+        var bgRect = bgObj.GetComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = bgRect.offsetMax = Vector2.zero;
+
+        var bgImage = bgObj.AddComponent<Image>();
+        bgImage.sprite = backgroundSprite;
+        bgImage.type = backgroundSprite != null ? Image.Type.Sliced : Image.Type.Simple;
+        bgImage.color = backgroundColor;
+        bgImage.raycastTarget = false;
 
         // Icon links
         var iconObj = new GameObject("Icon", typeof(RectTransform));
@@ -508,7 +542,7 @@ public class AutomationDevice : MonoBehaviour, IClickable
         var iconRect = iconObj.GetComponent<RectTransform>();
         iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
         iconRect.anchoredPosition = new Vector2(-24f, 0f);
-        iconRect.sizeDelta = new Vector2(44f, 44f);
+        iconRect.sizeDelta = new Vector2(34f, 34f);
 
         seedIconImage = iconObj.AddComponent<Image>();
         seedIconImage.preserveAspect = true;
@@ -519,11 +553,11 @@ public class AutomationDevice : MonoBehaviour, IClickable
         countObj.transform.SetParent(seedDisplay.transform, false);
         var countRect = countObj.GetComponent<RectTransform>();
         countRect.anchorMin = countRect.anchorMax = new Vector2(0.5f, 0.5f);
-        countRect.anchoredPosition = new Vector2(22f, 0f);
-        countRect.sizeDelta = new Vector2(56f, 48f);
+        countRect.anchoredPosition = new Vector2(20f, 0f);
+        countRect.sizeDelta = new Vector2(56f, 40f);
 
         seedCountLabel = countObj.AddComponent<TextMeshProUGUI>();
-        seedCountLabel.fontSize = 38f;
+        seedCountLabel.fontSize = countFontSize;
         seedCountLabel.fontStyle = FontStyles.Bold;
         seedCountLabel.alignment = TextAlignmentOptions.Left;
         seedCountLabel.raycastTarget = false;
