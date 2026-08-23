@@ -250,7 +250,12 @@ public class AoEPreview : MonoBehaviour
         bool placing = AutomationPlacementController.Instance != null
                        && AutomationPlacementController.Instance.IsPlacing;
 
-        if (placing || !GridInput.IsHoveringGrid)
+        // Dasselbe, solange das Stations-Popup offen ist: dort zeigt die externe Vorschau
+        // die Reichweite, und der Werkzeug-Hover wuerde sich direkt darueberlegen.
+        bool stationPopupOpen = AutomationDevicePopup.Instance != null
+                                && AutomationDevicePopup.Instance.IsOpen;
+
+        if (placing || stationPopupOpen || !GridInput.IsHoveringGrid)
         {
             HideAllHover();
             InvalidateHoverCache();
@@ -307,8 +312,10 @@ public class AoEPreview : MonoBehaviour
 
         foreach (var tile in tiles)
         {
-            // Warteschlangen-Overlay hat Vorrang
+            // Warteschlangen- und Reichweiten-Overlay haben Vorrang — sonst liegen zwei
+            // Quads deckungsgleich uebereinander und flimmern gegeneinander.
             if (jobOverlays.ContainsKey(tile)) continue;
+            if (externalOverlays.ContainsKey(tile)) continue;
             if (GridManager.Instance == null || GridManager.Instance.GetCell(tile.x, tile.y) == null) continue;
 
             var hoverColor = ResolveHoverColor(tool);

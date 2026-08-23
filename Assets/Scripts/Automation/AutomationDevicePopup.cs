@@ -40,6 +40,7 @@ public class AutomationDevicePopup : MonoBehaviour
         public TextMeshProUGUI toggleLabel;
         public Button seedButton;
         public TextMeshProUGUI seedLabel;
+        public Image seedIcon;
         public GameObject root;
     }
 
@@ -173,8 +174,7 @@ public class AutomationDevicePopup : MonoBehaviour
 
         bool needsSeed = module.NeedsSeed;
         row.seedButton.gameObject.SetActive(needsSeed);
-        if (needsSeed)
-            row.seedLabel.text = module.seed != null ? ResolveSeedName(module.seed) : "Sorte?";
+        if (needsSeed) ApplySeedButton(row, module.seed);
     }
 
     /// <summary>
@@ -219,6 +219,26 @@ public class AutomationDevicePopup : MonoBehaviour
 
     private static string ResolveName(AutomationDeviceData data) =>
         string.IsNullOrWhiteSpace(data.displayName) ? data.deviceType.ToString() : data.displayName;
+
+    /// <summary>
+    /// Zeigt die gewaehlte Sorte als Sprite. Der Text bleibt nur als Rueckfall stehen —
+    /// wenn keine Sorte gewaehlt ist, oder die Sorte kein Icon hat.
+    /// </summary>
+    private static void ApplySeedButton(ModuleRow row, PlantType seed)
+    {
+        var sprite = seed != null ? seed.icon : null;
+
+        if (row.seedIcon != null)
+        {
+            row.seedIcon.sprite = sprite;
+            row.seedIcon.enabled = sprite != null;
+        }
+
+        if (row.seedLabel == null) return;
+
+        if (sprite != null) row.seedLabel.text = "";
+        else                row.seedLabel.text = seed != null ? ResolveSeedName(seed) : "Sorte?";
+    }
 
     private static string ResolveSeedName(PlantType seed) =>
         seed == null ? "—" : (string.IsNullOrWhiteSpace(seed.plantName) ? seed.name : seed.plantName);
@@ -431,6 +451,18 @@ public class AutomationDevicePopup : MonoBehaviour
             new Vector2(152f, buttonY), new Vector2(84f, 30f), "", buttonSprite,
             () => OnModuleSeedClicked(captured));
         row.seedLabel = row.seedButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        // Icon-Flaeche ueber dem Knopf. raycastTarget aus, sonst schluckt sie den Klick.
+        var iconObj = RuntimePopupBuilder.CreateUiObject("Icon", row.seedButton.transform);
+        var iconRect = iconObj.GetComponent<RectTransform>();
+        iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.anchoredPosition = Vector2.zero;
+        iconRect.sizeDelta = new Vector2(26f, 26f);
+
+        row.seedIcon = iconObj.AddComponent<Image>();
+        row.seedIcon.preserveAspect = true;
+        row.seedIcon.raycastTarget = false;
+        row.seedIcon.enabled = false;
 
         rows.Add(row);
         return 62f;

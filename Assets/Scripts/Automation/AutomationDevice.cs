@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Eine platzierte Automations-Station. Hält ihr eigenes Level (= Reichweite) und bis zu
@@ -30,27 +32,22 @@ public class AutomationDevice : MonoBehaviour, IClickable
     [Tooltip("Eingesetzte Module. Pro Typ höchstens eines.")]
     [SerializeField] private List<AutomationModule> modules = new();
 
-    [Header("Fortschrittsring")]
-    [Tooltip("Dasselbe Prefab wie bei Pflanzen und Komposter (Plant Status). Optional.")]
-    [SerializeField] private GameObject statusPrefab;
+    [Header("Anzeige ueber der Station")]
+    [Tooltip("Hoehe der Samen-Anzeige ueber der Oberkante des Gehaeuses.")]
+    [SerializeField] private float statusHeightOffset = 0.6f;
 
-    [SerializeField] private float statusHeightOffset = 0.4f;
+    [Tooltip("Weltgroesse der Anzeige. Groesser = aus der Ferne lesbar, aber aufdringlicher.")]
+    [SerializeField] private float statusScale = 0.012f;
 
-    [Tooltip("Ringfarbe, während mindestens ein Modul arbeitet.")]
-    [SerializeField] private Color workingColor = new(0.45f, 0.8f, 1f, 1f);
+    [Tooltip("Farbe der Zahl, solange noch Samen da sind.")]
+    [SerializeField] private Color countColor = new(1f, 1f, 1f, 1f);
 
-    [Tooltip("Ringfarbe, wenn kein Modul etwas tun kann — kein Saatgut, nichts zu ernten.")]
-    [SerializeField] private Color idleColor = new(0.6f, 0.6f, 0.6f, 1f);
+    [Tooltip("Farbe der Zahl, wenn der Vorrat leer ist — das Saat-Modul laeuft dann leer.")]
+    [SerializeField] private Color emptyCountColor = new(1f, 0.35f, 0.25f, 1f);
 
-    [SerializeField, Range(0f, 1f)] private float trackAlpha = 0.6f;
-    [SerializeField, Range(0.01f, 0.2f)] private float ringWidth = 0.09f;
-
-    private static readonly int BaseColorId  = Shader.PropertyToID("_BaseColor");
-    private static readonly int ProgressId   = Shader.PropertyToID("_Progress");
-    private static readonly int SymbolId     = Shader.PropertyToID("_Symbol");
-    private static readonly int TrackAlphaId = Shader.PropertyToID("_TrackAlpha");
-    private static readonly int RingWidthId  = Shader.PropertyToID("_RingWidth");
-    private const float SymbolNone = 0f;
+    private GameObject seedDisplay;
+    private Image seedIconImage;
+    private TMP_Text seedCountLabel;
 
     /// <summary>Wartezeit bis zum nächsten Versuch, wenn gerade keine Kachel Arbeit bietet.</summary>
     private const float RetryInterval = 1f;
@@ -113,7 +110,7 @@ public class AutomationDevice : MonoBehaviour, IClickable
             TickModule(modules[i]);
     }
 
-    void LateUpdate() => UpdateStatusVisual();
+    void LateUpdate() => UpdateSeedDisplay();
 
     // ── Takt pro Modul ────────────────────────────────────────────────────────
 
@@ -429,56 +426,107 @@ public class AutomationDevice : MonoBehaviour, IClickable
         AutomationDevicePopup.Instance?.Show(this);
     }
 
-    // ── Fortschrittsring ──────────────────────────────────────────────────────
+    // ── Anzeige ueber der Station ─────────────────────────────────────────────
 
     /// <summary>
-    /// Zeigt den Fortschritt des Moduls, das als nächstes dran ist. Grau, wenn kein einziges
-    /// Modul etwas zu tun findet — ein stiller Leerlauf soll nicht wie ein Defekt aussehen.
+    /// Zeigt ueber der Station, WELCHE Sorte im Saat-Modul steckt und wie viele Samen davon
+    /// noch im Inventar sind.
+    ///
+    /// Bewusst statt eines Fortschrittsrings: der Takt ist keine Information, auf die man
+    /// reagieren kann — er laeuft ohnehin weiter. Der Samenvorrat dagegen ist der einzige
+    /// Grund, aus dem die Kette von selbst stehenbleibt, und das soll man von weitem sehen.
     /// </summary>
-    private void UpdateStatusVisual()
+    private void UpdateSeedDisplay()
     {
-        if (statusPrefab == null) return;
+        var seeder = GetSeedModule();
+        bool show = seeder != null && seeder.seed != null && seeder.enabled;
 
-        bool anyActive = false;
-        bool allIdle = true;
-        float progress = 0f;
-
-        foreach (var module in modules)
+        if (!show)
         {
-            if (module == null || module.data == null || !module.enabled) continue;
-
-            anyActive = true;
-            if (!module.idle) allIdle = false;
-
-            float p = module.Progress;
-            if (p > progress) progress = p;
-        }
-
-        if (!anyActive || stationData == null)
-        {
-            if (statusInstance != null) statusInstance.SetActive(false);
+            if (seedDisplay != null) seedDisplay.SetActive(false);
             return;
         }
 
-        if (statusInstance == null)
+        EnsureSeedDisplay();
+        if (seedDisplay == null) return;
+
+        seedDisplay.SetActive(true);
+        seedDisplay.transform.position = GetStatusPosition();
+
+        // Billboard: die Anzeige dreht sich immer zur Kamera, sonst steht sie schraeg im Bild.
+        var cam = Camera.main;
+        if (cam != null)
+            seedDisplay.transform.rotation = cam.transform.rotation;
+
+        if (seedIconImage != null)
         {
-            statusInstance = Instantiate(statusPrefab, transform);
-            statusPropertyBlock = new MaterialPropertyBlock();
+            seedIconImage.sprite = seeder.seed.icon;
+            seedIconImage.enabled = seeder.seed.icon != null;
         }
 
-        statusInstance.SetActive(true);
-        statusInstance.transform.position = GetStatusPosition();
+        if (seedCountLabel != null)
+        {
+            int count = PlayerInventory.Instance != null
+                ? PlayerInventory.Instance.GetSeedCount(seeder.seed)
+                : 0;
 
-        var rend = statusInstance.GetComponentInChildren<Renderer>();
-        if (rend == null) return;
+            seedCountLabel.text = count.ToString();
+            seedCountLabel.color = count > 0 ? countColor : emptyCountColor;
+        }
+    }
 
-        rend.GetPropertyBlock(statusPropertyBlock);
-        statusPropertyBlock.SetColor(BaseColorId, allIdle ? idleColor : workingColor);
-        statusPropertyBlock.SetFloat(ProgressId, progress);
-        statusPropertyBlock.SetFloat(SymbolId, SymbolNone);
-        statusPropertyBlock.SetFloat(TrackAlphaId, trackAlpha);
-        statusPropertyBlock.SetFloat(RingWidthId, ringWidth);
-        rend.SetPropertyBlock(statusPropertyBlock);
+    /// <summary>Das Saat-Modul dieser Station, oder null.</summary>
+    private AutomationModule GetSeedModule()
+    {
+        foreach (var module in modules)
+            if (module != null && module.data != null && module.NeedsSeed) return module;
+
+        return null;
+    }
+
+    /// <summary>
+    /// Baut die Anzeige einmalig als World-Space-Canvas. Kein Prefab noetig — die Anzeige
+    /// besteht aus genau zwei Elementen und waere im Inspector nur Pflegeaufwand.
+    /// </summary>
+    private void EnsureSeedDisplay()
+    {
+        if (seedDisplay != null) return;
+
+        seedDisplay = new GameObject("SeedDisplay", typeof(Canvas));
+        seedDisplay.transform.SetParent(transform, false);
+
+        var canvas = seedDisplay.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+
+        var rect = seedDisplay.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(100f, 48f);
+        rect.localScale = Vector3.one * Mathf.Max(0.001f, statusScale);
+
+        // Icon links
+        var iconObj = new GameObject("Icon", typeof(RectTransform));
+        iconObj.transform.SetParent(seedDisplay.transform, false);
+        var iconRect = iconObj.GetComponent<RectTransform>();
+        iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.anchoredPosition = new Vector2(-24f, 0f);
+        iconRect.sizeDelta = new Vector2(44f, 44f);
+
+        seedIconImage = iconObj.AddComponent<Image>();
+        seedIconImage.preserveAspect = true;
+        seedIconImage.raycastTarget = false;
+
+        // Zahl rechts
+        var countObj = new GameObject("Count", typeof(RectTransform));
+        countObj.transform.SetParent(seedDisplay.transform, false);
+        var countRect = countObj.GetComponent<RectTransform>();
+        countRect.anchorMin = countRect.anchorMax = new Vector2(0.5f, 0.5f);
+        countRect.anchoredPosition = new Vector2(22f, 0f);
+        countRect.sizeDelta = new Vector2(56f, 48f);
+
+        seedCountLabel = countObj.AddComponent<TextMeshProUGUI>();
+        seedCountLabel.fontSize = 38f;
+        seedCountLabel.fontStyle = FontStyles.Bold;
+        seedCountLabel.alignment = TextAlignmentOptions.Left;
+        seedCountLabel.raycastTarget = false;
     }
 
     private Vector3 GetStatusPosition()
