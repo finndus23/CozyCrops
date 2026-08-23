@@ -49,6 +49,12 @@ public class SaveGameData
     public List<AutomationDeviceSaveData> automationDevices = new();
 
     /// <summary>
+    /// Eingepackte Stationen samt Modulen. x/z sind hier bedeutungslos.
+    /// Einpacken ist kein Verkauf — der investierte Wert muss den Spielstand ueberleben.
+    /// </summary>
+    public List<AutomationDeviceSaveData> packedAutomationDevices = new();
+
+    /// <summary>
     /// Beim Anlegen des Slots gewähltes Spieltempo. 0 = Normal, damit Altsaves
     /// automatisch auf dem balancierten Tempo landen.
     /// </summary>

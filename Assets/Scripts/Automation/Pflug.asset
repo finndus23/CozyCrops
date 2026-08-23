@@ -14,11 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutomationDeviceData
   deviceType: 2
   executesTool: 1
-  displayName: 
+  displayName: Plow
   icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 7609801466453061712, guid: a518df415d0459c4a8fc5e31aca030d3, type: 3}
   maxLevel: 20
-  baseRadius: 1
   baseInterval: 6
   intervalReductionPerLevel: 0
   minInterval: 2
@@ -33,18 +32,8 @@ MonoBehaviour:
     intervalMultiplier: 0.75
     tilesPerTick: 0
     unlockText: 
-  - level: 10
-    radius: 2
-    intervalMultiplier: 0
-    tilesPerTick: 0
-    unlockText: 
   - level: 15
     radius: 0
     intervalMultiplier: 0.5
     tilesPerTick: 0
-    unlockText: 
-  - level: 20
-    radius: 3
-    intervalMultiplier: 0
-    tilesPerTick: 2
     unlockText: 

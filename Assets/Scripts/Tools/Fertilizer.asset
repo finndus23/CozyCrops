@@ -24,9 +24,9 @@ MonoBehaviour:
   baseDuration: 1.5
   durationReductionPerLevel: 0.03
   minDuration: 0.3
-  buyPrice: 60
-  baseCost: 40
-  costScalingPerLevel: 10
+  buyPrice: 2000
+  baseCost: 200
+  costScalingPerLevel: 25
   useLoop: {fileID: 0}
   impactClips: []
   sfxVolume: 0.6
@@ -73,3 +73,9 @@ MonoBehaviour:
     queueSize: 16
     wateringPower: 0
     unlockText: "Fl\xE4che 4\xD74 \u2014 Vollausbau"
+  baseFertilizedHarvestChance: 0.2
+  fertilizedHarvestChancePerLevel: 0.01
+  maxFertilizedHarvestChance: 0.5
+  baseYieldBonusChance: 0
+  yieldBonusChancePerLevel: 0.01
+  maxYieldBonusChance: 0.3

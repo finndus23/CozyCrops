@@ -775,6 +775,7 @@ public class FarmSaveManager : MonoBehaviour
         if (AutomationDeviceManager.Instance != null)
         {
             data.automationDevices.Clear();
+            data.packedAutomationDevices.Clear();
             SaveAutomationDevices(data);
         }
 
@@ -800,21 +801,59 @@ public class FarmSaveManager : MonoBehaviour
             };
 
             foreach (var module in station.Modules)
-            {
-                if (module == null || module.data == null) continue;
-
-                entry.modules.Add(new AutomationModuleSaveData
-                {
-                    moduleType = module.data.deviceType.ToString(),
-                    level = module.level,
-                    enabled = module.enabled,
-                    seedId = module.seed != null ? PlantDatabase.GetPlantId(module.seed) : null,
-                    cooldownRemaining = Mathf.Max(0f, module.cooldown)
-                });
-            }
+                AppendModule(entry, module);
 
             data.automationDevices.Add(entry);
         }
+
+        // Eingelagerte Stationen: dieselbe Struktur, x/z bleiben ungenutzt.
+        foreach (var packed in manager.PackedStations)
+        {
+            if (packed == null) continue;
+
+            var entry = new AutomationDeviceSaveData { level = packed.level };
+
+            foreach (var module in packed.modules)
+                AppendModule(entry, module);
+
+            data.packedAutomationDevices.Add(entry);
+        }
+    }
+
+    private static void AppendModule(AutomationDeviceSaveData entry, AutomationModule module)
+    {
+        if (entry == null || module == null || module.data == null) return;
+
+        entry.modules.Add(new AutomationModuleSaveData
+        {
+            moduleType = module.data.deviceType.ToString(),
+            level = module.level,
+            enabled = module.enabled,
+            seedId = module.seed != null ? PlantDatabase.GetPlantId(module.seed) : null,
+            cooldownRemaining = Mathf.Max(0f, module.cooldown)
+        });
+    }
+
+    /// <summary>Baut ein Modul aus seinem Save-Eintrag. Null, wenn der Typ unbekannt ist.</summary>
+    private static AutomationModule BuildModule(AutomationModuleSaveData saved)
+    {
+        if (saved == null) return null;
+        if (!Enum.TryParse(saved.moduleType, out AutomationDeviceType type)) return null;
+        if (type == AutomationDeviceType.None) return null;
+
+        var moduleData = AutomationDeviceCatalog.Get(type);
+        if (moduleData == null) return null;
+
+        return new AutomationModule
+        {
+            data = moduleData,
+            level = Mathf.Clamp(saved.level, 0, moduleData.maxLevel),
+            enabled = saved.enabled,
+            cooldown = Mathf.Max(0f, saved.cooldownRemaining),
+            seed = !string.IsNullOrEmpty(saved.seedId) && PlantDatabase.Instance != null
+                ? PlantDatabase.Instance.GetById(saved.seedId)
+                : null
+        };
     }
 
     private void ApplyAutomation(SaveGameData data)
@@ -845,25 +884,40 @@ public class FarmSaveManager : MonoBehaviour
 
             if (entry.modules == null) continue;
 
+            var built = new List<AutomationModule>();
             foreach (var saved in entry.modules)
             {
-                if (saved == null) continue;
-                if (!Enum.TryParse(saved.moduleType, out AutomationDeviceType type)) continue;
-                if (type == AutomationDeviceType.None) continue;
+                var module = BuildModule(saved);
+                if (module != null) built.Add(module);
+            }
 
-                var moduleData = AutomationDeviceCatalog.Get(type);
-                if (moduleData == null) continue;
+            station.RestoreModules(built);
+        }
 
-                var module = station.InstallModule(moduleData, saved.level);
-                if (module == null) continue;
+        // Lager wiederherstellen.
+        var packedList = new List<PackedStation>();
+        if (data.packedAutomationDevices != null)
+        {
+            foreach (var entry in data.packedAutomationDevices)
+            {
+                if (entry == null) continue;
 
-                module.enabled = saved.enabled;
-                module.cooldown = Mathf.Max(0f, saved.cooldownRemaining);
+                var packed = new PackedStation { level = entry.level };
 
-                if (!string.IsNullOrEmpty(saved.seedId) && PlantDatabase.Instance != null)
-                    module.seed = PlantDatabase.Instance.GetById(saved.seedId);
+                if (entry.modules != null)
+                {
+                    foreach (var saved in entry.modules)
+                    {
+                        var module = BuildModule(saved);
+                        if (module != null) packed.modules.Add(module);
+                    }
+                }
+
+                packedList.Add(packed);
             }
         }
+
+        manager.SetPackedStations(packedList);
     }
 
     private void SaveInventory(SaveGameData data)
@@ -1106,6 +1160,7 @@ public class FarmSaveManager : MonoBehaviour
         if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
         if (data.ownedLicenses == null) data.ownedLicenses = new List<string>();
         if (data.automationDevices == null) data.automationDevices = new List<AutomationDeviceSaveData>();
+        if (data.packedAutomationDevices == null) data.packedAutomationDevices = new List<AutomationDeviceSaveData>();
     }
 
     private void OnApplicationQuit()

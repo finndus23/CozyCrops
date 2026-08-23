@@ -77,14 +77,17 @@ public class AutomationDevicePopup : MonoBehaviour
         if (panel == null) return;
 
         panel.SetActive(true);
+        UiSfx.PanelOpen();
         Refresh();
     }
 
     public void Close()
     {
+        bool wasOpen = IsOpen;
         target = null;
 
         if (panel != null) panel.SetActive(false);
+        if (wasOpen) UiSfx.PanelClose();
         AoEPreview.Instance?.ClearExternalPreview();
     }
 
@@ -238,6 +241,7 @@ public class AutomationDevicePopup : MonoBehaviour
             return;
         }
 
+        UiSfx.StationUpgraded();
         FarmSaveManager.Instance?.RequestSave();
         Refresh();
     }
@@ -261,6 +265,8 @@ public class AutomationDevicePopup : MonoBehaviour
                 inventory.AddMoney(data.buyPrice);
                 return;
             }
+
+            UiSfx.ModuleInstalled();
         }
         else
         {
@@ -269,6 +275,7 @@ public class AutomationDevicePopup : MonoBehaviour
             if (!inventory.TrySpendMoney(cost)) return;
 
             module.level = Mathf.Clamp(module.level + 1, 0, data.maxLevel);
+            UiSfx.StationUpgraded();
         }
 
         FarmSaveManager.Instance?.RequestSave();
@@ -282,6 +289,8 @@ public class AutomationDevicePopup : MonoBehaviour
 
         module.enabled = !module.enabled;
         if (!module.enabled) module.cooldown = 0f;
+
+        UiSfx.ModuleToggled();
 
         FarmSaveManager.Instance?.RequestSave();
         Refresh();
@@ -312,20 +321,18 @@ public class AutomationDevicePopup : MonoBehaviour
     }
 
     /// <summary>
-    /// Notausgang, nicht der normale Weg zum Umstellen — dafür gibt es "Verschieben",
-    /// das kostenlos ist und Level wie Module behält.
+    /// Legt die Station ins Lager — samt Modulen, deren Leveln und der Sortenwahl. Kein
+    /// Gold zurueck: der Wert steckt weiter in der eingelagerten Station, sie laesst sich
+    /// im Baumodus kostenlos wieder aufstellen.
+    ///
+    /// Zum blossen Umsetzen ist "Verschieben" gedacht — das ist ein Schritt statt zwei.
     /// </summary>
     private void OnPackUpClicked()
     {
         if (target?.Data == null) return;
 
-        int refund = target.Data.buyPrice / 2;
-        foreach (var module in target.Modules)
-            if (module?.data != null) refund += module.data.buyPrice / 2;
-
-        PlayerInventory.Instance?.AddMoney(refund);
-
-        AutomationDeviceManager.Instance?.Remove(target);
+        AutomationDeviceManager.Instance?.Pack(target);
+        UiSfx.StationPacked();
         FarmSaveManager.Instance?.RequestSave();
         Close();
     }

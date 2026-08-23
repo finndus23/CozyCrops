@@ -26,7 +26,7 @@ public class AutomationPlacementController : MonoBehaviour
     [Tooltip("Reichweite rund um die Zielkachel — zeigt, welche Flaeche das Geraet spaeter bedient.")]
     [SerializeField] private Color rangeColor = new(0.45f, 0.8f, 1f, 0.4f);
 
-    private enum PlacementMode { None, Buy, Move }
+    private enum PlacementMode { None, Buy, Move, Unpack }
 
     private PlacementMode mode;
     private AutomationStationData pendingData;
@@ -84,6 +84,24 @@ public class AutomationPlacementController : MonoBehaviour
     }
 
     /// <summary>
+    /// Auspack-Modus: die aelteste eingelagerte Station zurueck in die Welt setzen —
+    /// mit ihrem Reichweiten-Level, ihren Modulen und deren Leveln. Kostenlos, der Wert
+    /// steckt ja schon in der eingelagerten Station.
+    /// </summary>
+    public void BeginUnpack(AutomationStationData data)
+    {
+        if (data == null) { Cancel(); return; }
+
+        var manager = AutomationDeviceManager.Instance;
+        if (manager == null || manager.PackedCount == 0) { Cancel(); return; }
+
+        Cancel();
+        pendingData = data;
+        mode = PlacementMode.Unpack;
+        InvalidatePreview();
+    }
+
+    /// <summary>
     /// Verschiebe-Modus. Das Gerät bleibt sichtbar stehen, bis der Spieler ein neues Ziel
     /// bestätigt — bei Abbruch geht es an seinen alten Platz zurück.
     /// </summary>
@@ -120,8 +138,13 @@ public class AutomationPlacementController : MonoBehaviour
             return;
         }
 
-        if (mouse != null && mouse.leftButton.wasPressedThisFrame && valid)
-            Confirm(hoveredX, hoveredZ);
+        if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+        {
+            if (valid) Confirm(hoveredX, hoveredZ);
+            // Klick auf eine ungueltige Kachel bleibt sonst voellig ohne Rueckmeldung —
+            // der rote Rahmen allein erklaert nicht, dass der Klick angekommen ist.
+            else if (isOverGrid) UiSfx.Denied();
+        }
     }
 
     // ── Gültigkeit ────────────────────────────────────────────────────────────
@@ -149,7 +172,7 @@ public class AutomationPlacementController : MonoBehaviour
         var occupant = AutomationDeviceManager.At(x, z);
         if (occupant != null && occupant != movingDevice) return false;
 
-        // Gold nur beim Kauf. Verschieben ist kostenlos.
+        // Gold nur beim Kauf. Verschieben und Auspacken sind kostenlos.
         if (mode == PlacementMode.Buy)
         {
             int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
@@ -191,7 +214,13 @@ public class AutomationPlacementController : MonoBehaviour
             var manager = AutomationDeviceManager.Instance;
             if (manager == null || !manager.Move(movingDevice, x, z)) return;
         }
+        else if (mode == PlacementMode.Unpack)
+        {
+            var manager = AutomationDeviceManager.Instance;
+            if (manager == null || manager.PlacePacked(pendingData, x, z) == null) return;
+        }
 
+        UiSfx.StationPlaced();
         FarmSaveManager.Instance?.RequestSave();
         Finish();
     }
@@ -272,8 +301,20 @@ public class AutomationPlacementController : MonoBehaviour
         var grid = GridManager.Instance;
         if (grid == null || pendingData == null) return;
 
-        int level = movingDevice != null ? movingDevice.Level : 0;
-        int radius = pendingData.GetRadius(level);   // Reichweite gehört der Station
+        // Reichweite gehoert der Station. Beim Auspacken zaehlt das Level der eingelagerten
+        // Station, sonst saehe die Vorschau kleiner aus als das, was gleich dasteht.
+        int level = 0;
+        if (movingDevice != null)
+        {
+            level = movingDevice.Level;
+        }
+        else if (mode == PlacementMode.Unpack)
+        {
+            var packed = AutomationDeviceManager.Instance?.PeekPacked();
+            if (packed != null) level = packed.level;
+        }
+
+        int radius = pendingData.GetRadius(level);
 
         for (int dx = -radius; dx <= radius; dx++)
         {

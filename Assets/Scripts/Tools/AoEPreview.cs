@@ -244,7 +244,13 @@ public class AoEPreview : MonoBehaviour
 
     private void UpdateHoverOverlay()
     {
-        if (!GridInput.IsHoveringGrid)
+        // Waehrend eine Station platziert oder verschoben wird, gehoert die Kachelanzeige
+        // allein der Reichweiten-Vorschau. Der Werkzeug-Hover wuerde sich sonst genau
+        // darunterlegen und beide unleserlich machen.
+        bool placing = AutomationPlacementController.Instance != null
+                       && AutomationPlacementController.Instance.IsPlacing;
+
+        if (placing || !GridInput.IsHoveringGrid)
         {
             HideAllHover();
             InvalidateHoverCache();

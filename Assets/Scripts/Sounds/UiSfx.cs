@@ -261,6 +261,16 @@ public class UiSfx : MonoBehaviour
     /// späteren Abholen (FertilizerCollected).</summary>
     public static void CompostReady() => Instance?.Play(Fallback(Lib?.compostReady, Lib?.rewardCollected));
 
+    // ── Automations-Station ───────────────────────────────────────────────────
+    // Alle mit Rueckfall auf bereits vorhandene Klaenge: das System ist damit von Anfang an
+    // hoerbar, auch bevor eigene Clips zugewiesen sind.
+
+    public static void StationPlaced()   => Instance?.Play(Fallback(Lib?.stationPlaced, Lib?.purchase));
+    public static void ModuleInstalled() => Instance?.Play(Fallback(Lib?.moduleInstalled, Lib?.toolAcquired));
+    public static void StationUpgraded() => Instance?.Play(Fallback(Lib?.stationUpgraded, Lib?.toolUpgraded));
+    public static void StationPacked()   => Instance?.Play(Fallback(Lib?.stationPacked, Lib?.panelClose));
+    public static void ModuleToggled()   => Instance?.Play(Fallback(Lib?.moduleToggled, Lib?.buttonClick));
+
     /// <summary>
     /// Klang für ankommende Münzen. Wird vom Münzflug selbst ausgelöst, damit er überall
     /// gleich klingt — beim Abholen einer Belohnung wie beim Verkauf.

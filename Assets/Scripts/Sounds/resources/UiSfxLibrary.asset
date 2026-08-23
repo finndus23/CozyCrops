@@ -13,17 +13,21 @@ MonoBehaviour:
   m_Name: UiSfxLibrary
   m_EditorClassIdentifier: Assembly-CSharp::UiSfxLibrary
   buttonClick:
-  - {fileID: 8300000, guid: 6775cb44151b23a409df03bd52427a42, type: 3}
-  buttonBack: []
-  panelOpen: []
-  panelClose: []
+  - {fileID: 8300000, guid: 932c172dfd5ba1146b3773a7d5c0e7ae, type: 3}
+  buttonBack:
+  - {fileID: 8300000, guid: 32e6ae6c23f7d0b4bbca190339334c0b, type: 3}
+  panelOpen:
+  - {fileID: 8300000, guid: 8dc2861681025b4458dcee8936b91a0d, type: 3}
+  panelClose:
+  - {fileID: 8300000, guid: 66ac4be54b4fac44ab567a814ae2b13c, type: 3}
   purchase:
   - {fileID: 8300000, guid: f1329c70696e5774d8b1c770638063c1, type: 3}
   expansionPurchased:
   - {fileID: 8300000, guid: 99d05a1b86d6b2542ac012edb80e028d, type: 3}
   sell:
   - {fileID: 8300000, guid: f1329c70696e5774d8b1c770638063c1, type: 3}
-  denied: []
+  denied:
+  - {fileID: 8300000, guid: f7927a6fa21977c4486e4e237a7ef2a2, type: 3}
   toolUpgraded:
   - {fileID: 8300000, guid: fb46be3164d271e47b3ba092f0e2bae3, type: 3}
   toolAcquired: []
@@ -34,6 +38,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 866aad4a9ceff494b9311a81776f6720, type: 3}
   rewardCollected: []
   starterSeedFound: []
+  fertilizerCollected: []
+  compostReady: []
   coinFlight:
   - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
   volume: 0.3

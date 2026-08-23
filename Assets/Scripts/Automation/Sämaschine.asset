@@ -14,11 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutomationDeviceData
   deviceType: 3
   executesTool: 3
-  displayName: 
+  displayName: Seeder
   icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 6173750295843848844, guid: dfce9042841a4c4409b66e2c18418180, type: 3}
   maxLevel: 20
-  baseRadius: 1
   baseInterval: 6
   intervalReductionPerLevel: 0
   minInterval: 2
@@ -33,18 +32,8 @@ MonoBehaviour:
     intervalMultiplier: 0.75
     tilesPerTick: 0
     unlockText: 
-  - level: 10
-    radius: 2
-    intervalMultiplier: 0
-    tilesPerTick: 0
-    unlockText: 
   - level: 15
     radius: 0
     intervalMultiplier: 0.5
     tilesPerTick: 0
-    unlockText: 
-  - level: 20
-    radius: 3
-    intervalMultiplier: 0
-    tilesPerTick: 2
     unlockText: 

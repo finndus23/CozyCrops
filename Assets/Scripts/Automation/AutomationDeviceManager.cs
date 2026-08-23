@@ -1,5 +1,24 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// Eine eingelagerte Station: Reichweiten-Level plus alle Module mit ihren eigenen Leveln,
+/// An/Aus-Zustaenden und Sortenwahlen.
+///
+/// Einpacken ist bewusst KEIN Verkauf. In einer vollausgebauten Station stecken schnell
+/// mehrere tausend Gold; sie beim Umstellen aufzuloesen waere ein Verlust, den niemand
+/// erwartet. Zum Umsetzen gibt es ohnehin "Verschieben" — Einpacken ist fuer den Fall,
+/// dass man sie erst mal ganz weghaben will.
+/// </summary>
+public class PackedStation
+{
+    public int level;
+    public List<AutomationModule> modules = new();
+
+    /// <summary>Wie viele Module eingelagert sind — fuer die Anzeige im Baumodus.</summary>
+    public int ModuleCount => modules?.Count ?? 0;
+}
 
 /// <summary>
 /// Hält alle platzierten Automatik-Geräte und bindet sie ans Gitter.
@@ -27,6 +46,12 @@ public class AutomationDeviceManager : MonoBehaviour
     private Transform deviceRoot;
 
     private readonly Dictionary<Vector2Int, AutomationDevice> byTile = new();
+
+    /// <summary>Eingepackte Stationen, jeweils samt Modulen. Aeltester Eintrag zuerst.</summary>
+    private readonly List<PackedStation> packedStations = new();
+
+    /// <summary>Feuert, wenn sich der Lagerbestand aendert — der Baumodus-Slot haengt daran.</summary>
+    public static event Action OnPackedChanged;
 
     void Awake()
     {
@@ -132,7 +157,7 @@ public class AutomationDeviceManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>Entfernt ein Gerät aus der Welt.</summary>
+    /// <summary>Entfernt eine Station aus der Welt und verwirft sie samt Modulen.</summary>
     public void Remove(AutomationDevice device)
     {
         if (device == null) return;
@@ -141,6 +166,67 @@ public class AutomationDeviceManager : MonoBehaviour
         Destroy(device.gameObject);
     }
 
+    // ── Einlagern ─────────────────────────────────────────────────────────────
+
+    public int PackedCount => packedStations.Count;
+
+    /// <summary>Naechste eingelagerte Station, ohne sie zu entnehmen. Null wenn leer.</summary>
+    public PackedStation PeekPacked() => packedStations.Count > 0 ? packedStations[0] : null;
+
+    /// <summary>
+    /// Nimmt die Station aus der Welt und legt sie mitsamt Modulen ins Lager.
+    /// Kein Gold zurueck — der Wert steckt weiter in der eingelagerten Station.
+    /// </summary>
+    public void Pack(AutomationDevice device)
+    {
+        if (device == null) return;
+
+        var entry = new PackedStation
+        {
+            level = device.Level,
+            modules = device.DetachModules()
+        };
+
+        packedStations.Add(entry);
+
+        Unregister(device);
+        Destroy(device.gameObject);
+
+        OnPackedChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Setzt die aelteste eingelagerte Station auf die Kachel — mit Level, Modulen und deren
+    /// Leveln. Gibt null zurueck, wenn nichts eingelagert ist oder das Setzen scheitert.
+    /// </summary>
+    public AutomationDevice PlacePacked(AutomationStationData data, int x, int z)
+    {
+        if (packedStations.Count == 0) return null;
+
+        var entry = packedStations[0];
+        var station = Spawn(data, x, z);
+        if (station == null) return null;
+
+        packedStations.RemoveAt(0);
+
+        station.SetLevel(entry.level);
+        station.RestoreModules(entry.modules);
+
+        OnPackedChanged?.Invoke();
+        return station;
+    }
+
+    /// <summary>Fuer den Ladepfad: Lager komplett ersetzen.</summary>
+    public void SetPackedStations(List<PackedStation> entries)
+    {
+        packedStations.Clear();
+        if (entries != null) packedStations.AddRange(entries);
+
+        OnPackedChanged?.Invoke();
+    }
+
+    public IReadOnlyList<PackedStation> PackedStations => packedStations;
+
     /// <summary>Räumt alle Geräte ab — für den Ladepfad, bevor der Save angewendet wird.</summary>
     public void Clear()
     {
@@ -148,6 +234,9 @@ public class AutomationDeviceManager : MonoBehaviour
             if (device != null) Destroy(device.gameObject);
 
         byTile.Clear();
+        packedStations.Clear();
+
+        OnPackedChanged?.Invoke();
     }
 
     /// <summary>Nimmt das Gerät aus der Kachel-Zuordnung, ohne es zu zerstören.</summary>

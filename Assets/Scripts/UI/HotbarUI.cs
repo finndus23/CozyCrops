@@ -120,6 +120,7 @@ public class HotbarUI : MonoBehaviour
         BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
         BuildModeManager.Instance.OnStationSelectionChanged += UpdateStationHighlight;
         PlayerInventory.Instance.OnMoneyChanged += _ => UpdateDeviceAffordability();
+        AutomationDeviceManager.OnPackedChanged += UpdateDeviceAffordability;
 
         UpdateDeviceAffordability();
         UpdateHighlight(Hotbar.Instance.ActiveTool);
@@ -135,6 +136,7 @@ public class HotbarUI : MonoBehaviour
             BuildModeManager.Instance.OnSelectedTileChanged -= UpdateBuildHighlight;
             BuildModeManager.Instance.OnStationSelectionChanged -= UpdateStationHighlight;
         }
+        AutomationDeviceManager.OnPackedChanged -= UpdateDeviceAffordability;
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
         if (ToolRegistry.Instance != null)
@@ -511,9 +513,16 @@ public class HotbarUI : MonoBehaviour
             ApplyButtonSpriteStates(button);
             button.onClick.AddListener(() =>
             {
-                // Reihenfolge zaehlt: BeginBuy bricht intern eine laufende Platzierung ab
+                // Eingelagerte Stationen haben Vorrang vor einem Neukauf: sie sind schon
+                // bezahlt und ausgebaut, ein versehentlicher Neukauf daneben waere teuer.
+                var manager = AutomationDeviceManager.Instance;
+                bool hasPacked = manager != null && manager.PackedCount > 0;
+
+                // Reihenfolge zaehlt: Begin* bricht intern eine laufende Platzierung ab
                 // und raeumt dabei die Auswahl. Erst danach die neue setzen.
-                AutomationPlacementController.Instance?.BeginBuy(capturedData);
+                if (hasPacked) AutomationPlacementController.Instance?.BeginUnpack(capturedData);
+                else           AutomationPlacementController.Instance?.BeginBuy(capturedData);
+
                 BuildModeManager.Instance?.SelectStation();
             });
 
@@ -523,23 +532,38 @@ public class HotbarUI : MonoBehaviour
     }
 
     /// <summary>Graut Geraete-Slots aus, deren Kaufpreis das Gold uebersteigt.</summary>
+    /// <summary>
+    /// Beschriftet den Stations-Slot und graut ihn aus, wenn er gerade nicht nutzbar ist.
+    ///
+    /// Zwei Zustaende: liegt etwas im Lager, zeigt der Slot den Bestand und das Aufstellen
+    /// ist kostenlos. Sonst zeigt er den Kaufpreis.
+    /// </summary>
     private void UpdateDeviceAffordability()
     {
         if (buildStation == null) return;
 
+        var manager = AutomationDeviceManager.Instance;
+        int packed = manager != null ? manager.PackedCount : 0;
+
         int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
-        bool affordable = money >= buildStation.buyPrice;
+        bool usable = packed > 0 || money >= buildStation.buyPrice;
 
         foreach (var slotUI in deviceSlotInstances)
         {
-            if (slotUI == null || slotUI.icon == null) continue;
+            if (slotUI == null) continue;
 
-            slotUI.icon.color = buildStation.icon == null
-                ? Color.clear
-                : (affordable ? Color.white : unaffordableColor);
+            if (slotUI.icon != null)
+                slotUI.icon.color = buildStation.icon == null
+                    ? Color.clear
+                    : (usable ? Color.white : unaffordableColor);
 
             if (slotUI.countLabel != null)
-                slotUI.countLabel.color = affordable ? Color.white : unaffordableColor;
+            {
+                slotUI.countLabel.text = packed > 0
+                    ? $"x{packed}"
+                    : buildStation.buyPrice.ToString();
+                slotUI.countLabel.color = usable ? Color.white : unaffordableColor;
+            }
         }
     }
 

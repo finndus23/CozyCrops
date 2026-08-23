@@ -236,6 +236,51 @@ public class AutomationDevice : MonoBehaviour, IClickable
         return module;
     }
 
+    /// <summary>
+    /// Nimmt der Station ihre Module ab und gibt sie zurueck — fuer das Einpacken.
+    /// Level, An/Aus-Zustand und Sortenwahl bleiben in den Objekten erhalten; nur die
+    /// Anbauteile in der Welt werden abgeraeumt.
+    /// </summary>
+    public List<AutomationModule> DetachModules()
+    {
+        var detached = new List<AutomationModule>(modules);
+
+        foreach (var module in detached)
+        {
+            if (module == null) continue;
+
+            if (module.attachment != null) Destroy(module.attachment);
+            module.attachment = null;
+
+            // Laufzeitzustand faellt weg, die Einstellungen bleiben.
+            module.pendingJob = null;
+            module.scanIndex = 0;
+            module.idle = false;
+        }
+
+        modules.Clear();
+        return detached;
+    }
+
+    /// <summary>Setzt eingelagerte Module wieder ein — Gegenstueck zu DetachModules.</summary>
+    public void RestoreModules(List<AutomationModule> restored)
+    {
+        if (restored == null) return;
+
+        foreach (var module in restored)
+        {
+            if (module?.data == null) continue;
+            if (HasModule(module.data.deviceType)) continue;
+
+            module.attachment = null;
+            module.pendingJob = null;
+            module.scanIndex = 0;
+            modules.Add(module);
+        }
+
+        RefreshAttachments();
+    }
+
     public bool RemoveModule(AutomationDeviceType type)
     {
         var module = GetModule(type);
