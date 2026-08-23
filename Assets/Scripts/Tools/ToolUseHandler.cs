@@ -836,8 +836,11 @@ public class ToolUseHandler : MonoBehaviour
             // "kein Geld, keine Samen mehr".
             ToolType.Scythe      => (cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
                                     || cell.Type == TileType.Grass,
+            // requiresFertilizedSoil faerbt die Kachel in AoEPreview automatisch ungueltig
+            // und haelt auch das Saat-Modul der Station davon ab, dort zu saeen.
             ToolType.Seed        => cell.IsTilled && !cell.HasPlant
                                     && seed != null
+                                    && (!seed.requiresFertilizedSoil || cell.IsFertilized)
                                     && (PlayerInventory.Instance != null
                                         ? PlayerInventory.Instance.GetSeedCount(seed) : 0) > 0,
             // Jedes Feld, egal ob schon gehackt oder bepflanzt — der Dünger wirkt auf den

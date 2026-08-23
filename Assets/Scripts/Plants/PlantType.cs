@@ -49,6 +49,14 @@ public class PlantType : ScriptableObject
     [Range(0.3f, 3f)]
     public float automationDurationMultiplier = 1f;
 
+    [Tooltip("Diese Sorte laesst sich NUR auf geduengtem Boden pflanzen. Harvest() setzt " +
+             "den Duenger zurueck, es braucht also vor jedem Anbau frischen — die Sorte " +
+             "haengt damit dauerhaft am Komposter-Kreislauf. " +
+             "Der Hebel fuer die Spitzensorte: statt Duengen wirtschaftlich attraktiv zu " +
+             "rechnen, wird es zur Voraussetzung. Das haelt auch, wenn spaeter an Preisen " +
+             "gedreht wird.")]
+    public bool requiresFertilizedSoil;
+
     [Header("Kompostieren")]
     [Tooltip("Wie viel Dünger-Wert 1 Stück dieser Frucht beim Kompostieren beisteuert " +
              "(ComposterInteraction.cropsPerFertilizer ist der Nenner darunter — 1.0 = " +

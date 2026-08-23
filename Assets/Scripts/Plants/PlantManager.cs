@@ -152,6 +152,11 @@ public class PlantManager : MonoBehaviour
         var cell = GridManager.Instance.GetCell(x, z);
         if (cell == null || cell.IsLocked) return false;
 
+        // Zweite Absicherung neben CanApplyTool: zwischen Einreihen und Ausfuehren eines
+        // Jobs kann der Duenger verschwunden sein (eine andere Ernte hat die Kachel
+        // zurueckgesetzt). Ohne diese Pruefung wuerde der Samen still verbraucht.
+        if (type.requiresFertilizedSoil && !cell.IsFertilized) return false;
+
         if (!PlayerInventory.Instance.TryUseSeed(type)) return false;
 
         var instance = new PlantInstance(type);
