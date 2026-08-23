@@ -797,6 +797,12 @@ public class ToolUseHandler : MonoBehaviour
         var cell = GridManager.Instance?.GetCell(x, z);
         if (cell == null || cell.IsLocked) return false;
 
+        // Geraete belegen ihre Kachel exklusiv. Faerbt sie in AoEPreview automatisch
+        // ungueltig — und faengt vor allem den Durchklick-Fall ab: GridInput raycastet
+        // gegen eine Ebene, nicht gegen Collider, ein Klick aufs Geraet traefe sonst die
+        // Kachel darunter mit.
+        if (AutomationDeviceManager.IsOccupied(x, z)) return false;
+
         return tool switch
         {
             ToolType.Hoe         => cell.Type == TileType.FarmPlot && !cell.IsTilled && !cell.HasPlant,

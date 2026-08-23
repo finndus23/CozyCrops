@@ -67,6 +67,13 @@ public class HotbarUI : MonoBehaviour
     [SerializeField] private Sprite pathTileIconSprite;
     [SerializeField] private Sprite farmTileIconSprite;
 
+    [Header("Automatik-Geraete")]
+    [Tooltip("Alle AutomationDeviceData-Assets, die im Baumodus kaufbar sein sollen.")]
+    [SerializeField] private AutomationDeviceData[] buildDevices;
+
+    [Tooltip("Farbe des Geraete-Slots, wenn das Gold nicht reicht.")]
+    [SerializeField] private Color unaffordableColor = new(0.45f, 0.45f, 0.45f, 1f);
+
     [Header("Farben")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color activeColor  = new Color(0.75f, 0.55f, 0.1f, 1f);
@@ -75,6 +82,10 @@ public class HotbarUI : MonoBehaviour
     private readonly List<HotbarSlotUI> slotInstances = new();
     private readonly List<HotbarSlotUI> buildSlotInstances = new();
     private readonly TileType[] buildTileTypes = { TileType.FarmPlot, TileType.Path, TileType.Grass };
+
+    // Geraete-Slots im Baumodus. Muss im Inspector von Hand gefuellt werden — Arrays
+    // uebernehmen keinen C#-Default auf bestehenden Szenen-Komponenten.
+    private readonly List<HotbarSlotUI> deviceSlotInstances = new();
     private GameObject buildToggleSlot;
     private HotbarSlotUI buildToggleSlotUI;
 
@@ -95,6 +106,7 @@ public class HotbarUI : MonoBehaviour
         SyncOwnedToolsToHotbar();
         SpawnBuildToggleSlot();
         SpawnBuildSlots();
+        SpawnDeviceSlots();
 
         if (ToolRegistry.Instance != null)
             ToolRegistry.Instance.OnOwnedToolsChanged += SyncOwnedToolsToHotbar;
@@ -105,7 +117,10 @@ public class HotbarUI : MonoBehaviour
         PlayerInventory.Instance.OnFertilizerChanged += _ => UpdateFertilizerSlot();
         BuildModeManager.Instance.OnBuildModeChanged += OnBuildModeChanged;
         BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
+        BuildModeManager.Instance.OnSelectedDeviceChanged += UpdateDeviceHighlight;
+        PlayerInventory.Instance.OnMoneyChanged += _ => UpdateDeviceAffordability();
 
+        UpdateDeviceAffordability();
         UpdateHighlight(Hotbar.Instance.ActiveTool);
         UpdateSeedSlot();
         UpdateFertilizerSlot();
@@ -117,6 +132,7 @@ public class HotbarUI : MonoBehaviour
         {
             BuildModeManager.Instance.OnBuildModeChanged -= OnBuildModeChanged;
             BuildModeManager.Instance.OnSelectedTileChanged -= UpdateBuildHighlight;
+            BuildModeManager.Instance.OnSelectedDeviceChanged -= UpdateDeviceHighlight;
         }
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
@@ -371,6 +387,11 @@ public class HotbarUI : MonoBehaviour
         foreach (var slot in buildSlotInstances)
             slot.gameObject.SetActive(buildModeActive);
 
+        foreach (var slot in deviceSlotInstances)
+            slot.gameObject.SetActive(buildModeActive);
+
+        if (buildModeActive) UpdateDeviceAffordability();
+
         if (buildToggleSlot != null)
         {
             Sprite toggleIcon = buildModeActive ? hoeIconSprite : hammerIconSprite;
@@ -453,6 +474,95 @@ public class HotbarUI : MonoBehaviour
 
             go.SetActive(false);
             buildSlotInstances.Add(slotUI);
+        }
+    }
+
+    /// <summary>
+    /// Ein Slot je kaufbarem Geraet, direkt neben den Kachel-Slots. Kaufen und Platzieren
+    /// sind derselbe Vorgang: der Klick startet die Platzierung, Gold fliesst erst beim
+    /// Setzen.
+    /// </summary>
+    private void SpawnDeviceSlots()
+    {
+        if (buildDevices == null) return;
+
+        for (int i = 0; i < buildDevices.Length; i++)
+        {
+            var data = buildDevices[i];
+            if (data == null) continue;
+
+            GameObject go = Instantiate(slotPrefab, container);
+            go.name = $"DeviceSlot_{data.deviceType}";
+
+            HotbarSlotUI slotUI = go.GetComponent<HotbarSlotUI>();
+
+            // showCount an: die Zahl-Anzeige des Slots traegt hier den Preis.
+            ConfigureVisualSlot(slotUI, data.icon, true);
+
+            if (slotUI != null && slotUI.countLabel != null)
+                slotUI.countLabel.text = data.buyPrice.ToString();
+
+            // Geraete sind ueber Missionsziele nicht auffindbar — kein Unlock daran geknuepft.
+            var deviceHighlight = go.GetComponent<HighlightTarget>();
+            if (deviceHighlight != null)
+                deviceHighlight.SetObjectiveTypes();
+
+            var capturedData = data;
+
+            Button button = go.GetComponent<Button>();
+            ApplyButtonSpriteStates(button);
+            button.onClick.AddListener(() =>
+            {
+                // Reihenfolge zaehlt: BeginBuy bricht intern eine laufende Platzierung ab
+                // und raeumt dabei die Geraete-Auswahl. Erst danach die neue setzen.
+                AutomationPlacementController.Instance?.BeginBuy(capturedData);
+                BuildModeManager.Instance?.SelectDevice(capturedData.deviceType);
+            });
+
+            go.SetActive(false);
+            deviceSlotInstances.Add(slotUI);
+        }
+    }
+
+    /// <summary>Graut Geraete-Slots aus, deren Kaufpreis das Gold uebersteigt.</summary>
+    private void UpdateDeviceAffordability()
+    {
+        if (buildDevices == null) return;
+
+        int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
+
+        for (int i = 0; i < deviceSlotInstances.Count && i < buildDevices.Length; i++)
+        {
+            var data = buildDevices[i];
+            var slotUI = deviceSlotInstances[i];
+            if (data == null || slotUI == null || slotUI.icon == null) continue;
+
+            bool affordable = money >= data.buyPrice;
+            slotUI.icon.color = data.icon == null
+                ? Color.clear
+                : (affordable ? Color.white : unaffordableColor);
+
+            if (slotUI.countLabel != null)
+                slotUI.countLabel.color = affordable ? Color.white : unaffordableColor;
+        }
+    }
+
+    private void UpdateDeviceHighlight(AutomationDeviceType selectedType)
+    {
+        if (buildDevices == null) return;
+
+        for (int i = 0; i < deviceSlotInstances.Count && i < buildDevices.Length; i++)
+        {
+            var slotUI = deviceSlotInstances[i];
+            if (slotUI == null || slotUI.background == null || buildDevices[i] == null) continue;
+
+            bool selected = buildDevices[i].deviceType == selectedType
+                            && selectedType != AutomationDeviceType.None;
+
+            slotUI.background.sprite = selected && highlightedSlotSprite != null
+                ? highlightedSlotSprite
+                : normalSlotSprite;
+            slotUI.background.color = Color.white;
         }
     }
 
