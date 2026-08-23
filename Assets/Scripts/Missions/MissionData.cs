@@ -12,9 +12,7 @@ public class MissionData : ScriptableObject
     [Header("Aufgaben")]
     public MissionObjectiveData[] objectives;
 
-    [Tooltip("Zaehlen Aktionen von Automatik-Geraeten fuer diese Mission?
-
-" +
+    [Tooltip("Zaehlen Aktionen von Automatik-Geraeten fuer diese Mission?\n\n" +
              "Standard aus: sonst hakt eine Maschine abseits vom Bildschirm Tutorial-Ziele " +
              "ab, waehrend der Tutorial-Highlight noch auf etwas Erledigtes zeigt. Ein neuer " +
              "bool ist auf allen bestehenden MissionData-Assets false — genau der gewuenschte " +
