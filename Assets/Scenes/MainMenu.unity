@@ -2684,6 +2684,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ae94f5308ed64e129e2ea99248ffba23, type: 2}
   - {fileID: 11400000, guid: 112233445566778899001122334455a0, type: 2}
   - {fileID: 11400000, guid: 112233445566778899001122334455a2, type: 2}
+  - {fileID: 11400000, guid: d01617e09bac4ed4a284f183744d00f3, type: 2}
   sideMissions: []
   autoStartStoryChain: 1
 --- !u!4 &677964883

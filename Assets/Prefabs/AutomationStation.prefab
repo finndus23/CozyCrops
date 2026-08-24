@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 4796049050047049505}
   - component: {fileID: 8933870434079542098}
   - component: {fileID: -631132879932291251}
+  - component: {fileID: 6228529860185361323}
+  - component: {fileID: 3217202866103213813}
   m_Layer: 0
   m_Name: AutomationStation
   m_TagString: Untagged
@@ -130,9 +132,41 @@ MonoBehaviour:
   stationData: {fileID: 0}
   level: 0
   modules: []
-  statusPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
   statusHeightOffset: 0.4
-  workingColor: {r: 0.45, g: 0.8, b: 1, a: 1}
-  idleColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
-  trackAlpha: 0.6
-  ringWidth: 0.09
+  statusScale: 0.012
+  sortingOrder: 200
+  backgroundSprite: {fileID: 0}
+  backgroundColor: {r: 0.12, g: 0.09, b: 0.06, a: 0.72}
+  countFontSize: 26
+  countColor: {r: 1, g: 1, b: 1, a: 1}
+  emptyCountColor: {r: 1, g: 0.35, b: 0.25, a: 1}
+--- !u!114 &6228529860185361323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796192721320504356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 1a000000190000001800000018000000
+  highlightId: 
+  plantType: {fileID: 0}
+  toolType: 0
+  showOffScreenIndicator: 1
+--- !u!114 &3217202866103213813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796192721320504356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
+  startHighlighted: 0

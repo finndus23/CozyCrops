@@ -132449,6 +132449,8 @@ MonoBehaviour:
     dialogue: {fileID: 11400000, guid: 112233445566778899001122334455b7, type: 2}
   - missionId: story_5b_compost_run
     dialogue: {fileID: 11400000, guid: b9c18cde028545389ee6f07eaca4d379, type: 2}
+  - missionId: story_8_automation_intro
+    dialogue: {fileID: 11400000, guid: 05fff2a1505a413094ed2e75ee36f9be, type: 2}
   smallTalkDialogue: {fileID: 11400000, guid: 8192a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
   repeatTutorialDialogue: 1
   availableIndicator: {fileID: 0}

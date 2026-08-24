@@ -56,7 +56,7 @@ MonoBehaviour:
     amount: 1
     plant: {fileID: 0}
     tool: 0
-    zoneName: zone_2
+    zoneName: farm_expansion_right
     licenseId:
   isStoryMission: 1
   unlocks: []
