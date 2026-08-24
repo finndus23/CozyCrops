@@ -673,6 +673,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2755434
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1179,6 +1182,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &8694090
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2708,6 +2714,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &23550019
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2962,6 +2971,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &25636155
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4430,6 +4442,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &37325421
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4558,6 +4573,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &38221442
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4686,6 +4704,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &38685337
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5444,6 +5465,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &43467934
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5962,6 +5986,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &49740492
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6216,6 +6243,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &53355781
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6501,6 +6531,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &57543881
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7144,6 +7177,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &65730857
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7661,6 +7697,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &71643276
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10195,6 +10234,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &94454031
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10323,6 +10365,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &94863397
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10703,6 +10748,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &99525963
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12115,6 +12163,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &123435728
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14126,6 +14177,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &148495247
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14517,6 +14571,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &154234775
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14771,6 +14828,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &155571915
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15419,6 +15479,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &160172703
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -16115,6 +16178,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &173308163
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -18506,6 +18572,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &184521338
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -19894,6 +19963,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &194676831
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -20022,6 +20094,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &200312352
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -20150,6 +20225,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &200786525
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -21328,6 +21406,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &212244748
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22903,6 +22984,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &226978555
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -23233,6 +23317,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 228480164}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &229425837 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6689036041284674117, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
+  m_PrefabInstance: {fileID: 476663344}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &230116398 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2314420984316199405, guid: cc894c3a9e615b747a7f155e4db32bd6, type: 3}
@@ -24800,6 +24889,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &244495273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -25306,6 +25398,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &250612068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -25560,6 +25655,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &253081947
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -26258,6 +26356,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &259165708
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -27119,6 +27220,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &264053569
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -27499,6 +27603,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &266662800
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -28279,6 +28386,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &274325250
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29667,6 +29777,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &293069609
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -30427,6 +30540,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &306103586
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -30555,6 +30671,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &306922706
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -30935,6 +31054,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &311646539
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -31993,6 +32115,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &320470945
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -32121,6 +32246,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &322230183
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -32501,6 +32629,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &326254121
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -33270,6 +33401,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &331512844
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -33776,6 +33910,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &332557416
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35416,6 +35553,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &342238011
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35922,6 +36062,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &350080661
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -36706,6 +36849,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &359657226
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -37590,6 +37736,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &366099541
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -38779,6 +38928,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &378854425
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -38907,6 +39059,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &378884895
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -39349,6 +39504,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &380971976
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -39634,6 +39792,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &384743501
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40337,6 +40498,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &391143146
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40465,6 +40629,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &392276271
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40971,6 +41138,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &401362781
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -41541,6 +41711,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &404372155
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -41922,6 +42095,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &410682351
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -42685,6 +42861,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &417090422
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -42813,6 +42992,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &417413692
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -43445,6 +43627,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &422434553
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -44540,6 +44725,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &426212640
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -44794,6 +44982,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &428754437
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -45174,6 +45365,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &433379998
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -45302,6 +45496,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &433821103
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -45970,6 +46167,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &437747230
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -46350,6 +46550,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &443154150
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -46918,6 +47121,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &452856984
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -47165,6 +47371,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &453863968
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -47549,6 +47758,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &457193380
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -47808,6 +48020,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &459174771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -48533,6 +48748,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &463856509
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -48995,6 +49213,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &470222533
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -49123,6 +49344,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &470496336
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -49377,6 +49601,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &472702233
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -49725,15 +49952,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.060308244
+      value: 0.06030826
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.060308244
+      value: 0.06030826
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.487
+      value: 0.48700142
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -49741,7 +49968,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.495
+      value: -0.4949999
       objectReference: {fileID: 0}
     - target: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -49774,13 +50001,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 476663346}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
 --- !u!4 &476663345 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
   m_PrefabInstance: {fileID: 476663344}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &476663346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229425837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 1500000016000000
+  highlightId: 
+  plantType: {fileID: 0}
+  toolType: 0
+  showOffScreenIndicator: 1
 --- !u!1 &479120943
 GameObject:
   m_ObjectHideFlags: 0
@@ -50083,6 +50330,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &479776720
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -50337,6 +50587,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &481211720
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -50465,6 +50718,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &482655789
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -50593,6 +50849,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &483042268
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -51165,6 +51424,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &488201251
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52175,6 +52437,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &496806467
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52745,6 +53010,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &501162813
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -53753,6 +54021,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &511242298
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -57533,6 +57804,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &542599026
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -58057,6 +58331,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &548594773
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -58750,6 +59027,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &551457880
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -59099,6 +59379,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &553593958
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -59541,6 +59824,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &560351012
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -59921,6 +60207,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &562956751
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -60615,6 +60904,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &570802005
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -61729,6 +62021,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &581978353
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -63870,6 +64165,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &602913596
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -64188,6 +64486,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &605509368
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -64783,6 +65084,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &612311482
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -65163,6 +65467,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &617950762
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -66947,6 +67254,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &631762362
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -67075,6 +67385,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &635939400
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -68468,6 +68781,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &650931293
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -68848,6 +69164,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &654995241
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -71384,6 +71703,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &681493618
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -71638,6 +71960,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &682561005
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -71892,6 +72217,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &685578527
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -72524,6 +72852,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &692173067
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -72652,6 +72983,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &692578144
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -72780,6 +73114,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &693508531
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -73160,6 +73497,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &695331459
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -74051,6 +74391,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &706327796
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -74742,6 +75085,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &711191098
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -75133,6 +75479,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &716791612
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -76218,6 +76567,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &726241923
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -76757,6 +77109,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &734085828
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -77011,6 +77366,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &735733024
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -77517,6 +77875,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &738857129
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -77771,6 +78132,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &741502995
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -78692,6 +79056,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &749736309
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -79491,6 +79858,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &756441461
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -80123,6 +80493,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &758888285
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -81737,6 +82110,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &785456556
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -83211,6 +83587,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &805122329
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -83470,6 +83849,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &808260377
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -83598,6 +83980,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &808543103
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -84482,6 +84867,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &824497310
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -85333,6 +85721,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &836860246
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -85779,6 +86170,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &840878057
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -87829,6 +88223,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &855184357
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -88713,6 +89110,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &861227851
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -88841,6 +89241,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &863630466
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -89568,6 +89971,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &870213320
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -89696,6 +90102,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &872450850
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -90154,6 +90563,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &876911741
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -90408,6 +90820,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &881734689
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -90662,6 +91077,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &883538970
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -91013,6 +91431,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &888057644
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -92317,6 +92738,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &901259883
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -93031,6 +93455,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &910211761
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -93347,6 +93774,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &916083955
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -95884,6 +96314,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &942061719
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -96735,6 +97168,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &953254009
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -97115,6 +97551,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &954251126
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -98251,6 +98690,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &962958198
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -98654,6 +99096,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &970395267
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -98908,6 +99353,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &972888000
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -99288,6 +99736,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &977116975
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -99925,6 +100376,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &981643398
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -100568,6 +101022,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &986072393
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -100827,6 +101284,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &989566249
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -101459,6 +101919,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &991071594
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -101867,6 +102330,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &993764866
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -102656,6 +103122,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1004441944
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -102910,6 +103379,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1008747895
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -103510,6 +103982,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1010472407
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -104016,6 +104491,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1016449980
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -104144,6 +104622,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1016468991
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -104398,6 +104879,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1018771577
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -105323,6 +105807,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1026850810
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -105577,6 +106064,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1029955209
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -105831,6 +106321,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1032138289
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -106976,6 +107469,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1046061275
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -108148,6 +108644,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1060217726
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -108402,6 +108901,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1060466101
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -109697,6 +110199,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1077903869
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -110234,6 +110739,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1084170169
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -110871,6 +111379,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1089701690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -111187,6 +111698,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1095076213
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -111567,6 +112081,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1097600436
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -112387,6 +112904,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1104898515
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -113567,6 +114087,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1121993588
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -114199,6 +114722,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1124269677
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -114358,6 +114884,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1124602928
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -114738,6 +115267,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1127922428
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -114866,6 +115398,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1128277990
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -114994,6 +115529,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1129767955
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115122,6 +115660,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1130804299
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115694,6 +116235,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1135275102
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115948,6 +116492,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1136794398
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -117097,6 +117644,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1150778129
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -119346,6 +119896,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1172032708
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -119631,6 +120184,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1173455022
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -120199,6 +120755,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1180269061
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -120453,6 +121012,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1181302142
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -121152,6 +121714,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1191159704
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -121442,6 +122007,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1195554901
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -121900,6 +122468,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1199286632
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123019,6 +123590,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1211261228
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123147,6 +123721,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1211383630
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123653,6 +124230,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1217973578
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -124159,6 +124739,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1222064245
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -124539,6 +125122,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1226671168
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -125498,6 +126084,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1241051780
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -127495,6 +128084,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1258207839
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -129301,6 +129893,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1275745397
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -129429,6 +130024,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1276444972
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -130719,6 +131317,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1288974344
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -131225,6 +131826,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1293861035
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -131605,6 +132209,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1295426596
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -131733,6 +132340,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1296464345
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -132352,6 +132962,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1303946088
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -132804,6 +133417,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1307116617
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -133148,6 +133764,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1309611594
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -133736,6 +134355,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1314373969
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -133864,6 +134486,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1314552732
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -135412,6 +136037,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1336315884
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -135853,6 +136481,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1342511821
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -137535,6 +138166,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1358599715
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -137968,6 +138602,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1365013261
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -138348,6 +138985,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1369572858
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -138602,6 +139242,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1369910156
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -138987,6 +139630,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1374701967
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -140123,6 +140769,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1388091030
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -140978,6 +141627,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1394423371
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -141484,6 +142136,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1396939392
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -142840,6 +143495,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1404638521
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -143534,6 +144192,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1412011602
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -144040,6 +144701,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1413610803
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -144546,6 +145210,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1419873450
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -144674,6 +145341,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1421073900
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -145293,6 +145963,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1429969208
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -145799,6 +146472,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1433771629
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -146441,6 +147117,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1444253729
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -150329,6 +151008,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1481582776
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -150457,6 +151139,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1482738273
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -151320,6 +152005,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1495159991
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -151762,6 +152450,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1501579837
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -152311,6 +153002,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1510860940
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -152784,6 +153478,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1516892435
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -153291,6 +153988,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1521946945
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -153671,6 +154371,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1523886306
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -155073,6 +155776,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1545570159
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -155201,6 +155907,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1546175770
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -156023,6 +156732,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1549900899
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -156721,6 +157433,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1554590257
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -156849,6 +157564,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1554857636
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -157970,6 +158688,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1576115664
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -158602,6 +159323,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1579407779
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -158730,6 +159454,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1580555941
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -159864,6 +160591,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1591413013
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -161406,6 +162136,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1608059080
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -162054,6 +162787,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1613066042
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -162182,6 +162918,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1613886044
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -162310,6 +163049,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1616027002
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -164656,6 +165398,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1635350672
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -164784,6 +165529,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1640792469
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -165941,6 +166689,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1664196115
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -166321,6 +167072,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1666341727
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -167591,6 +168345,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1676150004
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -168128,6 +168885,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1681044855
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -168256,6 +169016,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1683122652
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -168384,6 +169147,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1685021351
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -170134,6 +170900,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1709314354
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -170388,6 +171157,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1713021779
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -170972,6 +171744,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1716294163
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -171757,6 +172532,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1725482560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -172137,6 +172915,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1727285635
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -172265,6 +173046,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1728942984
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -172712,6 +173496,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1732316359
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -173621,6 +174408,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1747495817
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -174384,6 +175174,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1756404078
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -175268,6 +176061,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1761011225
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -175522,6 +176318,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1761338767
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -176406,6 +177205,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1765436043
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -177049,6 +177851,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1768495790
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -177814,6 +178619,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1784838896
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -178446,6 +179254,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1786986265
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -178574,6 +179385,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1788132529
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -179080,6 +179894,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1790109220
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -179709,6 +180526,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1795941182
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -180089,6 +180909,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1800739404
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -180217,6 +181040,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1806246309
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -181055,6 +181881,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1813903688
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -182010,6 +182839,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1823112872
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -182138,6 +182970,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1825115356
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -182710,6 +183545,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1831547351
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -183216,6 +184054,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1834157778
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -184728,6 +185569,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1858526351
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -184982,6 +185826,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1864571104
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -185614,6 +186461,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1872590746
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -186629,6 +187479,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1877918210
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -186757,6 +187610,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1883183262
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -187391,6 +188247,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1885386907
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -190581,6 +191440,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1922025459
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -191277,6 +192139,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1929786589
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -192744,6 +193609,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1947723086
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -192872,6 +193740,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1947927429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -193000,6 +193871,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1948357918
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -193128,6 +194002,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1950730566
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -193963,6 +194840,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1959439502
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -194469,6 +195349,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1964850158
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -195039,6 +195922,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1972855070
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -195167,6 +196053,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1974546938
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -195295,6 +196184,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1975460728
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -196557,6 +197449,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1988801791
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -196811,6 +197706,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &1991608935
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -198733,6 +199631,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2006610121
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -198922,6 +199823,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2007775622
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -199494,6 +200398,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2012178504
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -199622,6 +200529,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2014461086
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -199750,6 +200660,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2015394621
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -200004,6 +200917,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2016844305
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -200733,6 +201649,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2024342024
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -202409,6 +203328,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2050550245
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -202944,6 +203866,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2056498868
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -204076,6 +205001,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2072003771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -204834,6 +205762,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2079673441
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -204962,6 +205893,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2079699873
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -205156,6 +206090,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2080841673
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -207182,6 +208119,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2090984957
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -208582,6 +209522,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2109208431
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -208898,6 +209841,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2110814077
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -209152,6 +210098,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2111808856
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -209280,6 +210229,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2112116223
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -210226,6 +211178,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2118083585
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -211236,6 +212191,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2125382385
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -212105,6 +213063,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2129926571
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -213493,6 +214454,9 @@ MonoBehaviour:
   dryPrefab: {fileID: 0}
   tilledPrefab: {fileID: 0}
   wateredPrefab: {fileID: 0}
+  fertilizedMarkerPrefab: {fileID: 0}
+  fertilizedMarkerHeightOffset: 0.12
+  fertilizedMarkerColor: {r: 0.55, g: 0.35, b: 0.85, a: 1}
 --- !u!65 &2143173396
 BoxCollider:
   m_ObjectHideFlags: 0
