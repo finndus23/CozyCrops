@@ -45,7 +45,7 @@ MonoBehaviour:
   - type: 16
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId: farm_expansion_bottom
+    targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
     requiredAmount: 1
