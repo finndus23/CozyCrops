@@ -15,6 +15,12 @@ public class FarmMarketNpcPatrol : MonoBehaviour
     [SerializeField] private float waitAtWaypointSeconds = 1f;
     [SerializeField] private bool loop = true;
 
+    [Header("Random Walking Pauses")]
+    [Tooltip("Zufaelliger Abstand zwischen kurzen Pausen, waehrend der NPC laeuft.")]
+    [SerializeField] private Vector2 randomPauseIntervalSeconds = new Vector2(6f, 12f);
+    [Tooltip("Dauer einer zufaelligen Pause waehrend des Laufens.")]
+    [SerializeField, Min(0f)] private float randomPauseDurationSeconds = 2f;
+
     [Header("Dialogue")]
     [SerializeField] private Vector3 dialogueEulerAngles = new Vector3(0f, 180f, 0f);
 
@@ -27,9 +33,11 @@ public class FarmMarketNpcPatrol : MonoBehaviour
     [SerializeField] private int walkMoveValue = 1;
 
     private Vector3 startPosition;
+    private Vector3[] runtimeWorldWaypoints;
     private int waypointIndex = 1;
     private int travelDirection = 1;
     private float waitUntil;
+    private float nextRandomPauseAt;
     private bool isInDialogue;
     private bool isWalking;
 
@@ -47,6 +55,7 @@ public class FarmMarketNpcPatrol : MonoBehaviour
             localWaypoints = new[] { Vector3.zero, new Vector3(2f, 0f, 0f) };
 
         waypointIndex = HasWorldWaypoints ? 0 : localWaypoints.Length > 1 ? 1 : 0;
+        ScheduleNextRandomPause();
         isWalking = true;
         PlayIdle();
     }
@@ -62,6 +71,14 @@ public class FarmMarketNpcPatrol : MonoBehaviour
             return;
         }
 
+        if (Time.time >= nextRandomPauseAt)
+        {
+            waitUntil = Time.time + randomPauseDurationSeconds;
+            ScheduleNextRandomPause(randomPauseDurationSeconds);
+            PlayIdle();
+            return;
+        }
+
         Vector3 target = GetWorldWaypoint(waypointIndex);
         Vector3 toTarget = target - transform.position;
         toTarget.y = 0f;
@@ -71,6 +88,7 @@ public class FarmMarketNpcPatrol : MonoBehaviour
             transform.position = new Vector3(target.x, transform.position.y, target.z);
             AdvanceWaypoint();
             waitUntil = Time.time + waitAtWaypointSeconds;
+            ScheduleNextRandomPause(waitAtWaypointSeconds);
             PlayIdle();
             return;
         }
@@ -89,7 +107,54 @@ public class FarmMarketNpcPatrol : MonoBehaviour
     {
         isInDialogue = false;
         waitUntil = Time.time + waitAtWaypointSeconds;
+        ScheduleNextRandomPause(waitAtWaypointSeconds);
         PlayIdle();
+    }
+
+    /// <summary>
+    /// Liefert die aktuell konfigurierte Route als feste Weltpositionen. Dadurch kann
+    /// der Marktplatz die Routen beim Laden zwischen den NPCs tauschen, unabhängig davon,
+    /// ob sie im Inspector als echte Transforms oder lokale Punkte angelegt wurden.
+    /// </summary>
+    public Vector3[] GetRouteWorldPoints()
+    {
+        var route = new Vector3[WaypointCount];
+        for (int i = 0; i < route.Length; i++)
+            route[i] = GetWorldWaypoint(i);
+
+        return route;
+    }
+
+    /// <summary>
+    /// Weist eine beim Szenenstart gemischte Route zu und setzt den NPC direkt auf deren
+    /// ersten Punkt. So läuft er nicht erst quer durch Gebäude zu seiner neuen Strecke.
+    /// </summary>
+    public void SetRuntimeRoute(Vector3[] route, bool reverse)
+    {
+        if (route == null || route.Length < 2)
+            return;
+
+        runtimeWorldWaypoints = new Vector3[route.Length];
+        for (int i = 0; i < route.Length; i++)
+        {
+            int sourceIndex = reverse ? route.Length - 1 - i : i;
+            runtimeWorldWaypoints[i] = route[sourceIndex];
+        }
+
+        Vector3 routeStart = runtimeWorldWaypoints[0];
+        transform.position = new Vector3(routeStart.x, transform.position.y, routeStart.z);
+        waypointIndex = 1;
+        travelDirection = 1;
+        waitUntil = Time.time + Random.Range(0f, 0.75f);
+        ScheduleNextRandomPause(waitUntil - Time.time);
+        PlayIdle();
+    }
+
+    private void ScheduleNextRandomPause(float delayBeforeCounting = 0f)
+    {
+        float minimum = Mathf.Max(0f, randomPauseIntervalSeconds.x);
+        float maximum = Mathf.Max(minimum, randomPauseIntervalSeconds.y);
+        nextRandomPauseAt = Time.time + delayBeforeCounting + Random.Range(minimum, maximum);
     }
 
     private void MoveTowards(Vector3 target, Vector3 direction)
@@ -124,6 +189,9 @@ public class FarmMarketNpcPatrol : MonoBehaviour
 
     private Vector3 GetWorldWaypoint(int index)
     {
+        if (HasRuntimeWorldWaypoints)
+            return runtimeWorldWaypoints[Mathf.Clamp(index, 0, runtimeWorldWaypoints.Length - 1)];
+
         if (HasWorldWaypoints)
         {
             Transform waypoint = worldWaypoints[Mathf.Clamp(index, 0, worldWaypoints.Length - 1)];
@@ -137,7 +205,11 @@ public class FarmMarketNpcPatrol : MonoBehaviour
 
     private bool HasWorldWaypoints => worldWaypoints != null && worldWaypoints.Length > 0 && worldWaypoints[0] != null;
 
-    private int WaypointCount => HasWorldWaypoints ? worldWaypoints.Length : localWaypoints.Length;
+    private bool HasRuntimeWorldWaypoints => runtimeWorldWaypoints != null && runtimeWorldWaypoints.Length > 0;
+
+    private int WaypointCount => HasRuntimeWorldWaypoints
+        ? runtimeWorldWaypoints.Length
+        : HasWorldWaypoints ? worldWaypoints.Length : localWaypoints.Length;
 
     private void PlayIdle()
     {

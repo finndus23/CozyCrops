@@ -13180,6 +13180,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 752232757}
+  - component: {fileID: 810000021}
+  - component: {fileID: 810000022}
   m_Layer: 0
   m_Name: NPC
   m_TagString: Untagged
@@ -13211,6 +13213,38 @@ Transform:
   - {fileID: 810000014}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &810000021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752232756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b8e41ac9d7f4be1a26c580e92f347d1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcStatusIcons
+  iconPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
+  heightOffset: 0.32
+  iconWorldSize: 0.55
+  seedColor: {r: 0.55, g: 0.88, b: 0.38, a: 1}
+  sellColor: {r: 1, g: 0.78, b: 0.25, a: 1}
+  toolColor: {r: 0.95, g: 0.52, b: 0.24, a: 1}
+  licenseColor: {r: 0.52, g: 0.72, b: 1, a: 1}
+--- !u!114 &810000022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752232756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d9c21ef4a8043acb72518e06f94d321, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcRouteRandomizer
+  randomizeDirection: 1
 --- !u!1001 &753342562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14469,6 +14503,7 @@ MonoBehaviour:
   sellPanel: {fileID: 447149628}
   upgradePanel: {fileID: 273191750}
   licensePanel: {fileID: 0}
+  upgradePanelTitleText: {fileID: 241884269}
   buyContentRoot: {fileID: 1448950231}
   sellContentRoot: {fileID: 47876036}
   upgradeContentRoot: {fileID: 1007483796}
@@ -14874,6 +14909,7 @@ GameObject:
   - component: {fileID: 810000016}
   - component: {fileID: 810000017}
   - component: {fileID: 810000018}
+  - component: {fileID: 810000019}
   m_Layer: 0
   m_Name: LizenzAmt
   m_TagString: Untagged
@@ -14900,8 +14936,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 2.4146502, z: 1}
+  m_Center: {x: 0, y: 0.707325, z: 0}
 --- !u!23 &810000012
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14909,7 +14945,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 810000010}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -14968,10 +15004,11 @@ Transform:
   m_GameObject: {fileID: 810000010}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -26.130001, y: 1.01, z: -0.059999943}
+  m_LocalPosition: {x: -26.130001, y: 0, z: -0.059999943}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 946803280}
   m_Father: {fileID: 752232757}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &810000015
@@ -14991,7 +15028,7 @@ MonoBehaviour:
   tradeMode: 3
   seedsForSale: []
   cameraFocusPoint: {fileID: 0}
-  addPatrolIfMissing: 0
+  addPatrolIfMissing: 1
 --- !u!114 &810000016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15039,6 +15076,36 @@ MonoBehaviour:
   plantType: {fileID: 0}
   toolType: 0
   showOffScreenIndicator: 1
+--- !u!114 &810000019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 810000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5a1f64ac7642749a78387f4be8d6d8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcPatrol
+  worldWaypoints: []
+  localWaypoints:
+  - {x: -4, y: 0, z: -0.27}
+  - {x: 4, y: 0, z: -0.27}
+  moveSpeed: 1.2
+  turnSpeed: 540
+  waypointReachDistance: 0.08
+  waitAtWaypointSeconds: 1
+  loop: 1
+  randomPauseIntervalSeconds: {x: 6, y: 12}
+  randomPauseDurationSeconds: 2
+  dialogueEulerAngles: {x: 0, y: 180, z: 0}
+  animator: {fileID: 0}
+  idleTrigger: idle
+  walkTrigger: walk
+  moveIntParameter: move
+  idleMoveValue: 0
+  walkMoveValue: 1
 --- !u!4 &811672819 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a55fbf8471203d74aadb7950979d45fd, type: 3}
@@ -18190,6 +18257,8 @@ MonoBehaviour:
   waypointReachDistance: 0.08
   waitAtWaypointSeconds: 1
   loop: 1
+  randomPauseIntervalSeconds: {x: 6, y: 12}
+  randomPauseDurationSeconds: 2
   dialogueEulerAngles: {x: 0, y: 180, z: 0}
   animator: {fileID: 0}
   idleTrigger: idle
@@ -21160,6 +21229,8 @@ MonoBehaviour:
   waypointReachDistance: 0.08
   waitAtWaypointSeconds: 1
   loop: 1
+  randomPauseIntervalSeconds: {x: 6, y: 12}
+  randomPauseDurationSeconds: 2
   dialogueEulerAngles: {x: 0, y: 180, z: 0}
   animator: {fileID: 0}
   idleTrigger: idle
@@ -31660,23 +31731,23 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 2131497002}
+    m_TransformParent: {fileID: 810000014}
     m_Modifications:
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 34.404
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.47981
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.238999
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.012481931
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalRotation.x
@@ -31684,7 +31755,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.9999221
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalRotation.z
@@ -31696,7 +31767,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 178.57
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104344, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -31704,7 +31775,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5481669548617104346, guid: 532a2fc3185beb5458e02f15f6ed2886, type: 3}
       propertyPath: m_Name
-      value: normal woman c
+      value: char-normal-woman-type-3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -35066,6 +35137,8 @@ MonoBehaviour:
   waypointReachDistance: 0.08
   waitAtWaypointSeconds: 1
   loop: 1
+  randomPauseIntervalSeconds: {x: 6, y: 12}
+  randomPauseDurationSeconds: 2
   dialogueEulerAngles: {x: 0, y: 180, z: 0}
   animator: {fileID: 0}
   idleTrigger: idle
@@ -37084,7 +37157,6 @@ Transform:
   - {fileID: 297009631}
   - {fileID: 1450613147}
   - {fileID: 802338996}
-  - {fileID: 946803280}
   - {fileID: 2085642385}
   - {fileID: 227023348}
   - {fileID: 109346662}

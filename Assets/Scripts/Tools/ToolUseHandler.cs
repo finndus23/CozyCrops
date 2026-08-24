@@ -276,12 +276,6 @@ public class ToolUseHandler : MonoBehaviour
                 tiles.Add(tile);
         }
 
-        // Scythe darf laut CanApplyTool sowohl reife Pflanzen als auch Gras treffen — aber
-        // nur EIN Verhalten pro Aktion. Steckt irgendwo ein Erntefeld in der Fläche, war
-        // das die Absicht, die Gras-Tiles fliegen raus.
-        if (tool == ToolType.Scythe)
-            FilterScytheTiles(tiles);
-
         if (tiles.Count == 0) return false;
 
         // Tile-basierte Kapazität: jetzt steht fest, wie viele Felder dazukämen.
@@ -404,9 +398,9 @@ public class ToolUseHandler : MonoBehaviour
             accepted.Add(tile);
         }
 
-        // Wie beim Spieler: steckt ein Erntefeld in der Liste, fliegen die Gras-Tiles raus.
-        if (tool == ToolType.Scythe)
-            FilterScytheTiles(accepted);
+        // Der Sichel-Sonderfall (Gras mitmaehen) ist mit origin/master entfallen — die
+        // Sichel trifft jetzt nur noch reife Pflanzen, also braucht es hier kein Filtern
+        // mehr. Siehe CanApplyTool.
 
         if (accepted.Count == 0) return null;
 
@@ -754,12 +748,7 @@ public class ToolUseHandler : MonoBehaviour
                 break;
 
             case ToolType.Scythe:
-                // Gemischte AoE möglich: manche Tiles haben eine reife Pflanze, andere sind
-                // einfach Gras. CanApplyTool lässt beides durch, hier wird pro Tile entschieden.
-                var scytheCell = GridManager.Instance?.GetCell(x, z);
-                applied = scytheCell != null && scytheCell.Type == TileType.Grass && !scytheCell.HasPlant
-                    ? PlantManager.Instance.TryGatherGrass(x, z)
-                    : PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
+                applied = PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
                 break;
         }
 
@@ -831,11 +820,7 @@ public class ToolUseHandler : MonoBehaviour
             // Wachstumsphase schon hat, ist kein gültiges Ziel mehr. Sonst reiht man
             // Gieß-Jobs auf Felder ein, auf denen nichts passiert.
             ToolType.WateringCan => cell.HasPlant && cell.Plant != null && cell.Plant.NeedsWatering,
-            // Zusätzlich zum Ernten: Gras mähen. Kein Ertrag, aber eine Chance auf einen
-            // Not-Samen (PlantManager.TryGatherGrass) — Rettungsanker gegen den Softlock
-            // "kein Geld, keine Samen mehr".
-            ToolType.Scythe      => (cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
-                                    || cell.Type == TileType.Grass,
+            ToolType.Scythe      => cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown,
             // requiresFertilizedSoil faerbt die Kachel in AoEPreview automatisch ungueltig
             // und haelt auch das Saat-Modul der Station davon ab, dort zu saeen.
             ToolType.Seed        => cell.IsTilled && !cell.HasPlant
@@ -851,35 +836,6 @@ public class ToolUseHandler : MonoBehaviour
                                         ? PlayerInventory.Instance.Fertilizer : 0) > 0,
             _                    => false
         };
-    }
-
-    /// <summary>
-    /// Reine Gras-Fläche bleibt unangetastet (mäht normal). Ist auch nur ein Erntefeld
-    /// dabei, fliegen alle Gras-Tiles aus der Liste — sonst würde ein einzelnes Erntefeld
-    /// am Rand einer großen Wiese eine Handvoll ungewollte Not-Samen-Würfe auslösen, nur
-    /// weil die AoE zufällig viel Gras mitnimmt.
-    /// </summary>
-    private void FilterScytheTiles(List<Vector2Int> tiles)
-    {
-        bool hasHarvestTile = false;
-        foreach (var tile in tiles)
-        {
-            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
-            if (cell != null && cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
-            {
-                hasHarvestTile = true;
-                break;
-            }
-        }
-
-        if (!hasHarvestTile) return;
-
-        for (int i = tiles.Count - 1; i >= 0; i--)
-        {
-            var cell = GridManager.Instance?.GetCell(tiles[i].x, tiles[i].y);
-            if (cell != null && cell.Type == TileType.Grass && !cell.HasPlant)
-                tiles.RemoveAt(i);
-        }
     }
 
     /// <summary>

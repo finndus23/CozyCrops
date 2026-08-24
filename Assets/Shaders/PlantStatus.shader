@@ -21,7 +21,8 @@ Shader "CozyCrops/PlantStatus"
         _TrackAlpha   ("Alpha der ungefuellten Bahn", Range(0.0, 1.0)) = 0.18
 
         [Header(Symbol)]
-        // 0 = keins, 1 = Wassertropfen, 2 = Funkeln (erntereif)
+        // 0 = keins, 1 = Wassertropfen, 2 = Funkeln (erntereif),
+        // 3 = Saatgut, 4 = Verkauf, 5 = Werkzeug, 6 = Lizenz.
         _Symbol       ("Symbol (0/1/2)", Float) = 0
         _SymbolScale  ("Symbolgroesse", Range(0.1, 1.0)) = 0.42
 
@@ -124,6 +125,20 @@ Shader "CozyCrops/PlantStatus"
 
             float sdCircle(float2 p, float2 c, float r) { return length(p - c) - r; }
 
+            float sdBox(float2 p, float2 halfSize)
+            {
+                float2 d = abs(p) - halfSize;
+                return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+            }
+
+            float sdSegment(float2 p, float2 a, float2 b)
+            {
+                float2 pa = p - a;
+                float2 ba = b - a;
+                float h = saturate(dot(pa, ba) / dot(ba, ba));
+                return length(pa - ba * h);
+            }
+
             // Wassertropfen: dicker Bauch unten, spitz nach oben.
             float sdDrop(float2 p, float s)
             {
@@ -138,6 +153,43 @@ Shader "CozyCrops/PlantStatus"
             {
                 float2 q = abs(p) / max(s, 1e-4);
                 return pow(q.x, 0.5) + pow(q.y, 0.5) - 0.62;
+            }
+
+            // Saatgut-Händler: Blatt/Samen mit kurzer Mittelrippe.
+            float sdSeed(float2 p)
+            {
+                float leaf = max(sdCircle(p, float2(-0.075, -0.035), 0.19),
+                                 sdCircle(p, float2( 0.075,  0.035), 0.19));
+                float stem = sdSegment(p, float2(-0.12, -0.15), float2(0.12, 0.15)) - 0.018;
+                return min(leaf, stem);
+            }
+
+            // Verkaufs-Händler: kleine Münze mit stilisiertem Währungsstrich.
+            float sdCoin(float2 p)
+            {
+                float rim = abs(length(p) - 0.17) - 0.025;
+                float vertical = sdSegment(p, float2(0.0, -0.12), float2(0.0, 0.12)) - 0.018;
+                float middle = sdSegment(p, float2(-0.07, 0.0), float2(0.07, 0.0)) - 0.018;
+                return min(rim, min(vertical, middle));
+            }
+
+            // Werkzeug-Händler: schräger Hammer, auch in sehr kleiner Darstellung lesbar.
+            float sdHammer(float2 p)
+            {
+                float handle = sdSegment(p, float2(-0.13, -0.18), float2(0.07, 0.08)) - 0.027;
+                float2 q = float2((p.x + p.y) * 0.7071068,
+                                  (p.y - p.x) * 0.7071068);
+                float head = sdBox(q - float2(0.0, 0.13), float2(0.16, 0.055));
+                return min(handle, head);
+            }
+
+            // Lizenzamt: Dokumentumriss mit zwei Textzeilen.
+            float sdDocument(float2 p)
+            {
+                float page = abs(sdBox(p, float2(0.15, 0.20))) - 0.018;
+                float lineA = sdSegment(p, float2(-0.085, 0.055), float2(0.085, 0.055)) - 0.015;
+                float lineB = sdSegment(p, float2(-0.085, -0.035), float2(0.045, -0.035)) - 0.015;
+                return min(page, min(lineA, lineB));
             }
 
             float fillMask(float dist, float softness)
@@ -169,8 +221,16 @@ Shader "CozyCrops/PlantStatus"
 
                 if (_Symbol > 0.5 && _Symbol < 1.5)
                     symbolAlpha = fillMask(sdDrop(p, _SymbolScale), _EdgeSoftness);
-                else if (_Symbol > 1.5)
+                else if (_Symbol > 1.5 && _Symbol < 2.5)
                     symbolAlpha = fillMask(sdSparkle(p, _SymbolScale), _EdgeSoftness * 3.0);
+                else if (_Symbol > 2.5 && _Symbol < 3.5)
+                    symbolAlpha = fillMask(sdSeed(p), _EdgeSoftness);
+                else if (_Symbol > 3.5 && _Symbol < 4.5)
+                    symbolAlpha = fillMask(sdCoin(p), _EdgeSoftness);
+                else if (_Symbol > 4.5 && _Symbol < 5.5)
+                    symbolAlpha = fillMask(sdHammer(p), _EdgeSoftness);
+                else if (_Symbol > 5.5)
+                    symbolAlpha = fillMask(sdDocument(p), _EdgeSoftness);
 
                 float alpha = saturate(max(ringAlpha, symbolAlpha)) * _BaseColor.a;
 
