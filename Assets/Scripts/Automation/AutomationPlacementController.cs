@@ -41,6 +41,13 @@ public class AutomationPlacementController : MonoBehaviour
 
     public bool IsPlacing => mode != PlacementMode.None;
 
+    /// <summary>
+    /// Eine Station wurde neu in die Welt gestellt — gekauft ODER aus dem Lager geholt.
+    /// Fuers Missions-System. Bewusst nicht beim Verschieben: das ist dieselbe Station an
+    /// einem anderen Platz, kein neues "Aufstellen".
+    /// </summary>
+    public static event System.Action OnStationPlacedStatic;
+
     /// <summary>Das Gerät, das gerade verschoben wird — null beim Kauf.</summary>
     public AutomationDevice MovingDevice => movingDevice;
 
@@ -208,6 +215,8 @@ public class AutomationPlacementController : MonoBehaviour
                 inventory.AddMoney(pendingData.buyPrice);
                 return;
             }
+
+            OnStationPlacedStatic?.Invoke();
         }
         else if (mode == PlacementMode.Move)
         {
@@ -218,6 +227,8 @@ public class AutomationPlacementController : MonoBehaviour
         {
             var manager = AutomationDeviceManager.Instance;
             if (manager == null || manager.PlacePacked(pendingData, x, z) == null) return;
+
+            OnStationPlacedStatic?.Invoke();
         }
 
         UiSfx.StationPlaced();

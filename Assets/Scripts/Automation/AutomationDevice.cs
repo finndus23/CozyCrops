@@ -274,6 +274,10 @@ public class AutomationDevice : MonoBehaviour, IClickable
     /// Setzt ein Modul ein. Pro Typ höchstens eines — ein zweites Gieß-Modul brächte nichts
     /// als eine zweite Spur auf denselben Kacheln.
     /// </summary>
+    /// <summary>Modul eingebaut — nur ueber die Popup-Aktion, nicht beim Laden
+    /// (der Ladepfad geht ueber RestoreModules). Fuers Missions-System.</summary>
+    public static event System.Action<AutomationDeviceType> OnModuleInstalledStatic;
+
     public AutomationModule InstallModule(AutomationDeviceData data, int startLevel = 0)
     {
         if (data == null || HasModule(data.deviceType)) return null;
@@ -287,6 +291,8 @@ public class AutomationDevice : MonoBehaviour, IClickable
 
         modules.Add(module);
         RefreshAttachments();
+
+        OnModuleInstalledStatic?.Invoke(data.deviceType);
         return module;
     }
 
@@ -422,11 +428,15 @@ public class AutomationDevice : MonoBehaviour, IClickable
         tilesDirty = true;   // Radius kann sich geändert haben
     }
 
+    /// <summary>Reichweite der Station aufgewertet. Fuers Missions-System.</summary>
+    public static event System.Action<int> OnStationUpgradedStatic;
+
     /// <summary>Hebt die Reichweite um eine Stufe. Gold bucht der Aufrufer ab.</summary>
     public bool TryUpgrade()
     {
         if (stationData == null || level >= stationData.maxLevel) return false;
         SetLevel(level + 1);
+        OnStationUpgradedStatic?.Invoke(level);
         return true;
     }
 

@@ -61,6 +61,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnFieldFertilized += HandleFertilized;
         ComposterInteraction.OnCompostStartedStatic += HandleCompostStarted;
         ComposterInteraction.OnFertilizerCollectedStatic += HandleFertilizerCollected;
+        AutomationPlacementController.OnStationPlacedStatic += HandleStationPlaced;
+        AutomationDevice.OnModuleInstalledStatic += HandleModuleInstalled;
+        AutomationDevice.OnStationUpgradedStatic += HandleStationUpgraded;
         PlayerInventory.OnCropSoldStatic += HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic += HandleBuildModeEntered;
@@ -88,6 +91,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnFieldFertilized -= HandleFertilized;
         ComposterInteraction.OnCompostStartedStatic -= HandleCompostStarted;
         ComposterInteraction.OnFertilizerCollectedStatic -= HandleFertilizerCollected;
+        AutomationPlacementController.OnStationPlacedStatic -= HandleStationPlaced;
+        AutomationDevice.OnModuleInstalledStatic -= HandleModuleInstalled;
+        AutomationDevice.OnStationUpgradedStatic -= HandleStationUpgraded;
         PlayerInventory.OnCropSoldStatic -= HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic -= HandleBuildModeEntered;
@@ -280,8 +286,26 @@ public class MissionManager : MonoBehaviour
     private void HandleWatered(PlantType type, int amount) =>
         ReportProgress(MissionObjectiveType.WaterCrop, type, Mathf.Max(1, amount));
 
-    private void HandleHarvested(PlantType type) =>
+    private void HandleStationPlaced() =>
+        ReportProgress(MissionObjectiveType.PlaceStation, null, 1);
+
+    private void HandleModuleInstalled(AutomationDeviceType _) =>
+        ReportProgress(MissionObjectiveType.InstallModule, null, 1);
+
+    private void HandleStationUpgraded(int _) =>
+        ReportProgress(MissionObjectiveType.UpgradeStation, null, 1);
+
+    private void HandleHarvested(PlantType type)
+    {
         ReportProgress(MissionObjectiveType.HarvestCrop, type, 1);
+
+        // Zusaetzlich, nicht statt: bestehende HarvestCrop-Ziele (auch die Meilensteine
+        // mit countsAutomatedActions) sollen automatische Ernten weiter mitzaehlen. Dieses
+        // zweite Ziel ist NUR fuer Missionen gedacht, die beweisen wollen, dass die
+        // Automatik selbststaendig laeuft — Handarbeit darf es nicht erfuellen koennen.
+        if (ToolUseHandler.CurrentJobSource == ToolJobSource.Automation)
+            ReportProgress(MissionObjectiveType.AutomationHarvest, type, 1);
+    }
 
     private void HandleCropSold(PlantType type, int amount) =>
         ReportProgress(MissionObjectiveType.SellCrop, type, amount);

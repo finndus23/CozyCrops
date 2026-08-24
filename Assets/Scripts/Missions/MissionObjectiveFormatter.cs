@@ -87,6 +87,20 @@ public static class MissionObjectiveFormatter
             MissionObjectiveType.CollectFertilizer =>
                 n == 1 ? "Hole 1 Dünger ab" : $"Hole {n} Dünger ab",
 
+            MissionObjectiveType.PlaceStation =>
+                n == 1 ? "Stelle eine Automations-Station auf" : $"Stelle {n} Automations-Stationen auf",
+
+            MissionObjectiveType.InstallModule =>
+                n == 1 ? "Baue 1 Modul in die Station ein" : $"Baue {n} Module in die Station ein",
+
+            MissionObjectiveType.UpgradeStation =>
+                n == 1 ? "Werte die Reichweite der Station auf" : $"Werte die Station {n}x auf",
+
+            MissionObjectiveType.AutomationHarvest =>
+                plant != null
+                    ? (n == 1 ? $"Lass die Station 1x {plant} ernten" : $"Lass die Station {n}x {plant} ernten")
+                    : (n == 1 ? "Lass die Station 1 Ernte einbringen" : $"Lass die Station {n} Ernten einbringen"),
+
             _ => $"Aufgabe ({n})"
         };
     }

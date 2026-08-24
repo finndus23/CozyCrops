@@ -57,5 +57,25 @@ public enum MissionObjectiveType
     CompostCrops,
 
     /// <summary>Fertigen Dünger abgeholt. <c>requiredAmount</c> zählt die Einheiten.</summary>
-    CollectFertilizer
+    CollectFertilizer,
+
+    /// <summary>Eine Automations-Station platziert (gekauft oder aus dem Lager
+    /// aufgestellt). <c>requiredAmount</c> zählt Platzierungen.</summary>
+    PlaceStation,
+
+    /// <summary>Ein Modul in eine Station eingebaut. <c>requiredAmount</c> zählt
+    /// Einbau-Vorgänge — bei 4 sind das alle vier Modultypen.</summary>
+    InstallModule,
+
+    /// <summary>Die Reichweite einer Station aufgewertet. <c>requiredAmount</c> zählt
+    /// Aufwertungen, nicht die erreichte Stufe.</summary>
+    UpgradeStation,
+
+    /// <summary>
+    /// Ernte, die eine Automations-Station SELBST eingebracht hat — nicht der Spieler.
+    /// Getrennt von HarvestCrop, damit dieses Ziel nur durch die Automatik voranschreitet
+    /// und nicht durch eigenhändiges Ernten umgangen werden kann; die Mission soll ja
+    /// zeigen, dass der Kreislauf tatsächlich von selbst läuft.
+    /// </summary>
+    AutomationHarvest
 }

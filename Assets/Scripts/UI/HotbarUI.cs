@@ -503,10 +503,11 @@ public class HotbarUI : MonoBehaviour
             if (slotUI != null && slotUI.countLabel != null)
                 slotUI.countLabel.text = data.buyPrice.ToString();
 
-            // Geraete sind ueber Missionsziele nicht auffindbar — kein Unlock daran geknuepft.
+            // Leuchtet bei "Stelle eine Automations-Station auf" — dem Einstieg in die
+            // Automation-Quest. Ansonsten (kein passendes Ziel aktiv) bleibt der Slot dunkel.
             var deviceHighlight = go.GetComponent<HighlightTarget>();
             if (deviceHighlight != null)
-                deviceHighlight.SetObjectiveTypes();
+                deviceHighlight.SetObjectiveTypes(MissionObjectiveType.PlaceStation);
 
             var capturedData = data;
 

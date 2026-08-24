@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: OzanQuestAutomation
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Onkel Ozan
+    text: "Du hast alles im Griff — Werkzeug, Dünger, die volle Farm. Weißt du, was mir früher gefehlt hat? Zeit für was anderes als Gießkanne und Sichel."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Eine Automations-Station macht die Arbeit, während du woanders bist. Kein Ersatz für deine Hände — nur langsamer, dafür ohne Pause. Stell eine auf, irgendwo am Weg."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Leer bringt sie nichts. Vier Module gehören rein — hacken, säen, gießen, ernten. Erst mit allen vieren schließt sich der Kreis von selbst."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Und wenn dir die Fläche zu klein ist: die Reichweite lässt sich aufwerten. Nur eins vorweg — größer heißt nicht automatisch schneller. Das merkst du selbst, wenn du dran drehst."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Dann lehn dich zurück und lass sie machen. Fünf Ernten von ganz allein, und du weißt, dass es läuft."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  missionToStartAfter: {fileID: 11400000, guid: d01617e09bac4ed4a284f183744d00f3, type: 2}
