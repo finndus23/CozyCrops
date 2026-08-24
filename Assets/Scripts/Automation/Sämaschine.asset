@@ -17,23 +17,48 @@ MonoBehaviour:
   displayName: Seeder
   icon: {fileID: 0}
   worldPrefab: {fileID: 6173750295843848844, guid: dfce9042841a4c4409b66e2c18418180, type: 3}
-  maxLevel: 20
+  maxLevel: 30
   baseInterval: 6
-  intervalReductionPerLevel: 0
-  minInterval: 2
+  intervalReductionPerLevel: 0.12
+  minInterval: 1.5
   actionDuration: 2
   baseTilesPerTick: 1
   buyPrice: 2000
   baseCost: 200
-  costScalingPerLevel: 20
+  costScalingPerLevel: 12
   milestones:
   - level: 5
     radius: 0
-    intervalMultiplier: 0.75
+    intervalMultiplier: 0.8
     tilesPerTick: 0
+    unlockText: 
+  - level: 10
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 2
     unlockText: 
   - level: 15
     radius: 0
     intervalMultiplier: 0.5
     tilesPerTick: 0
+    unlockText: 
+  - level: 15
+    radius: 0
+    intervalMultiplier: 0.6
+    tilesPerTick: 0
+    unlockText: 
+  - level: 20
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 3
+    unlockText: 
+  - level: 25
+    radius: 0
+    intervalMultiplier: 0.5
+    tilesPerTick: 0
+    unlockText: 
+  - level: 30
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 4
     unlockText: 

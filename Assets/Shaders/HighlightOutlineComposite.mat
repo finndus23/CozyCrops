@@ -29,10 +29,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DepthBias: 0.0003
-    - _PulseAmount: 0.45
+    - _DebugView: 0
+    - _DepthBias: 0.05
+    - _PulseAmount: 0.677
     - _PulseSpeed: 1.1
-    - _Thickness: 1
+    - _Thickness: 2
     m_Colors:
     - _OutlineColor: {r: 1, g: 0.85, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

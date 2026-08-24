@@ -40,6 +40,16 @@ MonoBehaviour:
   starterSeedFound: []
   fertilizerCollected: []
   compostReady: []
+  stationPlaced:
+  - {fileID: 8300000, guid: 3ce2f52d6ee19e24093f25652678cc99, type: 3}
+  moduleInstalled:
+  - {fileID: 8300000, guid: a41344a3caf517d43943667a551f7147, type: 3}
+  stationUpgraded:
+  - {fileID: 8300000, guid: fb46be3164d271e47b3ba092f0e2bae3, type: 3}
+  stationPacked:
+  - {fileID: 8300000, guid: 32e6ae6c23f7d0b4bbca190339334c0b, type: 3}
+  moduleToggled:
+  - {fileID: 8300000, guid: 932c172dfd5ba1146b3773a7d5c0e7ae, type: 3}
   coinFlight:
   - {fileID: 8300000, guid: f7b37cbec03b7734d93950cbf053d886, type: 3}
   volume: 0.3

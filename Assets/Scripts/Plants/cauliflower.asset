@@ -16,7 +16,17 @@ MonoBehaviour:
   plantName: Cauliflower
   icon: {fileID: 21300000, guid: ba4366ba2e0ca344284d38bcc9ca4c9b, type: 3}
   seedPrice: 10
-  sellPrice: 32
+  sellPrice: 48
+  growthSpeedMultiplier: 1.15
+  actionSpeedMultiplier: 0.9
+  automationDurationMultiplier: 0.8
+  requiresFertilizedSoil: 0
+  compostValue: 1
+  plantSfx: []
+  harvestSfx: []
+  sellSfx: []
+  sfxVolume: 0.6
+  modelYRotation: 0
   growthStages:
   - stageName: 1
     prefab: {fileID: 3177982295653799335, guid: d8449dba764bea44ab90269de06a50d0, type: 3}
@@ -28,4 +38,4 @@ MonoBehaviour:
     prefab: {fileID: 2515096759070014954, guid: 8208b668c3b954947be70fc9690eeb2a, type: 3}
     timeToNextStage: 24
   requiresWatering: 1
-  wateringsPerStage: 1
+  wateringsPerStage: 2
