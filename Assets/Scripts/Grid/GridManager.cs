@@ -19,6 +19,8 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private int width = 20;
     [SerializeField] private int height = 20;
+    [Tooltip("Grid-Z-Koordinate, an der die Startflaeche beginnt. Erlaubt es, ihre Hoehe zu aendern, ohne sie vom Farmhaus wegzuschieben.")]
+    [SerializeField] private int startZ;
     [SerializeField] private float cellSize = 1f;
 
     [Header("Farm-Erweiterung")]
@@ -64,13 +66,19 @@ public class GridManager : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float pathDecorationSurfaceOffset = 0.055f;
     [Min(0.01f)]
-    [SerializeField] private float pathStoneDecorationMinScale = 0.22f;
+    [SerializeField] private float pathStoneDecorationMinScale = 0.1f;
     [Min(0.01f)]
-    [SerializeField] private float pathStoneDecorationMaxScale = 0.42f;
+    [SerializeField] private float pathStoneDecorationMaxScale = 0.21f;
+    [Range(0f, 0.75f)]
+    [SerializeField] private float pathStoneMinimumRadiusFactor = 0.12f;
+    [Range(0f, 0.75f)]
+    [SerializeField] private float pathStoneMaximumRadiusFactor = 0.62f;
     [Range(0f, 1f)]
     [SerializeField] private float pathTileDecorationChance = 1f;
-    [Range(0f, 1f)]
-    [SerializeField] private float secondPathStoneChance = 0.7f;
+    [Min(1)]
+    [SerializeField] private int pathStoneMinimumCount = 8;
+    [Min(1)]
+    [SerializeField] private int pathStoneMaximumCount = 13;
 
     [Header("Feel-Good")]
     [Tooltip("Radius in Tiles, in dem Nachbarn beim Umwandeln mithüpfen. 0 = aus.")]
@@ -94,14 +102,19 @@ public class GridManager : MonoBehaviour
     public int Height => MaxZExclusive - MinZ;
     public int BaseWidth => width;
     public int BaseHeight => height;
+    public int BaseMinX => 0;
+    public int BaseMinZ => startZ;
+    public int BaseMaxXExclusive => BaseMinX + width;
+    public int BaseMaxZExclusive => BaseMinZ + height;
+    public RectInt StartAreaTiles => new RectInt(BaseMinX, BaseMinZ, width, height);
     public int ExpansionSize => expansionSize;
     public int DecorationBorderSize => decorationBorderSize;
 
     /// <summary>Äußere Grenzen der vollständig ausgebauten Farm – ohne Dekorationsrand.</summary>
-    public int FarmMinX => -expansionSize;
-    public int FarmMinZ => -expansionSize;
-    public int FarmMaxXExclusive => width;
-    public int FarmMaxZExclusive => height + expansionSize;
+    public int FarmMinX => BaseMinX - expansionSize;
+    public int FarmMinZ => BaseMinZ - expansionSize;
+    public int FarmMaxXExclusive => BaseMaxXExclusive;
+    public int FarmMaxZExclusive => BaseMaxZExclusive + expansionSize;
 
     /// <summary>Das logische Grid endet an der vollständig ausgebauten Farm.</summary>
     public int MinX => FarmMinX;
@@ -551,6 +564,8 @@ public class GridManager : MonoBehaviour
         if (!Application.isPlaying || tileObject == null)
             return;
 
+        RemoveDecorationForOtherTileTypes(tileObject, type);
+
         if (type == TileType.Grass)
             AddGrassTileDecoration(tileObject, x, z);
         else if (type == TileType.Path)
@@ -620,6 +635,8 @@ public class GridManager : MonoBehaviour
                 0f, NextFloat(random, 0f, 360f), 0f);
             decoration.transform.localScale = prefab.transform.localScale * scale;
 
+            KeepDecorationInsideTile(decoration, GridToWorld(x, z));
+
             // Kleindeko darf weder Tile-Auswahl noch Werkzeuge oder Physik blockieren.
             foreach (Collider decorationCollider in decoration.GetComponentsInChildren<Collider>(true))
                 decorationCollider.enabled = false;
@@ -649,7 +666,9 @@ public class GridManager : MonoBehaviour
         if (random.NextDouble() >= pathTileDecorationChance)
             return;
 
-        int decorationCount = random.NextDouble() < secondPathStoneChance ? 2 : 1;
+        int minimumCount = Mathf.Max(1, pathStoneMinimumCount);
+        int maximumCount = Mathf.Max(minimumCount, pathStoneMaximumCount);
+        int decorationCount = random.Next(minimumCount, maximumCount + 1);
         var root = CreateDecorationRoot(tileObject, rootName);
 
         float baseAngle = NextFloat(random, 0f, Mathf.PI * 2f);
@@ -660,7 +679,16 @@ public class GridManager : MonoBehaviour
 
             float angle = baseAngle + Mathf.PI * 2f * i / decorationCount +
                           NextFloat(random, -0.35f, 0.35f);
-            float radius = NextFloat(random, cellSize * 0.12f, cellSize * 0.35f);
+            float minimumRadius = Mathf.Min(
+                pathStoneMinimumRadiusFactor,
+                pathStoneMaximumRadiusFactor);
+            float maximumRadius = Mathf.Max(
+                pathStoneMinimumRadiusFactor,
+                pathStoneMaximumRadiusFactor);
+            float radius = NextFloat(
+                random,
+                cellSize * minimumRadius,
+                cellSize * maximumRadius);
             float scale = NextFloat(random,
                 Mathf.Min(pathStoneDecorationMinScale, pathStoneDecorationMaxScale),
                 Mathf.Max(pathStoneDecorationMinScale, pathStoneDecorationMaxScale));
@@ -674,8 +702,101 @@ public class GridManager : MonoBehaviour
             decoration.transform.localRotation = Quaternion.Euler(
                 0f, NextFloat(random, 0f, 360f), 0f);
             decoration.transform.localScale = prefab.transform.localScale * scale;
+            KeepDecorationInsideTile(decoration, GridToWorld(x, z));
             MakeDecorationNonBlocking(decoration, disableShadows: true);
         }
+    }
+
+    private static void RemoveDecorationForOtherTileTypes(GameObject tileObject, TileType type)
+    {
+        RemoveDecorationRootIfPresent(
+            tileObject,
+            "Grass Tile Misc Decoration",
+            type != TileType.Grass);
+        RemoveDecorationRootIfPresent(
+            tileObject,
+            "Path Tile Stone Decoration",
+            type != TileType.Path);
+    }
+
+    private static void RemoveDecorationRootIfPresent(
+        GameObject tileObject,
+        string rootName,
+        bool shouldRemove)
+    {
+        if (!shouldRemove)
+            return;
+
+        Transform root = tileObject.transform.Find(rootName);
+        if (root == null)
+            return;
+
+        root.gameObject.SetActive(false);
+        Destroy(root.gameObject);
+    }
+
+    /// <summary>
+    /// Prefab-Pivots und Mesh-Bounds liegen nicht zwingend in ihrer Mitte. Deshalb reicht
+    /// ein kleiner zufaelliger Transform-Offset allein nicht aus: der Renderer kann sonst
+    /// auf ein Nachbar-Tile ragen. Nach Rotation und Skalierung wird die sichtbare Bounds
+    /// auf die Flaeche des zugehoerigen Tiles geklemmt.
+    /// </summary>
+    private void KeepDecorationInsideTile(GameObject decoration, Vector3 tileCenter)
+    {
+        Renderer[] renderers = decoration.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        const float edgePadding = 0.03f;
+        float halfSize = Mathf.Max(0f, cellSize * 0.5f - edgePadding);
+        float allowedSize = halfSize * 2f;
+        float fitScale = 1f;
+        if (bounds.size.x > allowedSize)
+            fitScale = Mathf.Min(fitScale, allowedSize / bounds.size.x);
+        if (bounds.size.z > allowedSize)
+            fitScale = Mathf.Min(fitScale, allowedSize / bounds.size.z);
+
+        if (fitScale < 1f)
+        {
+            decoration.transform.localScale *= fitScale;
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        float shiftX = GetBoundsContainmentShift(
+            bounds.min.x,
+            bounds.max.x,
+            tileCenter.x - halfSize,
+            tileCenter.x + halfSize);
+        float shiftZ = GetBoundsContainmentShift(
+            bounds.min.z,
+            bounds.max.z,
+            tileCenter.z - halfSize,
+            tileCenter.z + halfSize);
+
+        decoration.transform.position += new Vector3(shiftX, 0f, shiftZ);
+    }
+
+    private static float GetBoundsContainmentShift(
+        float boundsMin,
+        float boundsMax,
+        float allowedMin,
+        float allowedMax)
+    {
+        float boundsSize = boundsMax - boundsMin;
+        float allowedSize = allowedMax - allowedMin;
+        if (boundsSize >= allowedSize)
+            return (allowedMin + allowedMax - boundsMin - boundsMax) * 0.5f;
+        if (boundsMin < allowedMin)
+            return allowedMin - boundsMin;
+        if (boundsMax > allowedMax)
+            return allowedMax - boundsMax;
+        return 0f;
     }
 
     private static GameObject CreateDecorationRoot(GameObject tileObject, string rootName)

@@ -161,7 +161,7 @@ public static class FarmSceneEditorPreview
         // Startflaeche absichern und danach exakt dieselben fuenf Rechtecke benutzen,
         // aus denen ZoneManager im Play Mode Kaufzonen und Sperren erzeugt.
         AddMissingTilesInRect(
-            new RectInt(0, 0, grid.BaseWidth, grid.BaseHeight),
+            grid.StartAreaTiles,
             grid,
             grassPrefab,
             previewRoot,
@@ -221,8 +221,11 @@ public static class FarmSceneEditorPreview
         float pathOffset = ReadFloat(serializedGrid, "pathDecorationSurfaceOffset");
         float pathMinScale = ReadFloat(serializedGrid, "pathStoneDecorationMinScale");
         float pathMaxScale = ReadFloat(serializedGrid, "pathStoneDecorationMaxScale");
+        float pathMinRadius = ReadFloat(serializedGrid, "pathStoneMinimumRadiusFactor");
+        float pathMaxRadius = ReadFloat(serializedGrid, "pathStoneMaximumRadiusFactor");
         float pathChance = ReadFloat(serializedGrid, "pathTileDecorationChance");
-        float secondPathChance = ReadFloat(serializedGrid, "secondPathStoneChance");
+        int pathMinimumCount = ReadInt(serializedGrid, "pathStoneMinimumCount");
+        int pathMaximumCount = ReadInt(serializedGrid, "pathStoneMaximumCount");
 
         foreach (KeyValuePair<Vector2Int, TilePreviewInfo> pair in tiles)
         {
@@ -259,14 +262,16 @@ public static class FarmSceneEditorPreview
                     pathPrefabs,
                     seed,
                     pathChance,
-                    secondPathChance,
+                    0f,
                     pathOffset,
                     pathMinScale,
                     pathMaxScale,
-                    0.12f,
+                    pathMinRadius,
+                    pathMaxRadius,
                     0.35f,
-                    0.35f,
-                    "Preview Path Stone");
+                    "Preview Path Stone",
+                    pathMinimumCount,
+                    pathMaximumCount);
             }
         }
     }
@@ -285,13 +290,17 @@ public static class FarmSceneEditorPreview
         float minRadiusFactor,
         float maxRadiusFactor,
         float angleJitter,
-        string namePrefix)
+        string namePrefix,
+        int minimumCount = 1,
+        int maximumCount = 2)
     {
         var random = new System.Random(seed);
         if (random.NextDouble() >= spawnChance)
             return;
 
-        int count = random.NextDouble() < secondObjectChance ? 2 : 1;
+        int count = minimumCount == 1 && maximumCount == 2
+            ? (random.NextDouble() < secondObjectChance ? 2 : 1)
+            : random.Next(Mathf.Max(1, minimumCount), Mathf.Max(minimumCount, maximumCount) + 1);
         float baseAngle = NextFloat(random, 0f, Mathf.PI * 2f);
         for (int i = 0; i < count; i++)
         {
@@ -315,9 +324,64 @@ public static class FarmSceneEditorPreview
                 parent,
                 $"{namePrefix} {i + 1}");
             decoration.transform.localScale = prefab.transform.localScale * scale;
+            KeepDecorationInsideTile(decoration, tilePosition, cellSize);
             DisableColliders(decoration);
             DisableShadows(decoration);
         }
+    }
+
+    private static void KeepDecorationInsideTile(
+        GameObject decoration,
+        Vector3 tileCenter,
+        float cellSize)
+    {
+        Renderer[] renderers = decoration.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        const float edgePadding = 0.03f;
+        float halfSize = Mathf.Max(0f, cellSize * 0.5f - edgePadding);
+        float allowedSize = halfSize * 2f;
+        float fitScale = 1f;
+        if (bounds.size.x > allowedSize)
+            fitScale = Mathf.Min(fitScale, allowedSize / bounds.size.x);
+        if (bounds.size.z > allowedSize)
+            fitScale = Mathf.Min(fitScale, allowedSize / bounds.size.z);
+
+        if (fitScale < 1f)
+        {
+            decoration.transform.localScale *= fitScale;
+            bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        float shiftX = GetBoundsContainmentShift(
+            bounds.min.x, bounds.max.x,
+            tileCenter.x - halfSize, tileCenter.x + halfSize);
+        float shiftZ = GetBoundsContainmentShift(
+            bounds.min.z, bounds.max.z,
+            tileCenter.z - halfSize, tileCenter.z + halfSize);
+        decoration.transform.position += new Vector3(shiftX, 0f, shiftZ);
+    }
+
+    private static float GetBoundsContainmentShift(
+        float boundsMin,
+        float boundsMax,
+        float allowedMin,
+        float allowedMax)
+    {
+        if (boundsMax - boundsMin >= allowedMax - allowedMin)
+            return (allowedMin + allowedMax - boundsMin - boundsMax) * 0.5f;
+        if (boundsMin < allowedMin)
+            return allowedMin - boundsMin;
+        if (boundsMax > allowedMax)
+            return allowedMax - boundsMax;
+        return 0f;
     }
 
     private static void AddPersistentDecorationGround(

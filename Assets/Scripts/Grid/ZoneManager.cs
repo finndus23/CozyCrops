@@ -175,20 +175,23 @@ public class ZoneManager : MonoBehaviour
             return System.Array.Empty<FarmExpansionArea>();
 
         int e = grid.ExpansionSize;
+        int minX = grid.BaseMinX;
+        int minZ = grid.BaseMinZ;
+        int maxZ = grid.BaseMaxZExclusive;
         int w = grid.BaseWidth;
         int h = grid.BaseHeight;
         return new[]
         {
             new FarmExpansionArea("farm_expansion_left", "Top Left", 0,
-                new RectInt(0, h, w, e)),
+                new RectInt(minX, maxZ, w, e)),
             new FarmExpansionArea("farm_expansion_right", "Top Right", 1,
-                new RectInt(0, -e, w, e)),
+                new RectInt(minX, minZ - e, w, e)),
             new FarmExpansionArea("farm_expansion_bottom_left", "Bottom Left", 2,
-                new RectInt(-e, h, e, e)),
+                new RectInt(minX - e, maxZ, e, e)),
             new FarmExpansionArea("farm_expansion_bottom", "Bottom Middle", 3,
-                new RectInt(-e, 0, e, h)),
+                new RectInt(minX - e, minZ, e, h)),
             new FarmExpansionArea("farm_expansion_bottom_right", "Bottom Right", 4,
-                new RectInt(-e, -e, e, e))
+                new RectInt(minX - e, minZ - e, e, e))
         };
     }
 
@@ -495,7 +498,7 @@ public class ZoneManager : MonoBehaviour
         // absichtlich keine Quelle mehr, weil Lade-/Missionsreihenfolgen dort kurzzeitig
         // widersprüchliche Zustände erzeugen können und der Zaun dann gezackt wird.
         var ownedTiles = new HashSet<Vector2Int>();
-        AddOwnedRectangle(ownedTiles, new RectInt(0, 0, grid.BaseWidth, grid.BaseHeight));
+        AddOwnedRectangle(ownedTiles, grid.StartAreaTiles);
 
         int unlockedZoneCount = 0;
         foreach (GridZone zone in zones)
