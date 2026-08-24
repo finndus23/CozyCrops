@@ -118078,6 +118078,7 @@ GameObject:
   - component: {fileID: 1165565489}
   - component: {fileID: 1165565488}
   - component: {fileID: 1165565493}
+  - component: {fileID: 1165565494}
   m_Layer: 0
   m_Name: Composter
   m_TagString: Untagged
@@ -118224,6 +118225,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
   startHighlighted: 0
+--- !u!114 &1165565494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165565487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 1600000015000000
+  highlightId: 
+  plantType: {fileID: 0}
+  toolType: 0
+  showOffScreenIndicator: 1
 --- !u!1 &1166914817
 GameObject:
   m_ObjectHideFlags: 0
