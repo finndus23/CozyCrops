@@ -6,6 +6,11 @@
 // HighlightOutlineComposite.shader dann als Kontur um die Silhouette zeichnet.
 Shader "CozyCrops/HighlightMask"
 {
+    Properties
+    {
+        [HideInInspector] _HighlightMode ("Highlight Mode", Float) = 0
+    }
+
     SubShader
     {
         Tags
@@ -29,6 +34,8 @@ Shader "CozyCrops/HighlightMask"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            float _HighlightMode;
 
             struct Attributes
             {
@@ -68,7 +75,10 @@ Shader "CozyCrops/HighlightMask"
                 // Meter haben keine Konvention: größer ist immer weiter weg. 0 bleibt frei
                 // als Markierung für "hier ist gar nichts", weil echte Geometrie nie näher
                 // als die Near-Plane liegt.
-                return float4(IN.viewDepth, 0, 0, 1);
+                // Vorzeichen kodiert die Darstellungsart im bestehenden RFloat-Ziel:
+                // positiv = Quest, negativ = Maus-Hover. Der Betrag bleibt die Tiefe.
+                float encodedDepth = lerp(IN.viewDepth, -IN.viewDepth, saturate(_HighlightMode));
+                return float4(encodedDepth, 0, 0, 1);
             }
             ENDHLSL
         }

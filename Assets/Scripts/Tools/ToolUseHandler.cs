@@ -120,6 +120,11 @@ public class ToolUseHandler : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+
+        // Die Werkzeug-Queue ist echte Spielsimulation und soll nicht anhalten, nur weil
+        // das Fenster gerade keinen Fokus hat. Das Player-Setting ist ebenfalls aktiviert;
+        // diese Zuweisung sichert das Verhalten auch in Editor- und abweichenden Builds ab.
+        Application.runInBackground = true;
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -506,6 +511,210 @@ public class ToolUseHandler : MonoBehaviour
     /// <summary>Kompatibilität zum alten Aufrufpfad.</summary>
     public void CancelCast() => CancelAll();
 
+    // ── Save / Szenenwechsel ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Serialisiert ausschließlich Spieler-Jobs. Automatik-Jobs werden über den Zustand
+    /// ihrer Geräte (Module + Cooldown) gespeichert; ihre flüchtigen Jobs zusätzlich zu
+    /// speichern würde sie nach dem Laden doppelt ausführen.
+    /// </summary>
+    public List<ToolJobSaveData> GetSaveData()
+    {
+        var result = new List<ToolJobSaveData>();
+
+        foreach (var job in running)
+            if (job.Source == ToolJobSource.Player)
+                result.Add(ToSaveData(job, wasRunning: true));
+
+        foreach (var job in queued)
+            if (job.Source == ToolJobSource.Player)
+                result.Add(ToSaveData(job, wasRunning: false));
+
+        return result;
+    }
+
+    /// <summary>
+    /// Stellt Spieler-Jobs wieder her und rechnet die seit dem Speichern verstrichene
+    /// Echtzeit nach. Die Farm muss zu diesem Zeitpunkt bereits vollständig geladen sein,
+    /// weil fertige Aktionen unmittelbar auf Grid und Pflanzen angewendet werden.
+    /// </summary>
+    public bool ApplyLoadedData(IReadOnlyList<ToolJobSaveData> savedJobs,
+                                long savedAtUnixMilliseconds)
+    {
+        RemovePlayerJobsForLoad();
+
+        bool hadSavedJobs = savedJobs != null && savedJobs.Count > 0;
+        var directlyRestoredRunningJobs = new HashSet<ToolJob>();
+
+        if (savedJobs != null)
+        {
+            foreach (var saved in savedJobs)
+            {
+                if (saved == null || !Enum.TryParse(saved.toolType, out ToolType tool)
+                    || tool == ToolType.None)
+                    continue;
+
+                var tiles = new List<Vector2Int>();
+                if (saved.tiles != null)
+                {
+                    foreach (var tile in saved.tiles)
+                        if (tile != null)
+                            tiles.Add(new Vector2Int(tile.x, tile.z));
+                }
+
+                if (tiles.Count == 0) continue;
+
+                PlantType seed = !string.IsNullOrEmpty(saved.seedId)
+                    ? PlantDatabase.Instance?.GetById(saved.seedId)
+                    : null;
+
+                var origin = new Vector2Int(saved.originX, saved.originZ);
+                var job = new ToolJob(tool, seed, saved.yieldBonus, origin, tiles,
+                                      Mathf.Max(0f, saved.duration));
+
+                if (saved.wasRunning)
+                {
+                    RemoveInvalidTiles(job);
+                    if (job.Tiles.Count == 0) continue;
+
+                    job.State = ToolJobState.Running;
+                    job.Elapsed = Mathf.Clamp(saved.elapsed, 0f, job.Duration);
+                    running.Add(job);
+                    directlyRestoredRunningJobs.Add(job);
+                }
+                else
+                {
+                    job.State = ToolJobState.Queued;
+                    queued.Add(job);
+                }
+            }
+        }
+
+        double offlineSeconds = savedAtUnixMilliseconds > 0
+            ? (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - savedAtUnixMilliseconds) / 1000.0
+            : 0.0;
+
+        PromoteQueued();
+        AdvanceRestoredPlayerJobs((float)Math.Max(0.0, offlineSeconds));
+
+        // Direkt wiederhergestellte laufende Jobs gingen nicht durch StartJob und brauchen
+        // deshalb dieses eine UI-Signal. Bei inzwischen fertigen Jobs gibt es nichts mehr
+        // anzuzeigen; ein nachgerückter Job hat sein Signal bereits aus StartJob erhalten.
+        var primary = FirstRunningPlayerJob();
+        if (primary != null && directlyRestoredRunningJobs.Contains(primary))
+            OnCastStarted?.Invoke(primary.Tiles);
+
+        OnQueueChanged?.Invoke();
+        return hadSavedJobs;
+    }
+
+    private static ToolJobSaveData ToSaveData(ToolJob job, bool wasRunning)
+    {
+        var saved = new ToolJobSaveData
+        {
+            toolType = job.Tool.ToString(),
+            seedId = job.Seed != null ? PlantDatabase.GetPlantId(job.Seed) : null,
+            yieldBonus = job.YieldBonus,
+            originX = job.Origin.x,
+            originZ = job.Origin.y,
+            duration = job.Duration,
+            elapsed = wasRunning ? job.Elapsed : 0f,
+            wasRunning = wasRunning
+        };
+
+        foreach (var tile in job.Tiles)
+            saved.tiles.Add(new ToolJobTileSaveData { x = tile.x, z = tile.y });
+
+        return saved;
+    }
+
+    private void RemovePlayerJobsForLoad()
+    {
+        for (int i = running.Count - 1; i >= 0; i--)
+            if (running[i].Source == ToolJobSource.Player)
+                running.RemoveAt(i);
+
+        for (int i = queued.Count - 1; i >= 0; i--)
+            if (queued[i].Source == ToolJobSource.Player)
+                queued.RemoveAt(i);
+    }
+
+    /// <summary>
+    /// Ereignisbasierte Nachrechnung: Es werden nur die Zeitpunkte angesprungen, an denen
+    /// ein Job endet. So kostet auch eine lange Markt-Abwesenheit höchstens einige Dutzend
+    /// Schritte statt einen simulierten Frame pro vergangener Sekunde.
+    /// </summary>
+    private void AdvanceRestoredPlayerJobs(float seconds)
+    {
+        float remaining = Mathf.Max(0f, seconds);
+        int safety = Mathf.Max(16, maxQueuedJobs * 4);
+        bool anyFinished = false;
+
+        while (safety-- > 0)
+        {
+            int queuedBeforePromotion = CountQueuedPlayerJobs();
+            PromoteQueued();
+
+            float nextCompletion = float.PositiveInfinity;
+            bool hasRunningPlayerJob = false;
+
+            foreach (var job in running)
+            {
+                if (job.Source != ToolJobSource.Player) continue;
+                hasRunningPlayerJob = true;
+                nextCompletion = Mathf.Min(nextCompletion,
+                    Mathf.Max(0f, job.Duration - job.Elapsed));
+            }
+
+            if (!hasRunningPlayerJob)
+            {
+                // Ein 0-Sekunden-Job kann innerhalb von StartJob bereits fertig oder
+                // ungueltig geworden sein. Dann noch einmal versuchen, den Nachfolger zu
+                // starten; bei unveraenderter Queue gibt es dagegen echten Stillstand.
+                if (CountQueuedPlayerJobs() < queuedBeforePromotion) continue;
+                break;
+            }
+
+            if (nextCompletion > remaining)
+            {
+                foreach (var job in running)
+                    if (job.Source == ToolJobSource.Player)
+                        job.Elapsed += remaining;
+                break;
+            }
+
+            foreach (var job in running)
+                if (job.Source == ToolJobSource.Player)
+                    job.Elapsed += nextCompletion;
+
+            remaining = Mathf.Max(0f, remaining - nextCompletion);
+            finishedThisFrame.Clear();
+
+            for (int i = running.Count - 1; i >= 0; i--)
+            {
+                var job = running[i];
+                if (job.Source != ToolJobSource.Player || job.Elapsed < job.Duration) continue;
+                running.RemoveAt(i);
+                finishedThisFrame.Add(job);
+            }
+
+            if (finishedThisFrame.Count == 0)
+                break;
+
+            foreach (var job in finishedThisFrame)
+                CompleteJob(job);
+
+            anyFinished = true;
+            PromoteQueued();
+
+            if (remaining <= 0f)
+                break;
+        }
+
+        if (anyFinished && CountRunningPlayerJobs() == 0 && CountQueuedPlayerJobs() == 0)
+            OnCastCompleted?.Invoke();
+    }
+
     public bool IsTileScheduled(Vector2Int tile) => IsTileScheduled(tile, ToolType.None);
 
     /// <summary>
@@ -669,15 +878,7 @@ public class ToolUseHandler : MonoBehaviour
 
     private void StartJob(ToolJob job)
     {
-        // Tiles die inzwischen ungültig geworden sind rausfiltern
-        for (int i = job.Tiles.Count - 1; i >= 0; i--)
-        {
-            // Mit dem Saatgut-Snapshot des Jobs prüfen, nicht mit dem der Hotbar: sonst
-            // fliegt der Job einer Sämaschine hier raus, sobald der Spieler eine andere
-            // Sorte ausgewählt hat.
-            if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool, job.Seed))
-                job.Tiles.RemoveAt(i);
-        }
+        RemoveInvalidTiles(job);
 
         if (job.Tiles.Count == 0)
         {
@@ -705,6 +906,16 @@ public class ToolUseHandler : MonoBehaviour
             running.Remove(job);
             CompleteJob(job);
         }
+    }
+
+    private void RemoveInvalidTiles(ToolJob job)
+    {
+        // Mit dem Saatgut-Snapshot des Jobs prüfen, nicht mit dem der Hotbar: sonst fliegt
+        // ein gespeicherter Job oder der Job einer Sämaschine beim Start mit anderer
+        // Hotbar-Auswahl aus der Queue.
+        for (int i = job.Tiles.Count - 1; i >= 0; i--)
+            if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool, job.Seed))
+                job.Tiles.RemoveAt(i);
     }
 
     /// <summary>

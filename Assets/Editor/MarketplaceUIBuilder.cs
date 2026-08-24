@@ -529,7 +529,7 @@ public static class MarketplaceUIBuilder
 
         Transform existingMenu = FindChild(parent, "MenuButton");
         GameObject menu = existingMenu != null ? existingMenu.gameObject : CreateUI("MenuButton", parent);
-        StyleNavigationButton(menu, new Vector2(24f, -24f), general["GeneralSheet_48"]);
+        StyleNavigationButton(menu, new Vector2(24f, -24f), general["GeneralSheet_49"]);
 
         GameSceneMenuController menuController = scene.GetRootGameObjects()
             .SelectMany(root => root.GetComponentsInChildren<GameSceneMenuController>(true))

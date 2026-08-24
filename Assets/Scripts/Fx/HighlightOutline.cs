@@ -37,7 +37,10 @@ public class HighlightOutline : MonoBehaviour, IHighlightVisual
     private readonly List<Renderer> clones = new();
     private static Material sharedMaskMaterial;
     private static int highlightLayer = -1;
+    private static readonly int HighlightModeId = Shader.PropertyToID("_HighlightMode");
+    private MaterialPropertyBlock propertyBlock;
     private bool built;
+    private bool useHoverStyle;
 
     public bool IsHighlighted { get; private set; }
 
@@ -61,6 +64,23 @@ public class HighlightOutline : MonoBehaviour, IHighlightVisual
             if (clones[i] == null) { clones.RemoveAt(i); continue; }
             clones[i].enabled = on;
         }
+    }
+
+    /// <summary>
+    /// Setzt Sichtbarkeit und Darstellungsart gemeinsam. Ein Missionsziel behält immer
+    /// den goldenen Quest-Stil, auch wenn die Maus gleichzeitig darüber steht. Nur ein
+    /// reines Hover-Highlight wird hellgrau in die Maske geschrieben.
+    /// </summary>
+    public void SetHighlightState(bool mission, bool hover)
+    {
+        bool hoverOnly = hover && !mission;
+        if (useHoverStyle != hoverOnly)
+        {
+            useHoverStyle = hoverOnly;
+            ApplyHighlightMode();
+        }
+
+        SetHighlighted(mission || hover);
     }
 
     public void Toggle() => SetHighlighted(!IsHighlighted);
@@ -146,7 +166,25 @@ public class HighlightOutline : MonoBehaviour, IHighlightVisual
         clone.shadowCastingMode = ShadowCastingMode.Off;
         clone.receiveShadows = false;
         clone.enabled = false;
+        ApplyHighlightMode(clone);
 
         return clone;
+    }
+
+    private void ApplyHighlightMode()
+    {
+        for (int i = clones.Count - 1; i >= 0; i--)
+        {
+            if (clones[i] == null) { clones.RemoveAt(i); continue; }
+            ApplyHighlightMode(clones[i]);
+        }
+    }
+
+    private void ApplyHighlightMode(Renderer target)
+    {
+        propertyBlock ??= new MaterialPropertyBlock();
+        target.GetPropertyBlock(propertyBlock);
+        propertyBlock.SetFloat(HighlightModeId, useHoverStyle ? 1f : 0f);
+        target.SetPropertyBlock(propertyBlock);
     }
 }

@@ -18,6 +18,8 @@ public class FarmMarketNpcClickController : MonoBehaviour
     [SerializeField] private LayerMask npcLayerMask = ~0;
     [SerializeField] private float maxClickDistance = 100f;
 
+    private HighlightTarget hoveredTarget;
+
     private void Awake()
     {
         if (clickCamera == null)
@@ -29,31 +31,38 @@ public class FarmMarketNpcClickController : MonoBehaviour
 
     private void Update()
     {
-        if (dialogueController != null && dialogueController.IsOpen)
+        bool pointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        if (dialogueController != null && dialogueController.IsOpen || pointerOverUi || !HasPointer())
+        {
+            SetHoveredTarget(null);
             return;
+        }
+
+        FarmMarketNpc npc = GetNpcAt(GetPointerPosition());
+        SetHoveredTarget(FindHighlightTarget(npc));
 
         if (!WasPrimaryClickPressed())
             return;
 
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            return;
-
-        TryClickNpc(GetPointerPosition());
+        TryClickNpc(npc);
     }
 
-    private void TryClickNpc(Vector2 screenPosition)
+    private FarmMarketNpc GetNpcAt(Vector2 screenPosition)
     {
-        if (clickCamera == null || dialogueController == null)
-            return;
+        if (clickCamera == null) clickCamera = Camera.main;
+        if (clickCamera == null) return null;
 
         Ray ray = clickCamera.ScreenPointToRay(screenPosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit, maxClickDistance, npcLayerMask))
-            return;
+            return null;
 
-        FarmMarketNpc npc = hit.collider.GetComponentInParent<FarmMarketNpc>();
-        if (npc == null)
-            return;
+        return hit.collider.GetComponentInParent<FarmMarketNpc>();
+    }
+
+    private void TryClickNpc(FarmMarketNpc npc)
+    {
+        if (npc == null || dialogueController == null) return;
 
         // Hat dieser NPC gerade einen Story-Auftrag? Dann erst reden, danach handeln.
         // Der Marktplatz kennt kein IClickable/WorldClickHandler — ohne diesen Haken
@@ -68,6 +77,28 @@ public class FarmMarketNpcClickController : MonoBehaviour
 
         dialogueController.Open(npc);
     }
+
+    private static HighlightTarget FindHighlightTarget(FarmMarketNpc npc)
+    {
+        if (npc == null) return null;
+
+        HighlightTarget target = npc.GetComponent<HighlightTarget>();
+        if (target != null) return target;
+
+        target = npc.GetComponentInParent<HighlightTarget>();
+        return target != null ? target : npc.GetComponentInChildren<HighlightTarget>();
+    }
+
+    private void SetHoveredTarget(HighlightTarget target)
+    {
+        if (hoveredTarget == target) return;
+
+        if (hoveredTarget != null) hoveredTarget.SetHovered(false);
+        hoveredTarget = target;
+        if (hoveredTarget != null) hoveredTarget.SetHovered(true);
+    }
+
+    private void OnDisable() => SetHoveredTarget(null);
 
     /// <summary>
     /// Shop aufmachen sobald der Quest-Dialog durch ist — die Aufträge der Markt-NPCs
@@ -97,6 +128,15 @@ public class FarmMarketNpcClickController : MonoBehaviour
         return Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
 #else
         return Input.GetMouseButtonDown(0);
+#endif
+    }
+
+    private bool HasPointer()
+    {
+#if ENABLE_INPUT_SYSTEM
+        return Mouse.current != null;
+#else
+        return true;
 #endif
     }
 
