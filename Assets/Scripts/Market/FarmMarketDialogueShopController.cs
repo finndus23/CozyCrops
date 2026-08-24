@@ -499,6 +499,10 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 affordable ? () => BuyLicense(captured) : null,
                 string.Empty,
                 null);
+
+            // Der Text "Zu teuer" allein ist leicht zu übersehen — die Zeile dimmt
+            // zusätzlich, wie es Werkzeug- und Samen-Zeilen jetzt auch tun.
+            row.SetDimmed(!affordable);
         }
     }
 
@@ -558,18 +562,26 @@ public class FarmMarketDialogueShopController : MonoBehaviour
             bool unlocked = LicenseRegistry.Instance == null
                          || LicenseRegistry.Instance.IsPlantUnlocked(plant);
 
+            // Getrennt geprüft, weil der 10x-Knopf öfter unerreichbar ist als der 1x-Knopf —
+            // beide sollen unabhängig grau werden, statt gemeinsam an der 10er-Hürde zu hängen.
+            bool canBuyOne = unlocked && inventory != null && inventory.Money >= buyPrice;
+            bool canBuyTen = unlocked && inventory != null && inventory.Money >= buyPrice * 10;
+
             FarmMarketShopRowUI row = Instantiate(rowPrefab, buyContentRoot);
             row.Setup(
                 GetSeedUiSprite(plant) ?? plant.icon,
                 displayName,
                 unlocked ? $"Besitzt: {inventory.GetSeedCount(plant)}" : RequiredLicenseHint(plant),
                 unlocked ? $"Preis: {buyPrice}" : "Gesperrt",
-                unlocked ? "Kaufen" : "Lizenz nötig",
-                unlocked ? () => BuySeed(plant, 1) : null,
+                !unlocked ? "Lizenz nötig" : (canBuyOne ? "Kaufen" : "Zu teuer"),
+                canBuyOne ? () => BuySeed(plant, 1) : null,
                 unlocked ? "10x" : string.Empty,
-                unlocked ? () => BuySeed(plant, 10) : null);
+                canBuyTen ? () => BuySeed(plant, 10) : null);
 
-            row.SetDimmed(!unlocked);
+            // Die ganze Zeile dimmen, sobald sich nicht mal EIN Stück ausgeht — reicht es
+            // nur für den 10er-Pack nicht, bleibt die Zeile hell, nur der 10x-Knopf selbst
+            // ist dann (über SetupButton) inaktiv.
+            row.SetDimmed(!unlocked || !canBuyOne);
 
             createdAnyRow = true;
         }
@@ -707,17 +719,23 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 float dur = data.GetDuration(0);
                 string baseStats = $"{dur:F1}s/Feld";
 
+                // Sonst sieht ein 5-Gold-Startkapital neben einem 300-Gold-Werkzeug exakt
+                // so kaufbar aus wie jedes andere — der Spieler probiert es erst beim Klick.
+                bool affordable = inventory != null && inventory.Money >= data.buyPrice;
+
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
                 row.Setup(
                     data.icon,
                     data.displayName,
                     baseStats,
                     $"Kaufen: {data.buyPrice} G",
-                    "Kaufen",
-                    () => BuyTool(captured),
+                    affordable ? "Kaufen" : "Zu teuer",
+                    affordable ? () => BuyTool(captured) : null,
                     string.Empty,
                     null,
                     DescribeToolPerks(data, 0));
+
+                row.SetDimmed(!affordable);
             }
             else
             {
@@ -728,11 +746,13 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                 int maxLevel = data.maxLevel;
                 int cost     = ToolRegistry.Instance.GetUpgradeCost(tool);
                 bool isMax   = ToolRegistry.Instance.IsMaxLevel(tool);
+                bool affordable = isMax || (inventory != null && inventory.Money >= cost);
 
                 float dur = data.GetDuration(level);
                 string statsLabel = $"Lvl {level}/{maxLevel}  |  {dur:F1}s/Feld";
 
                 string costLabel = isMax ? "MAX LEVEL" : $"Upgrade: {cost} G";
+                string buttonLabel = isMax ? "—" : (affordable ? "Upgraden" : "Zu teuer");
 
                 FarmMarketShopRowUI row = Instantiate(rowPrefab, upgradeContentRoot);
                 row.Setup(
@@ -740,11 +760,15 @@ public class FarmMarketDialogueShopController : MonoBehaviour
                     data.displayName,
                     statsLabel,
                     costLabel,
-                    isMax ? "—" : "Upgraden",
-                    isMax ? null : () => ShowUpgradeConfirmation(captured),
+                    buttonLabel,
+                    (isMax || !affordable) ? null : () => ShowUpgradeConfirmation(captured),
                     string.Empty,
                     null,
                     DescribeToolPerks(data, level));
+
+                // MAX LEVEL bewusst NICHT abdunkeln — "geschafft" soll sich anders lesen
+                // als "kann ich mir nicht leisten".
+                row.SetDimmed(!isMax && !affordable);
             }
         }
     }

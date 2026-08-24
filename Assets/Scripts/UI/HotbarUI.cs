@@ -500,8 +500,8 @@ public class HotbarUI : MonoBehaviour
             // showCount an: die Zahl-Anzeige des Slots traegt hier den Preis.
             ConfigureVisualSlot(slotUI, data.icon, true);
 
-            if (slotUI != null && slotUI.countLabel != null)
-                slotUI.countLabel.text = data.buyPrice.ToString();
+            if (slotUI != null)
+                SetPriceLabelText(slotUI.countLabel, data.buyPrice.ToString());
 
             // Leuchtet bei "Stelle eine Automations-Station auf" — dem Einstieg in die
             // Automation-Quest. Ansonsten (kein passendes Ziel aktiv) bleibt der Slot dunkel.
@@ -533,7 +533,25 @@ public class HotbarUI : MonoBehaviour
         }
     }
 
-    /// <summary>Graut Geraete-Slots aus, deren Kaufpreis das Gold uebersteigt.</summary>
+    /// <summary>
+    /// Schreibt Preis-/Bestandstext in einen Slot-Label und erzwingt eine Zeile.
+    ///
+    /// Ohne das brach z.B. "2000" bei einer schmalen Slot-Zahl mangels Platz auf jede
+    /// Ziffer eine eigene Zeile um ("2\n0\n0\n0") — TMPs Wortumbruch fällt bei einem
+    /// "Wort" ohne Leerzeichen, das nicht passt, auf Zeichen-Umbruch zurück. AutoSizing
+    /// schrumpft die Schrift stattdessen so weit wie nötig, bis der Text auf eine Zeile passt.
+    /// </summary>
+    private static void SetPriceLabelText(TMPro.TMP_Text label, string text)
+    {
+        if (label == null) return;
+
+        label.text = text;
+        label.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
+        label.enableAutoSizing = true;
+        label.fontSizeMin = 8f;
+        if (label.fontSizeMax <= 0f) label.fontSizeMax = Mathf.Max(label.fontSize, 18f);
+    }
+
     /// <summary>
     /// Beschriftet den Stations-Slot und graut ihn aus, wenn er gerade nicht nutzbar ist.
     ///
@@ -561,9 +579,9 @@ public class HotbarUI : MonoBehaviour
 
             if (slotUI.countLabel != null)
             {
-                slotUI.countLabel.text = packed > 0
+                SetPriceLabelText(slotUI.countLabel, packed > 0
                     ? $"x{packed}"
-                    : buildStation.buyPrice.ToString();
+                    : buildStation.buyPrice.ToString());
                 slotUI.countLabel.color = usable ? Color.white : unaffordableColor;
             }
         }
