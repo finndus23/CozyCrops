@@ -3,14 +3,9 @@ using UnityEngine;
 /// <summary>
 /// Erkennt automatisch, wenn der Spieler wirklich feststeckt (kein Gold für auch nur den
 /// günstigsten Samen, keiner mehr im Inventar, NICHTS Verkaufbares im Erntekorb UND nichts
-/// wächst gerade auf dem Feld), gibt ihm Saatgut in die Hand und zeigt einmalig einen
-/// Hinweis-Dialog dazu.
-///
-/// Die Rettung lief frueher ueber die Sichel auf Gras (PlantManager.TryGatherGrass) mit
-/// steigender Zufallschance. Dieser Weg ist mit dem Sichel-Umbau auf master entfallen — die
-/// Sichel trifft nur noch reife Pflanzen, TryGatherGrass ruft niemand mehr auf. Jetzt haengt
-/// die Rettung an gar keiner Werkzeug-Aktion mehr: wer festsitzt und dazu jedes Feld schon
-/// gehackt hat, haette weder etwas zu maehen noch etwas zu hacken.
+/// wächst gerade auf dem Feld) und zeigt einmalig einen Hinweis-Dialog, der auf die
+/// Not-Samen-Mechanik beim Gras-Mähen aufmerksam macht (siehe
+/// <see cref="PlantManager.TryGatherGrass"/>).
 ///
 /// Die letzten beiden Bedingungen sind bewusst dazugekommen: "0 Samen im Inventar" heißt
 /// NICHT automatisch stecken geblieben — hat der Spieler gerade alle Samen ausgesät, wächst
@@ -36,10 +31,6 @@ public class SoftlockHintTrigger : MonoBehaviour
              "Bestimmt die Geld-Schwelle: darunter kann sich der Spieler nichts mehr kaufen.")]
     [SerializeField] private string cheapestSeedId = "carrot";
 
-    [Tooltip("Wie viele Not-Samen der Spieler bekommt, wenn er wirklich feststeckt. " +
-             "Genug fuer einen Neustart, aber kein Geschenk, von dem man leben kann.")]
-    [SerializeField] private int rescueSeedCount = 3;
-
     [Tooltip("Wie oft (Sekunden) zusätzlich zu den Inventar-Events nachgeschaut wird. " +
              "Fängt den Fall ab, dass der Spieler genau dann feststeckt, während gerade " +
              "ein anderer Dialog läuft — ohne das würde der Hinweis sonst nie nachgeholt.")]
@@ -52,11 +43,6 @@ public class SoftlockHintTrigger : MonoBehaviour
     // hält den "einmalig"-Schutz für die ganze Session, wie ursprünglich beabsichtigt —
     // bleibt bewusst ungespeichert (siehe Klassenkommentar), nur eben session-weit korrekt.
     private static bool alreadyShown;
-
-    // Getrennt von alreadyShown: der DIALOG soll einmal pro Session kommen und nicht
-    // nerven, die RETTUNG dagegen jedes Mal, wenn der Spieler neu feststeckt. Wird wieder
-    // scharf gestellt, sobald er handlungsfaehig ist.
-    private static bool rescueArmed = true;
 
     private void OnEnable()
     {
@@ -91,6 +77,7 @@ public class SoftlockHintTrigger : MonoBehaviour
 
     private void CheckNow()
     {
+        if (alreadyShown || hintDialogue == null) return;
 
         // SampleScene.PlayerInventory startet mit startingMoney=0 und leeren Seeds — reine
         // Platzhalterwerte für den Moment zwischen Scene-Awake und dem Einspielen des
@@ -116,52 +103,12 @@ public class SoftlockHintTrigger : MonoBehaviour
                   $"money={PlayerInventory.Instance?.Money.ToString() ?? "kein PlayerInventory"}, " +
                   $"plantDatabase={(PlantDatabase.Instance != null ? "ok" : "FEHLT")}");
 
-        // Wieder handlungsfaehig: Rettung fuer den naechsten Notfall scharf stellen.
-        if (!stuck)
-        {
-            rescueArmed = true;
-            return;
-        }
-
-        // Die Rettung selbst haengt bewusst NICHT am Dialog: laeuft gerade ein anderer,
-        // soll der Spieler trotzdem sofort weiterspielen koennen.
-        if (rescueArmed)
-        {
-            // Vor dem Vergeben entschaerfen — AddSeed feuert OnSeedsChanged und damit
-            // CheckNow erneut, sonst gaebe es die Samen doppelt.
-            rescueArmed = false;
-            GrantRescueSeeds();
-        }
-
-        if (alreadyShown || hintDialogue == null || dialogueBusy) return;
+        if (dialogueBusy || !stuck) return;
 
         // Erst hier auf true setzen, nicht schon beim Prüfen — blockiert gerade ein
         // anderer Dialog, soll der Poll es beim nächsten Mal erneut versuchen dürfen.
         alreadyShown = true;
         DialogueManager.Instance.StartDialogue(hintDialogue);
-    }
-
-    /// <summary>
-    /// Gibt dem Spieler direkt Saatgut in die Hand.
-    ///
-    /// Vorher lief die Rettung ueber die Sichel auf Gras (PlantManager.TryGatherGrass) mit
-    /// steigender Zufallschance. Dieser Weg ist mit dem Sichel-Umbau auf master entfallen —
-    /// die Sichel trifft nur noch reife Pflanzen, TryGatherGrass ruft niemand mehr auf.
-    ///
-    /// Der Ersatz haengt bewusst an gar keiner Werkzeug-Aktion: wer festsitzt und dazu noch
-    /// jedes Feld gehackt hat, haette weder etwas zu maehen noch etwas zu hacken. Eine
-    /// Rettung, die selbst wieder eine Vorbedingung hat, ist keine.
-    /// </summary>
-    private void GrantRescueSeeds()
-    {
-        var inv = PlayerInventory.Instance;
-        var starter = PlantDatabase.Instance?.GetById(cheapestSeedId);
-        if (inv == null || starter == null) return;
-
-        int amount = Mathf.Max(1, rescueSeedCount);
-        inv.AddSeed(starter, amount);
-
-        Debug.Log($"[SoftlockHintTrigger] Softlock erkannt — {amount}x {starter.plantName} vergeben.");
     }
 
     private bool IsStuck()

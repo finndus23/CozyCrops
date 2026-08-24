@@ -304,14 +304,6 @@ public class PlantManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// ACHTUNG: derzeit unerreichbar. Einziger Aufrufer war TryGatherGrass, und das haengt
-    /// seit dem Sichel-Umbau auf master an keiner Aktion mehr. Die garantierte Rettung
-    /// liegt jetzt in SoftlockHintTrigger.GrantRescueSeeds.
-    ///
-    /// Bewusst nicht geloescht: kommt das Gras-Maehen zurueck, ist der ambiente Fund
-    /// (grassSeedChance) sofort wieder da.
-    /// </summary>
     private void RollStarterSeed(int x, int z)
     {
         if (PlantDatabase.Instance == null || PlayerInventory.Instance == null) return;
