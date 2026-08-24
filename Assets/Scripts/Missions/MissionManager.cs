@@ -175,6 +175,40 @@ public class MissionManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sammelt die highlightIds der NPCs, die gerade ein Gespraech schulden: Missionen, die
+    /// dran waeren, deren Voraussetzungen erfuellt sind, die aber noch auf den Dialog
+    /// warten (startedByDialogue).
+    ///
+    /// Genau in diesem Fenster gibt es noch KEIN Objective — der MissionHighlightDirector
+    /// haette also nichts, woran er ein Ziel festmachen koennte, obwohl der nextStepHint
+    /// schon "Sprich mit Onkel Ozan" sagt.
+    /// </summary>
+    public void CollectPendingDialogueStarters(List<string> into)
+    {
+        if (into == null) return;
+
+        AppendStarter(into, NextStoryMission);
+
+        if (sideMissions == null) return;
+        foreach (var mission in sideMissions)
+            AppendStarter(into, mission);
+    }
+
+    private void AppendStarter(List<string> into, MissionData mission)
+    {
+        if (mission == null) return;
+        if (!mission.startedByDialogue) return;
+        if (string.IsNullOrWhiteSpace(mission.starterHighlightId)) return;
+
+        if (completedMissionIds.Contains(mission.missionId)) return;
+        if (activeMissions.Exists(m => m.Data.missionId == mission.missionId)) return;
+        if (!ArePrerequisitesMet(mission)) return;
+
+        if (!into.Contains(mission.starterHighlightId))
+            into.Add(mission.starterHighlightId);
+    }
+
     /// <summary>Läuft gerade eine Story-Mission?</summary>
     public bool HasActiveStoryMission => activeMissions.Exists(m => m.Data.isStoryMission);
 
