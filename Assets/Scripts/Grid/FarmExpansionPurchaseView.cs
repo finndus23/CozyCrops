@@ -62,6 +62,19 @@ public sealed class FarmExpansionPurchaseView : MonoBehaviour
 
         FarmExpansionPurchaseView view = canvasObject.GetComponent<FarmExpansionPurchaseView>();
         view.Initialize(targetZone, displayName, worldSize, previewFillColor, previewOutlineColor);
+
+        // Quest-Highlighting fuer "Schalte eine neue Flaeche frei". HighlightUIOutline
+        // baut sich komplett aus Code auf (kein Material, kein Sprite noetig) — anders als
+        // die Weltkontur-Variante fuer 3D-Objekte lässt sich das hier gefahrlos zur
+        // Laufzeit zusammensetzen. HighlightTarget muss NACH dem Outline dazukommen, sonst
+        // findet sein Awake() noch kein IHighlightVisual auf dem Objekt.
+        //
+        // zoneId löst sich automatisch: der Canvas hängt direkt unter targetZone.transform,
+        // GetComponentInParent<GridZone>() im HighlightTarget.Awake() findet sie dort.
+        canvasObject.AddComponent<HighlightUIOutline>();
+        var highlight = canvasObject.AddComponent<HighlightTarget>();
+        highlight.SetObjectiveTypes(MissionObjectiveType.UnlockZone);
+
         return view;
     }
 
