@@ -39,6 +39,14 @@ public class SaveGameData
     public List<string> ownedTools = new();
     public List<MissionProgressSaveData> missionProgress = new();
 
+    /// <summary>
+    /// Noch laufende bzw. wartende Spieler-Werkzeugaktionen. Der eigene Zeitstempel darf
+    /// im Marktplatz nicht mit savedAtUnix ueberschrieben werden: Dort wird die Farm nur
+    /// inventarseitig gespeichert, die Queue soll aber seit Verlassen der Farm weiterlaufen.
+    /// </summary>
+    public List<ToolJobSaveData> toolQueue = new();
+    public long toolQueueSavedAtUnixMilliseconds;
+
     /// <summary>licenseIds der gekauften Lizenzen.</summary>
     public List<string> ownedLicenses = new();
 
@@ -101,6 +109,27 @@ public class ToolLevelSaveData
 {
     public string toolType;
     public int level;
+}
+
+[Serializable]
+public class ToolJobSaveData
+{
+    public string toolType;
+    public string seedId;
+    public int yieldBonus;
+    public int originX;
+    public int originZ;
+    public float duration;
+    public float elapsed;
+    public bool wasRunning;
+    public List<ToolJobTileSaveData> tiles = new();
+}
+
+[Serializable]
+public class ToolJobTileSaveData
+{
+    public int x;
+    public int z;
 }
 
 [Serializable]

@@ -16,6 +16,8 @@ public class CarClickHandler : MonoBehaviour
     [SerializeField] private FarmMarketSceneTransition sceneTransition;
     [SerializeField] private float maxRayDistance = 100f;
 
+    private HighlightTarget highlightTarget;
+
     public static event System.Action OnTraveledToMarketStatic;
     public static event System.Action OnTraveledToFarmStatic;
 
@@ -23,22 +25,41 @@ public class CarClickHandler : MonoBehaviour
     {
         if (sceneTransition == null)
             sceneTransition = FindFirstObjectByType<FarmMarketSceneTransition>();
+
+        highlightTarget = GetComponent<HighlightTarget>();
+        if (highlightTarget == null) highlightTarget = GetComponentInChildren<HighlightTarget>();
+        if (highlightTarget == null) highlightTarget = GetComponentInParent<HighlightTarget>();
     }
 
     private void Update()
     {
-        if (Mouse.current == null) return;
-        if (!Mouse.current.leftButton.wasPressedThisFrame) return;
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+        if (Mouse.current == null)
+        {
+            SetHovered(false);
+            return;
+        }
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            SetHovered(false);
+            return;
+        }
 
         Camera cam = Camera.main;
-        if (cam == null) return;
+        if (cam == null)
+        {
+            SetHovered(false);
+            return;
+        }
 
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (!Physics.Raycast(ray, out RaycastHit hit, maxRayDistance)) return;
+        bool hasHit = Physics.Raycast(ray, out RaycastHit hit, maxRayDistance);
+        bool pointsAtCar = hasHit
+            && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform));
 
-        if (hit.collider.gameObject != gameObject && !hit.collider.transform.IsChildOf(transform))
-            return;
+        SetHovered(pointsAtCar);
+
+        if (!pointsAtCar || !Mouse.current.leftButton.wasPressedThisFrame) return;
 
         if (TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.CarTravel) == true) return;
 
@@ -59,4 +80,11 @@ public class CarClickHandler : MonoBehaviour
             sceneTransition.GoToFarm();
         }
     }
+
+    private void SetHovered(bool on)
+    {
+        if (highlightTarget != null) highlightTarget.SetHovered(on);
+    }
+
+    private void OnDisable() => SetHovered(false);
 }

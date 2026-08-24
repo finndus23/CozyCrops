@@ -63,6 +63,8 @@ public class HighlightTarget : MonoBehaviour
     /// Darstellung bei identischer Auswahl-Logik.
     /// </summary>
     private IHighlightVisual visual;
+    private bool missionHighlighted;
+    private bool hoverHighlighted;
 
     /// <summary>
     /// Zone, zu der dieses Objekt gehört — automatisch aus dem Eltern-<see cref="GridZone"/>
@@ -114,6 +116,8 @@ public class HighlightTarget : MonoBehaviour
 
     private void OnDisable()
     {
+        hoverHighlighted = false;
+        ApplyHighlightState();
         registry.Remove(this);
         OnRegistryChanged?.Invoke();
     }
@@ -220,7 +224,31 @@ public class HighlightTarget : MonoBehaviour
 
     public void SetHighlighted(bool on)
     {
-        visual?.SetHighlighted(on);
+        missionHighlighted = on;
+        ApplyHighlightState();
+    }
+
+    /// <summary>
+    /// Schaltet nur das Maus-Hover ein oder aus. Missions- und Hover-Highlight werden
+    /// getrennt gespeichert, damit das Verlassen eines aktiven Missionsziels dessen
+    /// Kontur nicht versehentlich ausschaltet.
+    /// </summary>
+    public void SetHovered(bool on)
+    {
+        if (hoverHighlighted == on) return;
+        hoverHighlighted = on;
+        ApplyHighlightState();
+    }
+
+    private void ApplyHighlightState()
+    {
+        if (visual is HighlightOutline worldOutline)
+        {
+            worldOutline.SetHighlightState(missionHighlighted, hoverHighlighted);
+            return;
+        }
+
+        visual?.SetHighlighted(missionHighlighted || hoverHighlighted);
     }
 
     // --- Test-Hilfen ---

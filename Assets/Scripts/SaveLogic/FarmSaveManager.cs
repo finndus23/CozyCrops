@@ -72,6 +72,7 @@ public class FarmSaveManager : MonoBehaviour
     private bool allowSaveRequests;
     private bool isQuitting;
     private float nextAutoSaveTime;
+    private bool toolQueueNeedsResaveAfterLoad;
 
     // Zeitpunkt, zu dem die angesammelten Änderungen geschrieben werden sollen.
     private float saveDueTime;
@@ -455,6 +456,8 @@ public class FarmSaveManager : MonoBehaviour
         nextAutoSaveTime = Time.unscaledTime + autoSaveInterval;
         allowSaveRequests = true;
 
+        ResaveCaughtUpToolQueueIfNeeded();
+
         Debug.Log($"[FarmSaveManager] Geladen: {path} | Tiles={data.tiles.Count}, Seeds={data.seeds.Count}, Crops={data.crops.Count}, Money={data.money}");
     }
 
@@ -483,6 +486,8 @@ public class FarmSaveManager : MonoBehaviour
         saveRequested = false;
         nextAutoSaveTime = Time.unscaledTime + autoSaveInterval;
         allowSaveRequests = true;
+
+        ResaveCaughtUpToolQueueIfNeeded();
 
         Debug.Log($"[FarmSaveManager] Geladen: {path} | Tiles={data.tiles.Count}, Seeds={data.seeds.Count}, Crops={data.crops.Count}, Money={data.money}");
     }
@@ -769,6 +774,18 @@ public class FarmSaveManager : MonoBehaviour
             data.toolLevels.AddRange(ToolRegistry.Instance.GetSaveData());
             data.ownedTools.Clear();
             data.ownedTools.AddRange(ToolRegistry.Instance.GetOwnedToolsSaveData());
+        }
+
+        // ToolUseHandler lebt nur auf der Farm. Im Markt bleibt die zuletzt gespeicherte
+        // Queue samt eigenem Zeitstempel unangetastet, damit die dort verbrachte Zeit beim
+        // Zurueckkehren vollstaendig nachgerechnet werden kann.
+        if (ToolUseHandler.Instance != null)
+        {
+            data.toolQueue.Clear();
+            data.toolQueue.AddRange(ToolUseHandler.Instance.GetSaveData());
+            data.toolQueueSavedAtUnixMilliseconds = data.toolQueue.Count > 0
+                ? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                : 0;
         }
 
         if (LicenseRegistry.Instance != null)
@@ -1072,6 +1089,7 @@ public class FarmSaveManager : MonoBehaviour
             ApplyAutomation(data);
 
             ApplyMissions(data);
+            ApplyToolQueue(data);
         }
         finally
         {
@@ -1097,6 +1115,36 @@ public class FarmSaveManager : MonoBehaviour
     {
         if (MissionManager.Instance == null) return;
         MissionManager.Instance.ApplyLoadedData(data.missionProgress);
+    }
+
+    private void ApplyToolQueue(SaveGameData data)
+    {
+        toolQueueNeedsResaveAfterLoad = false;
+
+        var handler = ToolUseHandler.Instance;
+        if (handler == null)
+        {
+            if (data.toolQueue != null && data.toolQueue.Count > 0)
+                Debug.LogWarning("[FarmSaveManager] Gespeicherte Tool-Queue konnte nicht geladen " +
+                                 "werden: Kein ToolUseHandler in der Farm-Szene gefunden.");
+            return;
+        }
+
+        toolQueueNeedsResaveAfterLoad = handler.ApplyLoadedData(
+            data.toolQueue, data.toolQueueSavedAtUnixMilliseconds);
+    }
+
+    /// <summary>
+    /// Die Offline-Nachrechnung kann Grid, Inventar und Missionen veraendern. Unmittelbar
+    /// nach dem Load noch einmal speichern, damit ein weiterer F6/Absturz nicht dieselben
+    /// bereits erledigten Jobs erneut aus der alten Queue abspielt.
+    /// </summary>
+    private void ResaveCaughtUpToolQueueIfNeeded()
+    {
+        if (!toolQueueNeedsResaveAfterLoad) return;
+
+        toolQueueNeedsResaveAfterLoad = false;
+        SaveNowInternal("Tool Queue Catch-up");
     }
 
     private void ApplyInventory(SaveGameData data)
@@ -1178,6 +1226,10 @@ public class FarmSaveManager : MonoBehaviour
         if (data.toolLevels == null) data.toolLevels = new List<ToolLevelSaveData>();
         if (data.ownedTools == null) data.ownedTools = new List<string>();
         if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
+        if (data.toolQueue == null) data.toolQueue = new List<ToolJobSaveData>();
+        foreach (var job in data.toolQueue)
+            if (job != null && job.tiles == null)
+                job.tiles = new List<ToolJobTileSaveData>();
         if (data.ownedLicenses == null) data.ownedLicenses = new List<string>();
         if (data.automationDevices == null) data.automationDevices = new List<AutomationDeviceSaveData>();
         if (data.packedAutomationDevices == null) data.packedAutomationDevices = new List<AutomationDeviceSaveData>();

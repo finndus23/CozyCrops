@@ -77,7 +77,7 @@ public class GridInput : MonoBehaviour
         // Farm-Modus: AoEPreview übernimmt das Tile-Highlighting
         UpdateHover(false);
 
-        if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile
+        if (mouse.leftButton.isPressed && isOverGrid && !isLockedTile && !IsPointerOverUI()
             && TutorialManager.Instance?.IsBlocked(TutorialBlockedAction.FarmTools) != true)
         {
             // Mit Queueing darf während einer laufenden Aktion weiter markiert werden —

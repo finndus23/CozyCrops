@@ -19,6 +19,7 @@ Shader "CozyCrops/HighlightOutlineComposite"
     {
         _HighlightMask ("Highlight Mask", 2D) = "black" {}
         _OutlineColor  ("Farbe", Color) = (1, 0.85, 0.2, 1)
+        _HoverOutlineColor ("Hover-Farbe", Color) = (0.92, 0.92, 0.92, 1)
         // Default bewusst auf 1 Texel — bei Bilinear-Sampling der Maske reicht das
         // für eine saubere duenne Kontur, hoehere Werte wirken schnell nach Glow.
         _Thickness     ("Dicke (Texel)", Range(1, 8)) = 1
@@ -67,6 +68,7 @@ Shader "CozyCrops/HighlightOutlineComposite"
             float4 _HighlightMask_TexelSize;
 
             half4 _OutlineColor;
+            half4 _HoverOutlineColor;
             float _Thickness;
             float _PulseSpeed;
             float _PulseAmount;
@@ -96,15 +98,20 @@ Shader "CozyCrops/HighlightOutlineComposite"
             /// Liegt an dieser Stelle ein SICHTBARER Teil eines Highlight-Objekts?
             /// Prüft zwei Dinge: steht in der Maske überhaupt etwas, und wird es von
             /// der Szene verdeckt.
-            float MaskInside(float2 uv)
+            // x = sichtbar, y = Hover-Stil. In der RFloat-Maske kodiert das Vorzeichen
+            // den Stil, während der Betrag weiterhin die Entfernung in Metern enthält.
+            float2 MaskData(float2 uv)
             {
-                float maskEye = SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r;
+                float encodedDepth = SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r;
+                float maskEye = abs(encodedDepth);
 
                 // 0 = nichts gezeichnet. Echte Geometrie liegt nie näher als die Near-Plane.
-                if (maskEye <= 0.0001) return 0.0;
+                if (maskEye <= 0.0001) return float2(0.0, 0.0);
 
                 // Beides in Metern, also gilt schlicht: weiter weg als die Szene = verdeckt.
-                return maskEye <= SceneEyeDepth(uv) + _DepthBias ? 1.0 : 0.0;
+                float visible = maskEye <= SceneEyeDepth(uv) + _DepthBias ? 1.0 : 0.0;
+                float hoverStyle = encodedDepth < 0.0 ? 1.0 : 0.0;
+                return float2(visible, hoverStyle);
             }
 
             half4 frag (Varyings input) : SV_Target
@@ -128,7 +135,7 @@ Shader "CozyCrops/HighlightOutlineComposite"
 
                     if (_DebugView < 2.5)
                     {
-                        float m = SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r;
+                        float m = abs(SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r);
                         if (m <= 0.0001) return half4(0, 0, 0, 1);          // schwarz = leer
                         return half4(0, saturate(m / 50.0), 0, 1);          // gruen = Abstand
                     }
@@ -137,33 +144,54 @@ Shader "CozyCrops/HighlightOutlineComposite"
                     //   grün    = Objekt da UND gilt als sichtbar
                     //   rot     = Objekt da, aber als verdeckt eingestuft
                     {
-                        float m = SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r;
+                        float m = abs(SAMPLE_TEXTURE2D(_HighlightMask, sampler_HighlightMask, uv).r);
                         if (m <= 0.0001) return half4(0, 0, 0, 1);
-                        return MaskInside(uv) > 0.5 ? half4(0, 1, 0, 1) : half4(1, 0, 0, 1);
+                        return MaskData(uv).x > 0.5 ? half4(0, 1, 0, 1) : half4(1, 0, 0, 1);
                     }
                 }
 
                 float2 texel = _HighlightMask_TexelSize.xy * _Thickness;
-                float  center = MaskInside(uv);
+                float2 centerData = MaskData(uv);
+                float centerQuest = centerData.x * (1.0 - centerData.y);
+                float centerHover = centerData.x * centerData.y;
 
                 // 4 Nachbarn reichen für eine saubere, gleichmäßige Kontur und sind
                 // billiger als ein voller 8-Tap-Sobel — für einen dünnen Highlight-Rand
                 // fällt der Unterschied kaum auf.
-                float neighborMax = center;
-                neighborMax = max(neighborMax, MaskInside(uv + float2( texel.x, 0)));
-                neighborMax = max(neighborMax, MaskInside(uv + float2(-texel.x, 0)));
-                neighborMax = max(neighborMax, MaskInside(uv + float2(0,  texel.y)));
-                neighborMax = max(neighborMax, MaskInside(uv + float2(0, -texel.y)));
+                float neighborQuest = centerQuest;
+                float neighborHover = centerHover;
+
+                float2 sampleData = MaskData(uv + float2( texel.x, 0));
+                neighborQuest = max(neighborQuest, sampleData.x * (1.0 - sampleData.y));
+                neighborHover = max(neighborHover, sampleData.x * sampleData.y);
+
+                sampleData = MaskData(uv + float2(-texel.x, 0));
+                neighborQuest = max(neighborQuest, sampleData.x * (1.0 - sampleData.y));
+                neighborHover = max(neighborHover, sampleData.x * sampleData.y);
+
+                sampleData = MaskData(uv + float2(0,  texel.y));
+                neighborQuest = max(neighborQuest, sampleData.x * (1.0 - sampleData.y));
+                neighborHover = max(neighborHover, sampleData.x * sampleData.y);
+
+                sampleData = MaskData(uv + float2(0, -texel.y));
+                neighborQuest = max(neighborQuest, sampleData.x * (1.0 - sampleData.y));
+                neighborHover = max(neighborHover, sampleData.x * sampleData.y);
 
                 // Rand = ein Nachbar ist "drin" (Maske), das Zentrum selbst aber (noch)
                 // nicht komplett drin -> das ist genau der äußere Kontur-Pixel.
-                float edge = saturate(neighborMax - center);
+                float questEdge = saturate(neighborQuest - centerQuest);
+                float hoverEdge = saturate(neighborHover - centerHover);
 
                 // 0..1-Welle, nie ganz auf null: die Kontur soll atmen, nicht blinken.
                 float wave  = (sin(_Time.y * _PulseSpeed * 6.2831853) + 1.0) * 0.5;
                 float pulse = lerp(1.0 - _PulseAmount, 1.0, wave);
 
-                half3 result = lerp(scene, _OutlineColor.rgb, edge * _OutlineColor.a * pulse);
+                // Hover bleibt ruhig und hellgrau. Quest wird danach darübergelegt und
+                // behält damit an Überschneidungen eindeutig seine goldene Bedeutung.
+                half3 result = lerp(scene, _HoverOutlineColor.rgb,
+                                    hoverEdge * _HoverOutlineColor.a);
+                result = lerp(result, _OutlineColor.rgb,
+                              questEdge * _OutlineColor.a * pulse);
                 return half4(result, 1);
             }
             ENDHLSL
