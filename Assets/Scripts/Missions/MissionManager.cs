@@ -64,6 +64,8 @@ public class MissionManager : MonoBehaviour
         AutomationPlacementController.OnStationPlacedStatic += HandleStationPlaced;
         AutomationDevice.OnModuleInstalledStatic += HandleModuleInstalled;
         AutomationDevice.OnStationUpgradedStatic += HandleStationUpgraded;
+        AutomationDevice.OnAllModulesMaxedStatic += HandleAllModulesMaxed;
+        ComposterInteraction.OnLevelChangedStatic += HandleComposterLevelChanged;
         PlayerInventory.OnCropSoldStatic += HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic += HandleBuildModeEntered;
@@ -94,6 +96,8 @@ public class MissionManager : MonoBehaviour
         AutomationPlacementController.OnStationPlacedStatic -= HandleStationPlaced;
         AutomationDevice.OnModuleInstalledStatic -= HandleModuleInstalled;
         AutomationDevice.OnStationUpgradedStatic -= HandleStationUpgraded;
+        AutomationDevice.OnAllModulesMaxedStatic -= HandleAllModulesMaxed;
+        ComposterInteraction.OnLevelChangedStatic -= HandleComposterLevelChanged;
         PlayerInventory.OnCropSoldStatic -= HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic -= HandleBuildModeEntered;
@@ -292,19 +296,31 @@ public class MissionManager : MonoBehaviour
     private void HandleModuleInstalled(AutomationDeviceType _) =>
         ReportProgress(MissionObjectiveType.InstallModule, null, 1);
 
-    private void HandleStationUpgraded(int _) =>
+    private void HandleStationUpgraded(int newLevel)
+    {
         ReportProgress(MissionObjectiveType.UpgradeStation, null, 1);
+        ReportProgress(MissionObjectiveType.StationLevelReached, null, newLevel);
+    }
+
+    private void HandleAllModulesMaxed() =>
+        ReportProgress(MissionObjectiveType.AllModulesMaxed, null, 1);
+
+    private void HandleComposterLevelChanged(int newLevel) =>
+        ReportProgress(MissionObjectiveType.ComposterLevelReached, null, newLevel);
 
     private void HandleHarvested(PlantType type)
     {
         ReportProgress(MissionObjectiveType.HarvestCrop, type, 1);
 
         // Zusaetzlich, nicht statt: bestehende HarvestCrop-Ziele (auch die Meilensteine
-        // mit countsAutomatedActions) sollen automatische Ernten weiter mitzaehlen. Dieses
-        // zweite Ziel ist NUR fuer Missionen gedacht, die beweisen wollen, dass die
-        // Automatik selbststaendig laeuft — Handarbeit darf es nicht erfuellen koennen.
+        // mit countsAutomatedActions) sollen automatische Ernten weiter mitzaehlen. Diese
+        // beiden Ziele sind NUR fuer Missionen gedacht, die eine bestimmte Quelle
+        // verlangen — Handarbeit darf AutomationHarvest nicht erfuellen koennen und
+        // umgekehrt.
         if (ToolUseHandler.CurrentJobSource == ToolJobSource.Automation)
             ReportProgress(MissionObjectiveType.AutomationHarvest, type, 1);
+        else
+            ReportProgress(MissionObjectiveType.ManualHarvest, type, 1);
     }
 
     private void HandleCropSold(PlantType type, int amount) =>
@@ -397,7 +413,9 @@ public class MissionManager : MonoBehaviour
     }
 
     private static bool IsAbsolute(MissionObjectiveType type) =>
-        type is MissionObjectiveType.ToolLevelReached;
+        type is MissionObjectiveType.ToolLevelReached
+             or MissionObjectiveType.StationLevelReached
+             or MissionObjectiveType.ComposterLevelReached;
 
     private void ReportProgress(MissionObjectiveType type, PlantType plantType, int amount,
                                 ToolType tool = ToolType.None, string zoneId = null,

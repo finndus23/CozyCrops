@@ -294,7 +294,12 @@ public class AutomationDevicePopup : MonoBehaviour
             if (cost < 0) return;
             if (!inventory.TrySpendMoney(cost)) return;
 
-            module.level = Mathf.Clamp(module.level + 1, 0, data.maxLevel);
+            if (!target.TryUpgradeModule(data.deviceType))
+            {
+                inventory.AddMoney(cost);
+                return;
+            }
+
             UiSfx.StationUpgraded();
         }
 

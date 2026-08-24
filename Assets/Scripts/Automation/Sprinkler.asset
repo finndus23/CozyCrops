@@ -23,7 +23,7 @@ MonoBehaviour:
   minInterval: 1.5
   actionDuration: 2
   baseTilesPerTick: 1
-  buyPrice: 2000
+  buyPrice: 1000
   baseCost: 200
   costScalingPerLevel: 12
   milestones:

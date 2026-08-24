@@ -296,6 +296,57 @@ public class AutomationDevice : MonoBehaviour, IClickable
         return module;
     }
 
+    /// <summary>Ein Modul wurde aufgewertet. Fuers Missions-System.</summary>
+    public static event System.Action<AutomationDeviceType, int> OnModuleUpgradedStatic;
+
+    /// <summary>Alle vier Modultypen stehen gleichzeitig auf ihrer Hoechststufe. Fuers
+    /// Missions-System — feuert konstruktionsbedingt nur einmal, siehe AreAllModulesAtMaxLevel.</summary>
+    public static event System.Action OnAllModulesMaxedStatic;
+
+    /// <summary>
+    /// Hebt ein eingebautes Modul um eine Stufe. Kapselt die Mutation, damit sie an EINER
+    /// Stelle passiert statt direkt aus dem Popup — nur so laesst sich das Aufwerten
+    /// zuverlaessig melden (Event) und auf "alle vier maximal" pruefen.
+    /// </summary>
+    public bool TryUpgradeModule(AutomationDeviceType moduleType)
+    {
+        var module = GetModule(moduleType);
+        if (module?.data == null || module.level >= module.data.maxLevel) return false;
+
+        module.level = Mathf.Clamp(module.level + 1, 0, module.data.maxLevel);
+        OnModuleUpgradedStatic?.Invoke(moduleType, module.level);
+
+        if (AreAllModulesAtMaxLevel())
+            OnAllModulesMaxedStatic?.Invoke();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Prueft gegen den KATALOG, nicht nur gegen die eingebauten Module — sonst waere eine
+    /// Station mit nur einem maximal ausgebauten Modul schon "fertig". Braucht wirklich
+    /// alle vier Modultypen, jedes auf seiner eigenen Hoechststufe.
+    ///
+    /// Kann konstruktionsbedingt nur einmal true werden: TryUpgradeModule bricht fuer ein
+    /// Modul ab, sobald es sein Maximum erreicht hat, ein erneuter Durchlauf aller vier
+    /// Module auf Maximalstufe ist also nur nach einem Ausbau-Entfernen-Neuaufbau moeglich.
+    /// </summary>
+    private bool AreAllModulesAtMaxLevel()
+    {
+        var catalog = AutomationDeviceCatalog.Modules;
+        if (catalog.Count == 0) return false;
+
+        foreach (var data in catalog)
+        {
+            if (data == null) continue;
+
+            var module = GetModule(data.deviceType);
+            if (module?.data == null || module.level < data.maxLevel) return false;
+        }
+
+        return true;
+    }
+
     /// <summary>
     /// Nimmt der Station ihre Module ab und gibt sie zurueck — fuer das Einpacken.
     /// Level, An/Aus-Zustand und Sortenwahl bleiben in den Objekten erhalten; nur die

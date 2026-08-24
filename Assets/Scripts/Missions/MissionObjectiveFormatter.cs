@@ -101,6 +101,18 @@ public static class MissionObjectiveFormatter
                     ? (n == 1 ? $"Lass die Station 1x {plant} ernten" : $"Lass die Station {n}x {plant} ernten")
                     : (n == 1 ? "Lass die Station 1 Ernte einbringen" : $"Lass die Station {n} Ernten einbringen"),
 
+            MissionObjectiveType.ManualHarvest =>
+                n == 1 ? "Ernte von Hand 1 Pflanze" : $"Ernte von Hand {n} Pflanzen",
+
+            MissionObjectiveType.StationLevelReached =>
+                $"Bring die Station auf Stufe {n}",
+
+            MissionObjectiveType.AllModulesMaxed =>
+                "Alle vier Module auf Hoechststufe",
+
+            MissionObjectiveType.ComposterLevelReached =>
+                $"Bring den Komposter auf Stufe {n}",
+
             _ => $"Aufgabe ({n})"
         };
     }

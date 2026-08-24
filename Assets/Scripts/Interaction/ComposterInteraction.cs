@@ -135,11 +135,16 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     /// <summary>Setzt die Stufe (Ladepfad).</summary>
     public void SetLevel(int level) => Level = Mathf.Clamp(level, 0, maxLevel);
 
+    /// <summary>Komposter wurde aufgewertet. Fuers Missions-System — bewusst nur hier
+    /// gefeuert, nicht in SetLevel (Ladepfad), analog zu ToolRegistry.OnToolUpgradedStatic.</summary>
+    public static event System.Action<int> OnLevelChangedStatic;
+
     /// <summary>Hebt den Komposter um eine Stufe. Gold bucht der Aufrufer ab.</summary>
     public bool TryUpgrade()
     {
         if (Level >= maxLevel) return false;
         Level++;
+        OnLevelChangedStatic?.Invoke(Level);
         return true;
     }
 

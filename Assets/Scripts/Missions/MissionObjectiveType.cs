@@ -77,5 +77,28 @@ public enum MissionObjectiveType
     /// und nicht durch eigenhändiges Ernten umgangen werden kann; die Mission soll ja
     /// zeigen, dass der Kreislauf tatsächlich von selbst läuft.
     /// </summary>
-    AutomationHarvest
+    AutomationHarvest,
+
+    /// <summary>
+    /// Ernte, die der SPIELER von Hand eingebracht hat — Gegenstueck zu AutomationHarvest.
+    /// Additiv zu HarvestCrop gemeldet, nicht als Ersatz: bestehende HarvestCrop-Ziele
+    /// zaehlen weiterhin beide Quellen zusammen.
+    /// </summary>
+    ManualHarvest,
+
+    /// <summary>Reichweiten-Stufe einer Station erreicht. <c>requiredAmount</c> ist die
+    /// Ziel-Stufe, kein Zaehler — wie ToolLevelReached.</summary>
+    StationLevelReached,
+
+    /// <summary>
+    /// Alle vier Modultypen einer Station stehen gleichzeitig auf ihrer jeweiligen
+    /// Hoechststufe. Ein einzelnes Boolesches Ziel (0/1) statt vier separater, weil es
+    /// keine Moeglichkeit gibt, ein Missions-Objective auf einen bestimmten Modultyp
+    /// einzugrenzen (dafuer fehlt das Gegenstueck zu targetTool).
+    /// </summary>
+    AllModulesMaxed,
+
+    /// <summary>Ausbaustufe des Komposters erreicht. <c>requiredAmount</c> ist die
+    /// Ziel-Stufe, kein Zaehler.</summary>
+    ComposterLevelReached
 }
