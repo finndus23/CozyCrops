@@ -13,11 +13,13 @@ using UnityEngine.UI;
 /// an dem er ihren Fortschritt überhaupt sehen könnte.
 ///
 /// Baut sich komplett aus Code auf wie AutomationDevicePopup/ComposterInteraction — kein
-/// Prefab nötig. Ein kleiner Umschalt-Knopf oben rechts öffnet/schließt das Panel.
+/// Prefab nötig für das Panel selbst. Den Umschalt-Knopf gibt es hier NICHT mehr —
+/// der lebt als normales UI-Element in der Szene und ruft <see cref="Toggle"/> auf.
 ///
 /// Setup: EIN leeres GameObject mit dieser Komponente irgendwo in der SampleScene ablegen
 /// (z.B. neben MissionsUI). Awake() macht das Objekt DontDestroyOnLoad, genau wie
 /// MissionsUI es für sich selbst tut — ein einziges Objekt reicht für Farm und Marktplatz.
+/// Der eigene Button ruft <c>AchievementsUI.Instance.Toggle()</c> (oder Open()/Close()).
 /// </summary>
 public class AchievementsUI : MonoBehaviour
 {
@@ -34,9 +36,6 @@ public class AchievementsUI : MonoBehaviour
 
     [SerializeField] private Color barFillColor = new(0.95f, 0.64f, 0.18f, 1f);
     [SerializeField] private Color barCompleteColor = new(0.45f, 0.82f, 0.35f, 1f);
-
-    [Tooltip("Position des Umschalt-Knopfs, oben rechts vom Panel-Pivot aus.")]
-    [SerializeField] private Vector2 toggleButtonPosition = new(-540f, -40f);
 
     private class Row
     {
@@ -60,8 +59,6 @@ public class AchievementsUI : MonoBehaviour
 
     void Start()
     {
-        EnsureToggleButton();
-
         var manager = MissionManager.Instance;
         if (manager != null)
         {
@@ -148,15 +145,6 @@ public class AchievementsUI : MonoBehaviour
 
     // ── Aufbau ────────────────────────────────────────────────────────────────
 
-    private void EnsureToggleButton()
-    {
-        var canvas = RuntimePopupBuilder.ResolveHudCanvas(hudCanvas);
-        if (canvas == null) return;
-
-        RuntimePopupBuilder.CreateButton(canvas.transform, "AchievementsToggle",
-            toggleButtonPosition, new Vector2(140f, 40f), "Erfolge", buttonSprite, Toggle);
-    }
-
     private void EnsurePanel()
     {
         if (panel != null) return;
@@ -208,17 +196,21 @@ public class AchievementsUI : MonoBehaviour
     {
         var row = new Row { data = data };
 
+        // Zentriert bei x=0 mit Breite 400 -> spannt -200..200. Vorher stand die Position
+        // bei x=-200 UND die Breite bei 400, macht -400..0 -- ragte damit weit ueber den
+        // linken Panel-Rand (Panel ist 460 breit, Rand bei -230) hinaus. Das war das
+        // "verrutscht".
         row.titleLabel = RuntimePopupBuilder.CreateLabel(panel.transform, $"Row_{data.missionId}_Title",
-            new Vector2(-200f, y), new Vector2(400f, 22f), data.title, 15f,
+            new Vector2(0f, y), new Vector2(400f, 22f), data.title, 15f,
             TMPro.TextAlignmentOptions.Left);
 
         row.fillImage = RuntimePopupBuilder.CreateProgressBar(panel.transform, $"Row_{data.missionId}_Bar",
-            new Vector2(0f, y - 20f), new Vector2(360f, 16f),
+            new Vector2(0f, y - 22f), new Vector2(360f, 16f),
             barBackgroundSprite, barFillSprite,
             new Color(0.2f, 0.15f, 0.1f, 0.6f), barFillColor);
 
         row.progressLabel = RuntimePopupBuilder.CreateLabel(panel.transform, $"Row_{data.missionId}_Progress",
-            new Vector2(0f, y - 20f), new Vector2(360f, 16f), "", 12f);
+            new Vector2(0f, y - 22f), new Vector2(360f, 16f), "", 12f);
 
         rows.Add(row);
     }

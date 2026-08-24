@@ -2685,7 +2685,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 112233445566778899001122334455a0, type: 2}
   - {fileID: 11400000, guid: 112233445566778899001122334455a2, type: 2}
   - {fileID: 11400000, guid: d01617e09bac4ed4a284f183744d00f3, type: 2}
-  sideMissions: []
+  sideMissions:
+  - {fileID: 11400000, guid: 8084a3c8ff804566ae367b91ab4e283f, type: 2}
+  - {fileID: 11400000, guid: 739b25c8d322467fb2a0d6308157c9bc, type: 2}
+  - {fileID: 11400000, guid: 9bdfc3aa772849a2b12435d9e49838f7, type: 2}
+  - {fileID: 11400000, guid: d586e6720f684a389cd0bcd1615de325, type: 2}
+  - {fileID: 11400000, guid: bf4ce80c1a694376ba7b877c8771f21c, type: 2}
+  - {fileID: 11400000, guid: 3cfc07798e0d4cb58ccf0c27f2cce7ca, type: 2}
   autoStartStoryChain: 1
 --- !u!4 &677964883
 Transform:
