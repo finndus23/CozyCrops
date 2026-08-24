@@ -491,17 +491,22 @@ public class GridManager : MonoBehaviour
         if (!cell.IsTilled && !cell.HasPlant)
         {
             cell.TileVisual.SetState(FarmTileState.Dry);
-            return;
         }
-
-        if (cell.HasPlant && cell.Plant != null && !cell.Plant.IsFullyGrown &&
+        else if (cell.HasPlant && cell.Plant != null && !cell.Plant.IsFullyGrown &&
             cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
         {
             cell.TileVisual.SetState(FarmTileState.Watered);
-            return;
+        }
+        else
+        {
+            cell.TileVisual.SetState(FarmTileState.Tilled);
         }
 
-        cell.TileVisual.SetState(FarmTileState.Tilled);
+        // Unabhängig vom Dry/Tilled/Watered-Zweig oben — Dünger ist ein eigener, davon
+        // losgelöster Zustand. Vor allem für den Ladepfad wichtig: ReplaceTile ersetzt das
+        // Tile-GameObject und damit auch FarmTileVisual, die frische Instanz weiß von der
+        // gespeicherten Düngung sonst nichts.
+        cell.TileVisual.SetFertilized(cell.IsFertilized);
     }
 
     private TileType ParseTileType(string value)

@@ -49,16 +49,16 @@ public class TravelSfx : MonoBehaviour
 
     private void OnEnable()
     {
-        CarClickHandler.OnTraveledToMarketStatic += HandleToMarket;
-        CarClickHandler.OnTraveledToFarmStatic   += HandleToFarm;
+        FarmMarketSceneTransition.OnTraveledToMarketStatic += HandleToMarket;
+        FarmMarketSceneTransition.OnTraveledToFarmStatic   += HandleToFarm;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        CarClickHandler.OnTraveledToMarketStatic -= HandleToMarket;
-        CarClickHandler.OnTraveledToFarmStatic   -= HandleToFarm;
+        FarmMarketSceneTransition.OnTraveledToMarketStatic -= HandleToMarket;
+        FarmMarketSceneTransition.OnTraveledToFarmStatic   -= HandleToFarm;
 
         SceneManager.sceneLoaded -= OnSceneLoaded;
 

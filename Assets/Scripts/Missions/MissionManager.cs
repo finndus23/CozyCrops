@@ -71,8 +71,8 @@ public class MissionManager : MonoBehaviour
         BuildModeManager.OnBuildModeEnteredStatic += HandleBuildModeEntered;
         BuildModeManager.OnBuildModeExitedStatic += HandleBuildModeExited;
         TileContextMenu.OnFarmTilePlacedStatic += HandleFarmTilePlaced;
-        CarClickHandler.OnTraveledToMarketStatic += HandleTraveledToMarket;
-        CarClickHandler.OnTraveledToFarmStatic += HandleTraveledToFarm;
+        FarmMarketSceneTransition.OnTraveledToMarketStatic += HandleTraveledToMarket;
+        FarmMarketSceneTransition.OnTraveledToFarmStatic += HandleTraveledToFarm;
         BarnInteraction.OnBarnOpenedStatic += HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic += HandleToolAcquired;
         ToolRegistry.OnToolUpgradedStatic += HandleToolUpgraded;
@@ -103,8 +103,8 @@ public class MissionManager : MonoBehaviour
         BuildModeManager.OnBuildModeEnteredStatic -= HandleBuildModeEntered;
         BuildModeManager.OnBuildModeExitedStatic -= HandleBuildModeExited;
         TileContextMenu.OnFarmTilePlacedStatic -= HandleFarmTilePlaced;
-        CarClickHandler.OnTraveledToMarketStatic -= HandleTraveledToMarket;
-        CarClickHandler.OnTraveledToFarmStatic -= HandleTraveledToFarm;
+        FarmMarketSceneTransition.OnTraveledToMarketStatic -= HandleTraveledToMarket;
+        FarmMarketSceneTransition.OnTraveledToFarmStatic -= HandleTraveledToFarm;
         BarnInteraction.OnBarnOpenedStatic -= HandleBarnOpened;
         ToolRegistry.OnToolAcquiredStatic -= HandleToolAcquired;
         ToolRegistry.OnToolUpgradedStatic -= HandleToolUpgraded;
@@ -396,6 +396,20 @@ public class MissionManager : MonoBehaviour
     /// Ohne das hinge eine Mission wie "Bring die Hacke auf Stufe 10" fest, wenn die Hacke
     /// beim Missionsstart schon dort ist — es käme nie wieder ein Upgrade-Event.
     /// </summary>
+    /// <summary>
+    /// Gleicht Ziele ab, die einen ZUSTAND abfragen statt ein Ereignis zu zählen — die
+    /// Bedingung kann schon vor Missionsbeginn erfüllt gewesen sein (Werkzeug schon
+    /// hochgerüstet, Komposter schon ausgebaut, Lizenz schon gekauft). Rein event-getriebene
+    /// Ziele würden das nie nachtragen: das Ereignis, das den Fortschritt auslöst, ist ja
+    /// schon vorbei, bevor die Mission überhaupt zu horchen begonnen hat — die Mission
+    /// bliebe für immer bei 0 stehen, obwohl die Bedingung längst erfüllt ist.
+    ///
+    /// StationLevelReached fehlt hier bewusst: es kann mehrere Stationen gleichzeitig geben,
+    /// "der aktuelle Stand" ist ohne eine konkrete Station nicht eindeutig. Der laufende
+    /// Fortschritt kommt dort ausschließlich über OnStationUpgradedStatic beim tatsächlichen
+    /// Aufwerten — das reicht, weil endgame_full_automation ohnehin erst nach der
+    /// Automation-Quest verfügbar wird, lange bevor irgendeine Station ausgebaut sein kann.
+    /// </summary>
     private void SyncAbsoluteObjectives(MissionState state)
     {
         var objectives = state.Data.objectives;
@@ -404,11 +418,31 @@ public class MissionManager : MonoBehaviour
         for (int i = 0; i < objectives.Length; i++)
         {
             var obj = objectives[i];
-            if (obj.type != MissionObjectiveType.ToolLevelReached) continue;
-            if (ToolRegistry.Instance == null) continue;
-            if (obj.targetTool == ToolType.None) continue;
 
-            state.SetProgress(i, ToolRegistry.Instance.GetLevel(obj.targetTool));
+            switch (obj.type)
+            {
+                case MissionObjectiveType.ToolLevelReached:
+                    if (ToolRegistry.Instance == null || obj.targetTool == ToolType.None) continue;
+                    state.SetProgress(i, ToolRegistry.Instance.GetLevel(obj.targetTool));
+                    break;
+
+                case MissionObjectiveType.ComposterLevelReached:
+                    if (ComposterInteraction.Instance == null) continue;
+                    state.SetProgress(i, ComposterInteraction.Instance.Level);
+                    break;
+
+                case MissionObjectiveType.BuyLicense:
+                    // Zählt Kaufvorgänge (AddProgress), keinen Zustand — deshalb hier
+                    // AddProgress statt SetProgress, sonst würde ein zweiter Sync-Durchlauf
+                    // (z.B. durch einen erneuten StartMission-Aufruf) den Fortschritt
+                    // doppelt gutschreiben. requiredAmount ist bei diesem Typ ohnehin immer 1.
+                    if (LicenseRegistry.Instance == null) continue;
+                    if (string.IsNullOrWhiteSpace(obj.targetLicenseId)) continue;
+                    if (state.ObjectiveCompleted(i)) continue;
+                    if (LicenseRegistry.Instance.IsOwned(obj.targetLicenseId))
+                        state.AddProgress(i, obj.requiredAmount);
+                    break;
+            }
         }
     }
 

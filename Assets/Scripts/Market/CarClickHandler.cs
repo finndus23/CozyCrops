@@ -18,9 +18,6 @@ public class CarClickHandler : MonoBehaviour
 
     private HighlightTarget highlightTarget;
 
-    public static event System.Action OnTraveledToMarketStatic;
-    public static event System.Action OnTraveledToFarmStatic;
-
     private void Awake()
     {
         if (sceneTransition == null)
@@ -69,14 +66,15 @@ public class CarClickHandler : MonoBehaviour
             return;
         }
 
+        // OnTraveledTo*Static feuert jetzt IN GoToMarket()/GoToFarm() selbst (siehe
+        // FarmMarketSceneTransition) — so lösen auch andere Wege dorthin (z.B. ein
+        // UI-Button) dieselben Missionsziele/Sounds aus, nicht nur der Autoklick hier.
         if (destination == Destination.ToMarket)
         {
-            OnTraveledToMarketStatic?.Invoke();
             sceneTransition.GoToMarket();
         }
         else
         {
-            OnTraveledToFarmStatic?.Invoke();
             sceneTransition.GoToFarm();
         }
     }

@@ -149,6 +149,7 @@ public class PlantManager : MonoBehaviour
         if (!PlayerInventory.Instance.TrySpendFertilizer(1)) return false;
 
         cell.IsFertilized = true;
+        cell.TileVisual?.SetFertilized(true);
 
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
@@ -261,6 +262,9 @@ public class PlantManager : MonoBehaviour
         PlayerInventory.Instance.AddCrop(harvested.Type, totalYield);
 
         cell.TileVisual?.SetState(FarmTileState.Dry);
+        // cell.Harvest() (oben) hat IsFertilized bereits zurückgesetzt — Markierung
+        // entsprechend mit runternehmen, sonst hinkt sie dem echten Zustand hinterher.
+        cell.TileVisual?.SetFertilized(false);
         PlayHarvestVisual(cell);
         activePlants.Remove(cell);
 
