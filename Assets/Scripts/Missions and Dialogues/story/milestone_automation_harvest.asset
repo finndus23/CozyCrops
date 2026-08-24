@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: milestone_automation_harvest
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: milestone_automation_harvest
-  title: Meilenstein: Selbstlaeufer
+  title: "Meilenstein: Selbstlaeufer"
   description: "Lass Automations-Stationen 10.000 Pflanzen fuer dich ernten."
   objectives:
   - type: 26

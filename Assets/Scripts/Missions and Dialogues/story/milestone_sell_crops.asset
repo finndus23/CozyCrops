@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: milestone_sell_crops
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: milestone_sell_crops
-  title: Meilenstein: Marktmacht
+  title: "Meilenstein: Marktmacht"
   description: "Verkaufe insgesamt 20.000 Ernte-Stueck."
   objectives:
   - type: 4

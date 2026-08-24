@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: milestone_manual_harvest
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: milestone_manual_harvest
-  title: Meilenstein: Handarbeit
+  title: "Meilenstein: Handarbeit"
   description: "Ernte 10.000 Pflanzen mit eigener Hand."
   objectives:
   - type: 27

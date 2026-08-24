@@ -741,6 +741,29 @@ public class MissionManager : MonoBehaviour
         return (current, Mathf.Max(1, required), current >= required && required > 0);
     }
 
+    /// <summary>Fortschritt EINES einzelnen Ziels einer Mission — Gegenstueck zu
+    /// GetAchievementProgress, das ueber alle Ziele aufsummiert. Fuer die Erfolge-Uebersicht,
+    /// wenn Endgame-Missionen ihre Ziele einzeln statt aggregiert zeigen sollen.</summary>
+    public (int current, int required, bool completed) GetObjectiveProgress(MissionData data, int index)
+    {
+        if (data?.objectives == null || index < 0 || index >= data.objectives.Length)
+            return (0, 1, false);
+
+        int required = Mathf.Max(1, data.objectives[index]?.requiredAmount ?? 1);
+
+        if (IsMissionCompleted(data.missionId))
+            return (required, required, true);
+
+        foreach (var s2 in activeMissions)
+        {
+            if (s2.Data.missionId != data.missionId) continue;
+            int current = Mathf.Min(s2.GetProgress(index), required);
+            return (current, required, current >= required);
+        }
+
+        return (0, required, false);
+    }
+
     private List<MissionData> GetAllMissions()
     {
         var all = new List<MissionData>();

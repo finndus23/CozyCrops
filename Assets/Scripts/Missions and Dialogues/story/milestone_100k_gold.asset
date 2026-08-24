@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: milestone_100k_gold
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: milestone_100k_gold
-  title: Meilenstein: Kapital
+  title: "Meilenstein: Kapital"
   description: "Verdiene insgesamt 100.000 Gold — egal wie, egal wodurch."
   objectives:
   - type: 5
