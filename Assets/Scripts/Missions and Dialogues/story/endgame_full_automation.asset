@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3576dc41e5ea2be479ce0f0e48d22b73, type: 3}
+  m_Name: endgame_full_automation
+  m_EditorClassIdentifier: Assembly-CSharp::MissionData
+  missionId: endgame_full_automation
+  title: Vollautomatisiert
+  description: "Die Station auf Hoechststufe, alle vier Module maximal ausgebaut, der Komposter voll ausgereizt."
+  objectives:
+  - type: 28
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    targetHighlightId:
+    requiredAmount: 30
+    description:
+  - type: 29
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    targetHighlightId:
+    requiredAmount: 1
+    description:
+  - type: 30
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    targetHighlightId:
+    requiredAmount: 10
+    description:
+  countsAutomatedActions: 0
+  rewards:
+  - type: 0
+    amount: 15000
+    plant: {fileID: 0}
+    tool: 0
+    zoneName:
+    licenseId:
+  isStoryMission: 0
+  unlocks: []
+  requiredMissionIds:
+  - story_8_automation_intro
+  requiredCompletedCount: 0
+  autoStartWhenAvailable: 1
+  startedByDialogue: 0
+  starterHighlightId:
+  nextStepHint:
+  sequentialObjectives: 0
