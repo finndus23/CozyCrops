@@ -183,6 +183,12 @@ public class MissionHighlightDirector : MonoBehaviour
         for (int m = 0; m < missions.Count; m++)
         {
             var state = missions[m];
+
+            // Hintergrund-Achievements laufen bewusst ohne Fuehrung mit — kein NPC, kein
+            // Objekt soll fuer "verdiene 100000 Gold" leuchten. Sichtbar nur ueber die
+            // Erfolge-Uebersicht (AchievementsUI).
+            if (state.Data.isBackgroundAchievement) continue;
+
             var objectives = state.Data.objectives;
             if (objectives == null || objectives.Length == 0) continue;
 

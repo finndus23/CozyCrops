@@ -114,4 +114,41 @@ public static class RuntimePopupBuilder
 
         return go;
     }
+
+    /// <summary>
+    /// Horizontaler Fortschrittsbalken: Hintergrund + Fuellflaeche (Image.Type.Filled,
+    /// FillMethod.Horizontal). Gibt die Fuellflaeche zurueck, deren fillAmount (0..1)
+    /// den Aufrufer steuern laesst — kein eigener State hier, der Aufrufer kennt den
+    /// aktuellen Fortschritt ohnehin schon.
+    /// </summary>
+    public static Image CreateProgressBar(Transform parent, string objectName, Vector2 position,
+        Vector2 size, Sprite backgroundSprite, Sprite fillSprite, Color backgroundColor, Color fillColor)
+    {
+        GameObject go = CreateUiObject(objectName, parent);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+
+        Image background = go.AddComponent<Image>();
+        background.sprite = backgroundSprite;
+        background.type = backgroundSprite != null ? Image.Type.Sliced : Image.Type.Simple;
+        background.color = backgroundColor;
+
+        GameObject fillObj = CreateUiObject("Fill", go.transform);
+        RectTransform fillRect = fillObj.GetComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = fillRect.offsetMax = Vector2.zero;
+
+        Image fill = fillObj.AddComponent<Image>();
+        fill.sprite = fillSprite;
+        fill.type = Image.Type.Filled;
+        fill.fillMethod = Image.FillMethod.Horizontal;
+        fill.fillOrigin = (int)Image.OriginHorizontal.Left;
+        fill.color = fillColor;
+        fill.fillAmount = 0f;
+
+        return fill;
+    }
 }

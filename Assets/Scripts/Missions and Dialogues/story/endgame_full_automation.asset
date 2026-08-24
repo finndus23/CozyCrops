@@ -49,6 +49,7 @@ MonoBehaviour:
     zoneName:
     licenseId:
   isStoryMission: 0
+  isBackgroundAchievement: 1
   unlocks: []
   requiredMissionIds:
   - story_8_automation_intro

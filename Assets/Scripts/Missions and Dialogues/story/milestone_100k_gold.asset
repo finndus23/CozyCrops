@@ -33,6 +33,7 @@ MonoBehaviour:
     zoneName:
     licenseId:
   isStoryMission: 0
+  isBackgroundAchievement: 1
   unlocks: []
   requiredMissionIds: []
   requiredCompletedCount: 0

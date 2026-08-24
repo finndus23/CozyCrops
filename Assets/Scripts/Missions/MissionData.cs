@@ -26,6 +26,15 @@ public class MissionData : ScriptableObject
     [Tooltip("Wenn true, wird diese Mission als Teil der Story-Kette behandelt")]
     public bool isStoryMission;
 
+    [Tooltip("Hintergrund-Achievement statt normaler Quest: laeuft ohne Dialog von " +
+             "Spielbeginn an mit, taucht NICHT im Quest-Tracker auf und wird vom " +
+             "Highlighting ignoriert (kein NPC/Objekt leuchtet dafuer). Erreichbar nur " +
+             "ueber die Erfolge-Uebersicht (AchievementsUI). Fuer Meilenstein- und " +
+             "Endgame-Ziele gedacht, die den Spieler nicht auf Schritt und Tritt begleiten " +
+             "sollen — 'verdiene 100000 Gold' waere als staendig sichtbarer Quest-Eintrag " +
+             "nur Rauschen.")]
+    public bool isBackgroundAchievement;
+
     [Tooltip("Missionen die nach Abschluss dieser Mission freigeschaltet werden")]
     public MissionData[] unlocks;
 

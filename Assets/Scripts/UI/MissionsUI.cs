@@ -217,6 +217,10 @@ public class MissionsUI : MonoBehaviour
         if (data == null || entries.ContainsKey(data.missionId)) return;
         if (missionEntryPrefab == null || contentRoot == null) return;
 
+        // Hintergrund-Achievements laufen ohne Dialog von Spielbeginn an mit — im
+        // Quest-Tracker waeren sie reines Rauschen. Eigene Uebersicht: AchievementsUI.
+        if (data.isBackgroundAchievement) return;
+
         var go = Instantiate(missionEntryPrefab, contentRoot);
         var entry = go.GetComponent<MissionEntryUI>();
         if (entry == null) return;

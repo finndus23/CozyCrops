@@ -468,7 +468,21 @@ public class MissionManager : MonoBehaviour
         // Belohnung wird NICHT sofort gutgeschrieben, sondern zum Abholen hingelegt.
         // Ohne diesen Zwischenschritt gäbe es keinen Moment, an dem die Münzen fliegen
         // können — das Geld wäre schon da, bevor der Spieler den Abschluss überhaupt sieht.
-        if (HasRewards(state.Data))
+        //
+        // Hintergrund-Achievements sind die Ausnahme: sie haben keinen Quest-Tracker-Eintrag
+        // (MissionsUI überspringt sie) und damit auch keine Abhol-Karte — die Belohnung läge
+        // sonst für immer unerreichbar in pendingRewards. Direkt gutschreiben statt liegen
+        // lassen; ein Fanfaren-Moment passt zu einem stillen Hintergrund-Ziel ohnehin nicht.
+        if (state.Data.isBackgroundAchievement)
+        {
+            if (HasRewards(state.Data))
+            {
+                foreach (var reward in state.Data.rewards)
+                    GrantReward(reward);
+                OnRewardsCollected?.Invoke(state.Data);
+            }
+        }
+        else if (HasRewards(state.Data))
         {
             pendingRewards[state.Data.missionId] = state.Data;
             OnRewardsPending?.Invoke(state.Data);
@@ -678,6 +692,53 @@ public class MissionManager : MonoBehaviour
             AdvanceStoryChain();
 
         RefreshAvailableSideMissions();
+    }
+
+    /// <summary>Alle konfigurierten Hintergrund-Achievements — unabhaengig davon, ob sie
+    /// gerade aktiv, schon abgeschlossen oder (theoretisch) noch gar nicht gestartet
+    /// sind. Fuer die Erfolge-Uebersicht, die im Gegensatz zum Quest-Tracker permanent
+    /// alle sehen koennen soll, nicht nur die gerade laufenden.</summary>
+    public IReadOnlyList<MissionData> BackgroundAchievements
+    {
+        get
+        {
+            var result = new List<MissionData>();
+            foreach (var data in GetAllMissions())
+                if (data != null && data.isBackgroundAchievement)
+                    result.Add(data);
+            return result;
+        }
+    }
+
+    /// <summary>Fortschritt eines Achievements, ueber alle seine Ziele aufsummiert — ein
+    /// Endgame-Achievement mit mehreren Objectives (z.B. fuenf Werkzeuge auf Stufe 30)
+    /// zeigt sich damit als EIN Balken statt fuenf einzelner.</summary>
+    public (int current, int required, bool completed) GetAchievementProgress(MissionData data)
+    {
+        if (data == null || data.objectives == null || data.objectives.Length == 0)
+            return (0, 1, false);
+
+        if (IsMissionCompleted(data.missionId))
+        {
+            int total = 0;
+            foreach (var o in data.objectives)
+                total += Mathf.Max(1, o?.requiredAmount ?? 1);
+            return (total, total, true);
+        }
+
+        MissionState state = null;
+        foreach (var s2 in activeMissions)
+            if (s2.Data.missionId == data.missionId) { state = s2; break; }
+
+        int current = 0, required = 0;
+        for (int i = 0; i < data.objectives.Length; i++)
+        {
+            int need = Mathf.Max(1, data.objectives[i]?.requiredAmount ?? 1);
+            required += need;
+            current += state != null ? Mathf.Min(state.GetProgress(i), need) : 0;
+        }
+
+        return (current, Mathf.Max(1, required), current >= required && required > 0);
     }
 
     private List<MissionData> GetAllMissions()
