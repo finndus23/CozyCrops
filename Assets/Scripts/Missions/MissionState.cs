@@ -20,6 +20,53 @@ public class MissionState
             progress[i] = loadedProgress[i];
     }
 
+    /// <summary>
+    /// Niedrigste Stufe, in der noch ein Ziel offen ist. int.MaxValue = alles fertig.
+    ///
+    /// Damit laesst sich ein Durchlauf zerlegen, ohne ihn starr zu sequenzieren: pflanzen,
+    /// giessen und ernten duerfen parallel laufen (Stufe 0), das Verkaufen geht erst danach
+    /// auf (Stufe 1). Sonst leuchtet von Anfang an alles gleichzeitig und der Spieler sieht
+    /// nicht, was als Naechstes dran ist.
+    /// </summary>
+    public int ActiveStage
+    {
+        get
+        {
+            var objectives = Data.objectives;
+            if (objectives == null) return int.MaxValue;
+
+            int lowest = int.MaxValue;
+            for (int i = 0; i < objectives.Length; i++)
+            {
+                if (objectives[i] == null || ObjectiveCompleted(i)) continue;
+                if (objectives[i].stage < lowest) lowest = objectives[i].stage;
+            }
+
+            return lowest;
+        }
+    }
+
+    /// <summary>
+    /// Darf dieses Ziel gerade Fortschritt machen? Beruecksichtigt sowohl die harte
+    /// Sequenz (sequentialObjectives) als auch die Stufen.
+    /// </summary>
+    public bool IsObjectiveActive(int index)
+    {
+        var objectives = Data.objectives;
+        if (objectives == null || index < 0 || index >= objectives.Length) return false;
+        if (ObjectiveCompleted(index)) return false;
+
+        if (Data.sequentialObjectives)
+        {
+            for (int i = 0; i < objectives.Length; i++)
+                if (!ObjectiveCompleted(i)) return i == index;
+
+            return false;
+        }
+
+        return objectives[index] != null && objectives[index].stage == ActiveStage;
+    }
+
     public void AddProgress(int objectiveIndex, int amount)
     {
         if (objectiveIndex < 0 || objectiveIndex >= progress.Length) return;

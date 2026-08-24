@@ -37,7 +37,8 @@ MonoBehaviour:
     targetLicenseId:
     requiredAmount: 8
     description:
-  - type: 4
+  - stage: 1
+    type: 4
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
     targetTool: 0
     targetZoneId:

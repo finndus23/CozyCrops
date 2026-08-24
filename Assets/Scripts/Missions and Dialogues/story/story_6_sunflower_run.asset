@@ -58,7 +58,8 @@ MonoBehaviour:
     targetHighlightId: 
     requiredAmount: 6
     description: 
-  - type: 4
+  - stage: 1
+    type: 4
     targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
     targetTool: 0
     targetZoneId: 

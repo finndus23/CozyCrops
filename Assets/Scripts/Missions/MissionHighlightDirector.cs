@@ -49,6 +49,12 @@ public class MissionHighlightDirector : MonoBehaviour
     private void OnEnable()
     {
         HighlightTarget.OnRegistryChanged += Refresh;
+
+        // Duengen aendert, welche Kacheln fuer eine Sorte mit requiresFertilizedSoil
+        // ueberhaupt in Frage kommen. Ohne dieses Abo bliebe die frisch geduengte Kachel
+        // dunkel, bis zufaellig etwas anderes ein Refresh ausloest.
+        PlantManager.OnFieldFertilized += Refresh;
+
         TrySubscribeToManager();
         Refresh();
     }
@@ -56,6 +62,7 @@ public class MissionHighlightDirector : MonoBehaviour
     private void OnDisable()
     {
         HighlightTarget.OnRegistryChanged -= Refresh;
+        PlantManager.OnFieldFertilized -= Refresh;
         UnsubscribeFromManager();
     }
 
@@ -179,22 +186,11 @@ public class MissionHighlightDirector : MonoBehaviour
             var objectives = state.Data.objectives;
             if (objectives == null || objectives.Length == 0) continue;
 
-            if (state.Data.sequentialObjectives)
             {
-                // Nur das erste offene Ziel — alles danach ist noch gar nicht dran.
+                // Dieselbe Regel wie beim Fortschritt: was nicht zaehlen kann, soll auch
+                // nicht leuchten.
                 for (int i = 0; i < objectives.Length; i++)
-                {
-                    if (!state.ObjectiveCompleted(i))
-                    {
-                        activeObjectives.Add(objectives[i]);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < objectives.Length; i++)
-                    if (!state.ObjectiveCompleted(i))
+                    if (state.IsObjectiveActive(i))
                         activeObjectives.Add(objectives[i]);
             }
         }

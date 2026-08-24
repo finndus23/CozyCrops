@@ -390,24 +390,14 @@ public class MissionManager : MonoBehaviour
 
             bool missionUpdated = false;
 
-            // Sequential: nur das erste unvollständige Objective kann Fortschritt machen
-            int sequentialLimit = -1;
-            if (state.Data.sequentialObjectives)
-            {
-                for (int j = 0; j < state.Data.objectives.Length; j++)
-                {
-                    if (!state.ObjectiveCompleted(j)) { sequentialLimit = j; break; }
-                }
-                if (sequentialLimit < 0) continue; // Alle fertig
-            }
-
             for (int i = 0; i < state.Data.objectives.Length; i++)
             {
-                if (state.Data.sequentialObjectives && i != sequentialLimit) continue;
+                // Sequenz und Stufen stecken beide in IsObjectiveActive — eine Regel,
+                // damit Fortschritt und Highlighting nicht auseinanderlaufen koennen.
+                if (!state.IsObjectiveActive(i)) continue;
 
                 var obj = state.Data.objectives[i];
                 if (obj.type != type) continue;
-                if (state.ObjectiveCompleted(i)) continue;
                 if (obj.targetPlantType != null && obj.targetPlantType != plantType) continue;
                 if (CarriesTool(type) && obj.targetTool != ToolType.None && obj.targetTool != tool) continue;
                 if (!string.IsNullOrWhiteSpace(obj.targetZoneId) && obj.targetZoneId != zoneId) continue;
