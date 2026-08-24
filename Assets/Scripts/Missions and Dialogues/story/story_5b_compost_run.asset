@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_5b_compost_run
   title: Schwarzes Gold
-  description: "Sonnenblumen sind das Beste, was hier wachsen kann - nur wachsen sie
-    nicht in normaler Erde. Sie brauchen geduengten Boden, und Duenger machst du dir
-    selbst: Ernte in den Komposter, warten, abholen, aufs Feld."
+  description: 'Sonnenblumen sind das Beste, was hier wachsen kann - nur wachsen
+    sie nicht in normaler Erde. Sie brauchen geduengten Boden, und Duenger machst
+    du dir selbst: Ernte in den Komposter, warten, abholen, aufs Feld.'
   objectives:
-  - type: 6
+  - stage: 0
+    type: 6
     targetPlantType: {fileID: 0}
     targetTool: 5
     targetZoneId: 
@@ -26,23 +27,26 @@ MonoBehaviour:
     targetHighlightId: 
     requiredAmount: 1
     description: 
-  - type: 21
+  - stage: 0
+    type: 21
     targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
-    targetHighlightId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 18
-    description:
-  - type: 22
+    description: 
+  - stage: 0
+    type: 22
     targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 6
+    requiredAmount: 18
     description: 
-  - type: 20
+  - stage: 0
+    type: 20
     targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
@@ -59,6 +63,7 @@ MonoBehaviour:
     zoneName: 
     licenseId: 
   isStoryMission: 1
+  isBackgroundAchievement: 0
   unlocks: []
   requiredMissionIds:
   - story_5_upgrade_run

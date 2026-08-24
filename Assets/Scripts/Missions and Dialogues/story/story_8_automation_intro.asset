@@ -15,8 +15,8 @@ MonoBehaviour:
   missionId: story_8_automation_intro
   title: Feierabend
   description: "Eine Automations-Station macht die Arbeit, waehrend du woanders bist.
-    Stell eine auf, ruest sie mit allen vier Modulen aus, werte einmal die Reichweite
-    auf - und dann lass sie einfach machen."
+    Stell eine auf, ruest sie mit allen vier Modulen aus, werte die Reichweite bis
+    Stufe 10 auf - und dann lass sie einfach machen."
   objectives:
   - type: 9
     targetPlantType: {fileID: 0}
@@ -42,13 +42,13 @@ MonoBehaviour:
     targetHighlightId:
     requiredAmount: 4
     description:
-  - type: 25
+  - type: 28
     targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId:
     targetLicenseId:
     targetHighlightId:
-    requiredAmount: 1
+    requiredAmount: 10
     description:
   - type: 26
     targetPlantType: {fileID: 0}

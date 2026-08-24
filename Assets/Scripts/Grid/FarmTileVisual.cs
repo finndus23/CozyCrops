@@ -14,27 +14,21 @@ public class FarmTileVisual : MonoBehaviour
     [SerializeField] private GameObject wateredPrefab;
 
     [Header("Dünger-Markierung")]
-    [Tooltip("Dasselbe Prefab wie bei Pflanzen/Komposter (Plant Status). Optional — ohne " +
-             "Zuweisung bleibt gedüngter Boden unmarkiert.\n\n" +
-             "Unabhängig vom Dry/Tilled/Watered-Wechsel: sitzt direkt unter diesem " +
-             "Transform, nicht unter dem ausgetauschten Kind-Prefab, und überlebt deshalb " +
-             "jeden SetState()-Aufruf unverändert.")]
-    [SerializeField] private GameObject fertilizedMarkerPrefab;
-
-    [SerializeField] private float fertilizedMarkerHeightOffset = 0.12f;
-    [SerializeField] private Color fertilizedMarkerColor = new(0.55f, 0.35f, 0.85f, 1f);
+    [Tooltip("Lila Hue direkt auf die Tile-Textur (Multiply-Tint via MaterialPropertyBlock, " +
+             "kein Material-Asset wird verändert), solange die Kachel gedüngt ist — kein " +
+             "extra Prefab/Setup im Editor nötig. Probiert automatisch beide gängigen Farb-" +
+             "Properties durch (_BaseColor für URP, _Color für Built-in/Legacy), je nachdem " +
+             "was der Shader von Dry/Tilled/Watered tatsächlich hat.")]
+    [SerializeField] private Color fertilizedTint = new(0.72f, 0.45f, 1f, 1f);
 
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-    private static readonly int ProgressId  = Shader.PropertyToID("_Progress");
-    private static readonly int SymbolId    = Shader.PropertyToID("_Symbol");
-    private const float SymbolNone = 0f;
+    private static readonly int ColorId     = Shader.PropertyToID("_Color");
 
     public FarmTileState CurrentState { get; private set; } = FarmTileState.Dry;
     public bool IsFertilized { get; private set; }
 
     private GameObject currentChild;
-    private GameObject fertilizedMarker;
-    private MaterialPropertyBlock fertilizedPropertyBlock;
+    private MaterialPropertyBlock propertyBlock;
 
     void Awake()
     {
@@ -48,45 +42,38 @@ public class FarmTileVisual : MonoBehaviour
     }
 
     /// <summary>
-    /// Zeigt oder versteckt die Dünger-Markierung. Von GridCell.IsFertilized aus aufgerufen
-    /// überall dort, wo sich der Wert ändert — TryFertilize, Harvest() (setzt zurück) und
-    /// beim Laden eines Spielstands.
+    /// Färbt die Tile-Textur lila ein, solange gedüngt ist. Von GridCell.IsFertilized aus
+    /// aufgerufen überall dort, wo sich der Wert ändert — TryFertilize, Harvest() (setzt
+    /// zurück) und beim Laden eines Spielstands.
     /// </summary>
     public void SetFertilized(bool value)
     {
         IsFertilized = value;
-
-        if (fertilizedMarkerPrefab == null) return;
-
-        if (value)
-        {
-            EnsureFertilizedMarker();
-            fertilizedMarker.SetActive(true);
-        }
-        else if (fertilizedMarker != null)
-        {
-            fertilizedMarker.SetActive(false);
-        }
+        ApplyTint();
     }
 
-    private void EnsureFertilizedMarker()
+    /// <summary>
+    /// Wird auch bei jedem ApplyState() (Dry/Tilled/Watered-Wechsel tauscht das komplette
+    /// Kind-Prefab samt eigenem Renderer aus) neu aufgerufen — sonst ginge die Färbung beim
+    /// nächsten State-Wechsel verloren, weil der alte eingefärbte Renderer zerstört wird.
+    /// </summary>
+    private void ApplyTint()
     {
-        if (fertilizedMarker != null) return;
+        if (currentChild == null) return;
 
-        fertilizedMarker = Instantiate(fertilizedMarkerPrefab, transform);
-        fertilizedMarker.transform.localPosition = new Vector3(0f, fertilizedMarkerHeightOffset, 0f);
+        propertyBlock ??= new MaterialPropertyBlock();
+        Color tint = IsFertilized ? fertilizedTint : Color.white;
 
-        var rend = fertilizedMarker.GetComponentInChildren<Renderer>();
-        if (rend == null) return;
+        foreach (var rend in currentChild.GetComponentsInChildren<Renderer>())
+        {
+            var mat = rend.sharedMaterial;
+            if (mat == null) continue;
 
-        fertilizedPropertyBlock ??= new MaterialPropertyBlock();
-        rend.GetPropertyBlock(fertilizedPropertyBlock);
-        fertilizedPropertyBlock.SetColor(BaseColorId, fertilizedMarkerColor);
-        // Voll gefüllter Ring, dauerhaft — hier gibt es keinen Fortschritt zu zeigen,
-        // nur einen Zustand ("gedüngt" ja/nein).
-        fertilizedPropertyBlock.SetFloat(ProgressId, 1f);
-        fertilizedPropertyBlock.SetFloat(SymbolId, SymbolNone);
-        rend.SetPropertyBlock(fertilizedPropertyBlock);
+            rend.GetPropertyBlock(propertyBlock);
+            if (mat.HasProperty(BaseColorId)) propertyBlock.SetColor(BaseColorId, tint);
+            if (mat.HasProperty(ColorId))     propertyBlock.SetColor(ColorId, tint);
+            rend.SetPropertyBlock(propertyBlock);
+        }
     }
 
     private void ApplyState(FarmTileState state)
@@ -108,5 +95,6 @@ public class FarmTileVisual : MonoBehaviour
         }
 
         currentChild = Instantiate(prefab, transform.position, transform.rotation, transform);
+        ApplyTint();
     }
 }

@@ -21,7 +21,7 @@ MonoBehaviour:
   actionSpeedMultiplier: 0.8
   automationDurationMultiplier: 0.6
   requiresFertilizedSoil: 0
-  compostValue: 1
+  compostValue: 3
   plantSfx: []
   harvestSfx: []
   sellSfx: []

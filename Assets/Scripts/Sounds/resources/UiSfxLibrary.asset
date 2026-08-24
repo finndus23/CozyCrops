@@ -38,8 +38,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 866aad4a9ceff494b9311a81776f6720, type: 3}
   rewardCollected: []
   starterSeedFound: []
-  fertilizerCollected: []
-  compostReady: []
+  fertilizerCollected:
+  - {fileID: 8300000, guid: a41344a3caf517d43943667a551f7147, type: 3}
+  compostReady:
+  - {fileID: 8300000, guid: f883092fb604835428805cabb6cffe55, type: 3}
   stationPlaced:
   - {fileID: 8300000, guid: 3ce2f52d6ee19e24093f25652678cc99, type: 3}
   moduleInstalled:

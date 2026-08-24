@@ -415,11 +415,15 @@ public class MissionManager : MonoBehaviour
     /// schon vorbei, bevor die Mission überhaupt zu horchen begonnen hat — die Mission
     /// bliebe für immer bei 0 stehen, obwohl die Bedingung längst erfüllt ist.
     ///
-    /// StationLevelReached fehlt hier bewusst: es kann mehrere Stationen gleichzeitig geben,
-    /// "der aktuelle Stand" ist ohne eine konkrete Station nicht eindeutig. Der laufende
-    /// Fortschritt kommt dort ausschließlich über OnStationUpgradedStatic beim tatsächlichen
-    /// Aufwerten — das reicht, weil endgame_full_automation ohnehin erst nach der
-    /// Automation-Quest verfügbar wird, lange bevor irgendeine Station ausgebaut sein kann.
+    /// StationLevelReached: es kann mehrere Stationen gleichzeitig geben (platziert oder
+    /// eingelagert), "der aktuelle Stand" nimmt deshalb das höchste Level unter allen. Das
+    /// war früher bewusst ausgespart, weil endgame_full_automation erst nach der Automation-
+    /// Quest verfügbar wurde und deren einziges Reichweiten-Ziel ein einzelnes Upgrade war —
+    /// zum Missionsstart konnte also noch keine Station weiter als Stufe 1 sein. Seit
+    /// story_8_automation_intro selbst "Station auf Stufe 10" verlangt, stimmt diese Annahme
+    /// nicht mehr: endgame_full_automation aktiviert sich jetzt IMMER mit einer schon auf
+    /// Stufe 10 stehenden Station, und ohne Sync bliebe der Fortschritt bis zum nächsten
+    /// tatsächlichen Upgrade bei 0 hängen.
     /// </summary>
     private void SyncAbsoluteObjectives(MissionState state)
     {
@@ -441,6 +445,20 @@ public class MissionManager : MonoBehaviour
                     if (ComposterInteraction.Instance == null) continue;
                     state.SetProgress(i, ComposterInteraction.Instance.Level);
                     break;
+
+                case MissionObjectiveType.StationLevelReached:
+                {
+                    if (AutomationDeviceManager.Instance == null) continue;
+
+                    int bestLevel = 0;
+                    foreach (var device in AutomationDeviceManager.Instance.AllDevices)
+                        if (device != null) bestLevel = Mathf.Max(bestLevel, device.Level);
+                    foreach (var packed in AutomationDeviceManager.Instance.PackedStations)
+                        if (packed != null) bestLevel = Mathf.Max(bestLevel, packed.level);
+
+                    state.SetProgress(i, bestLevel);
+                    break;
+                }
 
                 case MissionObjectiveType.BuyLicense:
                     // Zählt Kaufvorgänge (AddProgress), keinen Zustand — deshalb hier

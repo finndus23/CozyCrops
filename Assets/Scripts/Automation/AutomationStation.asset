@@ -37,7 +37,7 @@ MonoBehaviour:
     tilesPerTick: 0
     unlockText: 
   moduleSlotOffsets:
-  - {x: 0.28, y: 0, z: 0.28}
-  - {x: -0.28, y: 0, z: 0.28}
-  - {x: 0.28, y: 0, z: -0.28}
-  - {x: -0.28, y: 0, z: -0.28}
+  - {x: 0.28, y: 1, z: 0.28}
+  - {x: -0.28, y: 1, z: 0.28}
+  - {x: 0.28, y: 1, z: -0.28}
+  - {x: -0.28, y: 1, z: -0.28}

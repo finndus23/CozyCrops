@@ -463,6 +463,12 @@ public class AutomationDevice : MonoBehaviour, IClickable
         }
 
         boundsCached = false;
+
+        // Sofort, nicht erst lazy beim ersten Modul-Tick: ohne installierte Module läuft
+        // Update() nie über TickModule/TryDispatch, das den Cache sonst als erstes anstößt.
+        // Eine frisch platzierte Station stünde damit bis zum ersten Modul-Einbau auf reiner
+        // Wiese, obwohl die erste Reihe (baseRadius) schon jetzt zu Ackerland werden soll.
+        RebuildTileCache();
     }
 
     public void SetData(AutomationStationData newData)
@@ -525,6 +531,18 @@ public class AutomationDevice : MonoBehaviour, IClickable
                     int x = tileX + dx;
                     int z = tileZ + dz;
                     if (!grid.IsInBounds(x, z)) continue;
+
+                    // Wiese in Reichweite selbst zu Ackerland machen — sonst muesste der
+                    // Spieler jede neue Kachel erst manuell im Baumodus umwandeln, bevor das
+                    // Pflug-Modul (CanApplyTool verlangt fuer Hoe TileType.FarmPlot)
+                    // ueberhaupt greifen kann. Nur reine Wiese, keine vom Spieler bewusst
+                    // gesetzten Wege — TileType.Path bleibt unangetastet. Best-effort:
+                    // TryPlaceTile lehnt gesperrte/belegte Kacheln von selbst ab, die holt
+                    // sich die Station beim naechsten RebuildTileCache (z.B. nach
+                    // Zonenkauf) automatisch nach.
+                    var cell = grid.GetCell(x, z);
+                    if (cell != null && cell.Type == TileType.Grass)
+                        grid.TryPlaceTile(x, z, TileType.FarmPlot);
 
                     targetTiles.Add(new Vector2Int(x, z));
                 }
