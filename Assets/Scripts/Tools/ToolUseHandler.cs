@@ -284,8 +284,16 @@ public class ToolUseHandler : MonoBehaviour
         // Scythe darf laut CanApplyTool sowohl reife Pflanzen als auch Gras treffen — aber
         // nur EIN Verhalten pro Aktion. Steckt irgendwo ein Erntefeld in der Fläche, war
         // das die Absicht, die Gras-Tiles fliegen raus.
+        //
+        // Geprüft wird auf "candidates" (die komplette angeklickte/gezogene AoE), nicht auf
+        // "tiles" (schon um bereits eingeplante Kacheln bereinigt) — sonst ließe sich die
+        // Regel per Queue umgehen: Erntefeld zuerst separat einreihen (z.B. übers Gerät),
+        // dann dieselbe Fläche nochmal anklicken. Das Erntefeld gilt dann als "schon
+        // verplant" und fällt oben aus "tiles" raus, wodurch hasHarvestTile in "tiles" nie
+        // anspringt — Gras würde durchrutschen, obwohl die geklickte Fläche eindeutig kein
+        // reines Gras-Feld war.
         if (tool == ToolType.Scythe)
-            FilterScytheTiles(tiles);
+            FilterScytheTiles(tiles, candidates);
 
         if (tiles.Count == 0) return false;
 
@@ -1079,11 +1087,17 @@ public class ToolUseHandler : MonoBehaviour
     /// dabei, fliegen alle Gras-Tiles aus der Liste — sonst würde ein einzelnes Erntefeld
     /// am Rand einer großen Wiese eine Handvoll ungewollte Not-Samen-Würfe auslösen, nur
     /// weil die AoE zufällig viel Gras mitnimmt.
+    ///
+    /// hasHarvestTile wird bewusst über "aoeArea" ermittelt (die volle geklickte/gezogene
+    /// Fläche), nicht über "tiles" (schon um bereits eingeplante Kacheln bereinigt) — sonst
+    /// reicht es, das Erntefeld vorher anderweitig einzureihen, um die Prüfung ins Leere
+    /// laufen zu lassen und Gras aus genau dieser gemischten Fläche doch noch durchzuschleusen.
+    /// Entfernt wird trotzdem nur aus "tiles", denn nur das landet in der Warteschlange.
     /// </summary>
-    private void FilterScytheTiles(List<Vector2Int> tiles)
+    private void FilterScytheTiles(List<Vector2Int> tiles, IReadOnlyList<Vector2Int> aoeArea)
     {
         bool hasHarvestTile = false;
-        foreach (var tile in tiles)
+        foreach (var tile in aoeArea)
         {
             var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
             if (cell != null && cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)

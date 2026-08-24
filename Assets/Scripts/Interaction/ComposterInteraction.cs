@@ -36,8 +36,11 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 {
     public static ComposterInteraction Instance { get; private set; }
 
-    /// <summary>Ernte in den Komposter geworfen — Anzahl der STUECKE. Fuers Missions-System.</summary>
-    public static event System.Action<int> OnCompostStartedStatic;
+    /// <summary>Ernte in den Komposter geworfen — Aufschluesselung pro Sorte (Stueckzahl).
+    /// Fuers Missions-System: erlaubt Zielen wie "komposte 6 Karotten" statt nur "komposte
+    /// irgendwas". Ein Missionsziel ohne targetPlantType zaehlt trotzdem weiter die Summe
+    /// mit (MissionManager.ReportProgress laesst dort jede Sorte durch).</summary>
+    public static event System.Action<IReadOnlyDictionary<PlantType, int>> OnCompostStartedStatic;
 
     /// <summary>Fertiger Duenger abgeholt — Anzahl der Einheiten. Fuers Missions-System.</summary>
     public static event System.Action<int> OnFertilizerCollectedStatic;
@@ -355,7 +358,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         PendingFertilizerYield = yield;
         TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
 
-        OnCompostStartedStatic?.Invoke(totalItems);
+        OnCompostStartedStatic?.Invoke(brewingComposition);
         TotalBrewTime = TimeRemaining;
         IsBrewing = true;
         readyChimePlayed = false;

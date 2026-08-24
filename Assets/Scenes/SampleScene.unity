@@ -50005,6 +50005,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 476663346}
+    - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 476663347}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 1056c8c6d07589646b2b5a138259aa6f, type: 3}
 --- !u!4 &476663345 stripped
 Transform:
@@ -50028,6 +50031,19 @@ MonoBehaviour:
   plantType: {fileID: 0}
   toolType: 0
   showOffScreenIndicator: 1
+--- !u!114 &476663347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229425837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
+  startHighlighted: 0
 --- !u!1 &479120943
 GameObject:
   m_ObjectHideFlags: 0
@@ -83399,6 +83415,7 @@ MonoBehaviour:
   - {fileID: -758738751, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   - {fileID: -755850565, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   - {fileID: -316111439, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
+  - {fileID: -512211639, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   - {fileID: -512211639, guid: c9b0fecb2d15a4947afbf0f80ece1cad, type: 3}
   carrotSeedSprite: {fileID: -570651779, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
   cauliflowerSeedSprite: {fileID: -522709909, guid: 45a18983637384d4c9ea05063fdde5a8, type: 3}
@@ -118887,8 +118904,6 @@ GameObject:
   - component: {fileID: 1165565490}
   - component: {fileID: 1165565489}
   - component: {fileID: 1165565488}
-  - component: {fileID: 1165565493}
-  - component: {fileID: 1165565494}
   m_Layer: 0
   m_Name: Composter
   m_TagString: Untagged
@@ -119015,36 +119030,6 @@ Transform:
   - {fileID: 476663345}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1165565493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1165565487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
-  startHighlighted: 0
---- !u!114 &1165565494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1165565487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
-  objectiveTypes: 1600000015000000
-  highlightId: 
-  plantType: {fileID: 0}
-  toolType: 0
-  showOffScreenIndicator: 1
 --- !u!1 &1166914817
 GameObject:
   m_ObjectHideFlags: 0

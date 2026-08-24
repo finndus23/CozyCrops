@@ -540,12 +540,28 @@ public class HotbarUI : MonoBehaviour
     /// Ziffer eine eigene Zeile um ("2\n0\n0\n0") — TMPs Wortumbruch fällt bei einem
     /// "Wort" ohne Leerzeichen, das nicht passt, auf Zeichen-Umbruch zurück. AutoSizing
     /// schrumpft die Schrift stattdessen so weit wie nötig, bis der Text auf eine Zeile passt.
+    ///
+    /// Zusätzlich: das Label steckt im Prefab (Count-Badge) mit SizeDelta (0,0) — im alten
+    /// Umbruch-Modus fiel das nie auf (ohne Maske wird nichts abgeschnitten, jede Ziffer
+    /// bekam trotzdem ihre eigene Zeile), aber NoWrap + AutoSizing gegen eine 0x0-Box
+    /// schrumpft den Text auf praktisch unsichtbar. Erst auf den Elternbereich (die braune
+    /// Badge-Fläche) strecken, dann erst Umbruch/Autosize setzen.
     /// </summary>
     private static void SetPriceLabelText(TMPro.TMP_Text label, string text)
     {
         if (label == null) return;
 
+        RectTransform rect = label.rectTransform;
+        if (rect != null)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
         label.text = text;
+        label.alignment = TMPro.TextAlignmentOptions.Center;
         label.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
         label.enableAutoSizing = true;
         label.fontSizeMin = 8f;

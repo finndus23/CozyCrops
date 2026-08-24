@@ -81,8 +81,9 @@ public static class MissionObjectiveFormatter
                 n == 1 ? "Dünge 1 Feld" : $"Dünge {n} Felder",
 
             // "Früchte" statt "Mal": das Ziel zählt die Stücke, nicht die Würfe.
-            MissionObjectiveType.CompostCrops =>
-                n == 1 ? "Kompostiere 1 Frucht" : $"Kompostiere {n} Früchte",
+            MissionObjectiveType.CompostCrops => plant != null
+                ? (n == 1 ? $"Kompostiere 1x {plant}" : $"Kompostiere {n}x {plant}")
+                : (n == 1 ? "Kompostiere 1 Frucht" : $"Kompostiere {n} Früchte"),
 
             MissionObjectiveType.CollectFertilizer =>
                 n == 1 ? "Hole 1 Dünger ab" : $"Hole {n} Dünger ab",

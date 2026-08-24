@@ -29,6 +29,14 @@ public class PlantGrowthFx : MonoBehaviour
     private Vector3 targetScale;
     private Sequence activeSequence;
 
+    // Deckt ein Timing-Loch beim Nachrechnen der Offline-Zeit ab: dort spawnt PlantManager
+    // das Visual und erntet es im SELBEN Frame, bevor Unity das aufgeschobene Start() des
+    // frisch instanzierten Objekts nachgeholt hat. Ohne diese Sperre killt PlayGrowIn()
+    // (aus Start()) die schon laufende Ernte-Animation und startet stattdessen ein Grow-In —
+    // das Modell bleibt sichtbar stehen, ist aber aus plantVisuals schon entfernt und wird
+    // erst beim nächsten Szenenwechsel (Unitys automatisches Scene-Unload-Cleanup) los.
+    private bool harvestTriggered;
+
     void Awake()
     {
         targetScale = transform.localScale;
@@ -36,7 +44,8 @@ public class PlantGrowthFx : MonoBehaviour
 
     void Start()
     {
-        PlayGrowIn();
+        if (!harvestTriggered)
+            PlayGrowIn();
     }
 
     void OnDestroy()
@@ -59,6 +68,7 @@ public class PlantGrowthFx : MonoBehaviour
     /// </summary>
     public void PlayHarvestAndDestroy()
     {
+        harvestTriggered = true;
         activeSequence?.Kill();
         activeSequence = DOTween.Sequence()
             .Append(transform.DOScale(targetScale * 1.15f, harvestSquashDuration).SetEase(Ease.OutQuad))
@@ -72,6 +82,7 @@ public class PlantGrowthFx : MonoBehaviour
     /// </summary>
     public void PlayHarvestFlyTo(Vector3 target)
     {
+        harvestTriggered = true;
         activeSequence?.Kill();
 
         // Falls das Visual einen Collider hat: während des Flugs deaktivieren,

@@ -332,8 +332,19 @@ public class MissionManager : MonoBehaviour
     // Menge statt 1: "kompostiere 10" soll die Stuecke zaehlen, nicht die Wuerfe — sonst
     // waere es mit zehn Ein-Stueck-Wuerfen erfuellt und der Spieler haette nie gesehen,
     // dass ein grosser Batch effizienter ist.
-    private void HandleCompostStarted(int crops) =>
-        ReportProgress(MissionObjectiveType.CompostCrops, null, Mathf.Max(0, crops));
+    //
+    // Pro Sorte einzeln melden statt einmal mit der Gesamtsumme: so kann ein Missionsziel
+    // gezielt "komposte 6 Karotten" verlangen (targetPlantType gesetzt). Ziele ohne
+    // targetPlantType (die alte "komposte irgendwas"-Variante) verlieren dadurch nichts —
+    // ReportProgress laesst dort jede Sorte durch, die Einzelbetraege summieren sich exakt
+    // zur bisherigen Gesamtmenge.
+    private void HandleCompostStarted(IReadOnlyDictionary<PlantType, int> composition)
+    {
+        if (composition == null) return;
+
+        foreach (var kvp in composition)
+            ReportProgress(MissionObjectiveType.CompostCrops, kvp.Key, Mathf.Max(0, kvp.Value));
+    }
 
     private void HandleFertilizerCollected(int amount) =>
         ReportProgress(MissionObjectiveType.CollectFertilizer, null, Mathf.Max(0, amount));

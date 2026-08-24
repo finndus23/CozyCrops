@@ -27,13 +27,13 @@ MonoBehaviour:
     requiredAmount: 1
     description: 
   - type: 21
-    targetPlantType: {fileID: 0}
+    targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId: 
-    targetLicenseId: 
-    targetHighlightId: 
+    targetZoneId:
+    targetLicenseId:
+    targetHighlightId:
     requiredAmount: 18
-    description: 
+    description:
   - type: 22
     targetPlantType: {fileID: 0}
     targetTool: 0
