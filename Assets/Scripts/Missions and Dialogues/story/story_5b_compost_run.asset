@@ -32,7 +32,7 @@ MonoBehaviour:
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 12
+    requiredAmount: 18
     description: 
   - type: 22
     targetPlantType: {fileID: 0}
