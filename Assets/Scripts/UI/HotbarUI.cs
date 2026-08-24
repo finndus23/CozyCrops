@@ -288,6 +288,7 @@ public class HotbarUI : MonoBehaviour
         ToolType.WateringCan => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.WaterCrop },
         ToolType.Seed        => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.PlantCrop },
         ToolType.Scythe      => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.HarvestCrop },
+        ToolType.Fertilize   => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.FertilizeField },
         _                    => new[] { MissionObjectiveType.SelectTool },
     };
 

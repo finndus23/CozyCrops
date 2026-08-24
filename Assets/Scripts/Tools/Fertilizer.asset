@@ -24,8 +24,8 @@ MonoBehaviour:
   baseDuration: 1.5
   durationReductionPerLevel: 0.03
   minDuration: 0.3
-  buyPrice: 2000
-  baseCost: 200
+  buyPrice: 1000
+  baseCost: 150
   costScalingPerLevel: 25
   useLoop: {fileID: 0}
   impactClips: []
