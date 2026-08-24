@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3576dc41e5ea2be479ce0f0e48d22b73, type: 3}
+  m_Name: story_5b_compost_run
+  m_EditorClassIdentifier: Assembly-CSharp::MissionData
+  missionId: story_5b_compost_run
+  title: Schwarzes Gold
+  description: "Sonnenblumen sind das Beste, was hier wachsen kann - nur wachsen sie
+    nicht in normaler Erde. Sie brauchen geduengten Boden, und Duenger machst du dir
+    selbst: Ernte in den Komposter, warten, abholen, aufs Feld."
+  objectives:
+  - type: 6
+    targetPlantType: {fileID: 0}
+    targetTool: 5
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
+    requiredAmount: 1
+    description: 
+  - type: 21
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
+    requiredAmount: 12
+    description: 
+  - type: 22
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
+    requiredAmount: 6
+    description: 
+  - type: 20
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
+    requiredAmount: 6
+    description: 
+  countsAutomatedActions: 0
+  rewards:
+  - type: 0
+    amount: 400
+    plant: {fileID: 0}
+    tool: 0
+    zoneName: 
+    licenseId: 
+  isStoryMission: 1
+  unlocks: []
+  requiredMissionIds:
+  - story_5_upgrade_run
+  requiredCompletedCount: 0
+  autoStartWhenAvailable: 0
+  startedByDialogue: 1
+  starterHighlightId: ozan
+  nextStepHint: Onkel Ozan will dir was ueber Duenger erzaehlen.
+  sequentialObjectives: 1

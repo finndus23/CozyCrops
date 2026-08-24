@@ -4,6 +4,10 @@ using UnityEngine;
 [Serializable]
 public class MissionObjectiveData
 {
+    [Tooltip("Stufe innerhalb der Mission. Ziele derselben Stufe laufen PARALLEL, eine " +
+             "hoehere Stufe geht erst auf, wenn alle darunter erledigt sind. 0 = sofort offen.")]
+    public int stage;
+
     [Tooltip("Art der Aufgabe")]
     public MissionObjectiveType type;
 

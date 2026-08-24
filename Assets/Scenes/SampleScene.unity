@@ -13395,6 +13395,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 137089878}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &137898523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 137898524}
+  - component: {fileID: 137898525}
+  m_Layer: 0
+  m_Name: AutomationDevicePopup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &137898524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137898523}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2063807384}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &137898525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137898523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286dc8e6261f04d498583b6a83708f42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationDevicePopup
+  hudCanvas: {fileID: 2128791144}
+  panelSprite: {fileID: 21300000, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  buttonSprite: {fileID: 21300002, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  rangeColor: {r: 0.45, g: 0.8, b: 1, a: 0.5}
 --- !u!1 &139305295
 GameObject:
   m_ObjectHideFlags: 0
@@ -30832,6 +30880,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311646536}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &313895850
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 313895851}
+  - component: {fileID: 313895852}
+  m_Layer: 0
+  m_Name: AutomationPopup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &313895851
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 313895850}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -81.78657, y: -494.2171, z: 3333.9773}
+  m_LocalScale: {x: 1.8614581, y: 1.8614581, z: 1.8614581}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2128791145}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &313895852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 313895850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286dc8e6261f04d498583b6a83708f42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationDevicePopup
+  hudCanvas: {fileID: 2128791144}
+  panelSprite: {fileID: 21300000, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  buttonSprite: {fileID: 21300002, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
+  rangeColor: {r: 0.45, g: 0.8, b: 1, a: 0.5}
 --- !u!1 &314816666
 GameObject:
   m_ObjectHideFlags: 0
@@ -43557,6 +43653,7 @@ GameObject:
   - component: {fileID: 423786716}
   - component: {fileID: 423786717}
   - component: {fileID: 423786718}
+  - component: {fileID: 423786719}
   m_Layer: 0
   m_Name: PlantManager
   m_TagString: Untagged
@@ -43618,6 +43715,18 @@ MonoBehaviour:
   growingColor: {r: 0.55, g: 0.85, b: 0.45, a: 0.75}
   thirstyColor: {r: 0.35, g: 0.72, b: 1, a: 1}
   readyColor: {r: 1, g: 0.83, b: 0.3, a: 1}
+--- !u!114 &423786719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423786715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db127ef67f6ec85449517a8816e3f88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationDeviceManager
 --- !u!1 &424144067
 GameObject:
   m_ObjectHideFlags: 0
@@ -59979,6 +60088,7 @@ MonoBehaviour:
   - tool: 4
     color: {r: 1, g: 0.83, b: 0.3, a: 1}
   hoverAlphaFactor: 0.7
+  externalPreviewColor: {r: 0.45, g: 0.8, b: 1, a: 0.55}
   popInDuration: 0.1
   popInFromScale: 0.75
 --- !u!4 &565722220
@@ -82660,6 +82770,8 @@ MonoBehaviour:
   grassTileIconSprite: {fileID: 1645164095, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
   pathTileIconSprite: {fileID: 914201417, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
   farmTileIconSprite: {fileID: -931367903, guid: c4587a83dc622ea4eb069fe966e29064, type: 3}
+  buildStation: {fileID: 11400000, guid: 369ae586d8169754284e29f9af775470, type: 2}
+  unaffordableColor: {r: 0.45, g: 0.45, b: 0.45, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   activeColor: {r: 1, g: 0.86, b: 0.42, a: 1}
 --- !u!114 &802908681
@@ -92560,13 +92672,54 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 910000104}
+    - targetCorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 910000103}
   m_SourcePrefab: {fileID: 100100000, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
 --- !u!4 &910000101 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5339130301091616334, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
   m_PrefabInstance: {fileID: 910000100}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &910000102 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+  m_PrefabInstance: {fileID: 910000100}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &910000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
+  startHighlighted: 0
+--- !u!114 &910000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 
+  highlightId: ozan
+  plantType: {fileID: 0}
+  toolType: 0
+  showOffScreenIndicator: 1
 --- !u!1 &910211758
 GameObject:
   m_ObjectHideFlags: 0
@@ -117947,16 +118100,21 @@ MonoBehaviour:
   cropsPerFertilizer: 3
   minCropsToStart: 3
   stepAmount: 1
-  baseBrewTime: 20
-  perCropBrewTime: 2
-  maxBrewTime: 180
+  baseBrewTime: 0
+  perCropBrewTime: 1.2
+  maxBrewTime: 500000
+  maxLevel: 10
+  upgradeBaseCost: 150
+  upgradeCostPerLevel: 50
+  minPerCropBrewTime: 0.6
+  maxExtraFertilizerChance: 0.5
   confirmPanelSprite: {fileID: 21300000, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
   confirmOkButtonSprite: {fileID: 21300004, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
   confirmCancelButtonSprite: {fileID: 21300008, guid: 3ca97a10af17e6a449e500907dc77e8c, type: 3}
   hudCanvas: {fileID: 0}
   statusPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
-  statusHeightOffset: 0.4
-  brewingColor: {r: 0.7, g: 0.55, b: 0.9, a: 1}
+  statusHeightOffset: 0.5
+  brewingColor: {r: 0.34818986, g: 0, b: 0.8867924, a: 1}
   readyColor: {r: 1, g: 0.85, b: 0.35, a: 1}
   trackAlpha: 0.6
   ringWidth: 0.09
@@ -132271,6 +132429,8 @@ MonoBehaviour:
     dialogue: {fileID: 11400000, guid: 112233445566778899001122334455bb, type: 2}
   - missionId: story_7_full_farm
     dialogue: {fileID: 11400000, guid: 112233445566778899001122334455b7, type: 2}
+  - missionId: story_5b_compost_run
+    dialogue: {fileID: 11400000, guid: b9c18cde028545389ee6f07eaca4d379, type: 2}
   smallTalkDialogue: {fileID: 11400000, guid: 8192a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
   repeatTutorialDialogue: 1
   availableIndicator: {fileID: 0}
@@ -134622,6 +134782,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToolUseHandler
   maxParallelJobs: 4
+  maxParallelAutomationJobs: 12
   maxQueuedJobs: 64
   queueScalesWithAoE: 1
   allowLayering: 0
@@ -157183,6 +157344,53 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572955412}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1575218430
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1575218431}
+  - component: {fileID: 1575218432}
+  m_Layer: 0
+  m_Name: AutomationPlacementController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1575218431
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575218430}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2063807384}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1575218432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575218430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193060e9e6c536b4cb34bbd52c87db2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationPlacementController
+  validColor: {r: 0.35, g: 1, b: 0.45, a: 0.75}
+  invalidColor: {r: 1, g: 0.3, b: 0.3, a: 0.75}
+  rangeColor: {r: 0.45, g: 0.8, b: 1, a: 0.4}
 --- !u!1 &1575336750
 GameObject:
   m_ObjectHideFlags: 0
@@ -202830,6 +203038,8 @@ Transform:
   - {fileID: 1462775598}
   - {fileID: 2084320329}
   - {fileID: 592716662}
+  - {fileID: 1575218431}
+  - {fileID: 137898524}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2066485475
@@ -211292,6 +211502,7 @@ RectTransform:
   - {fileID: 183596938}
   - {fileID: 48251289}
   - {fileID: 609769676}
+  - {fileID: 313895851}
   m_Father: {fileID: 1494620946}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

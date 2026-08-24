@@ -26,6 +26,12 @@ public class ToolUseHandler : MonoBehaviour
              "ohnehin nur einer — bei 4 Werkzeugen ist 4 also das sinnvolle Maximum.")]
     [SerializeField] private int maxParallelJobs = 4;
 
+    [Tooltip("Obergrenze gleichzeitig laufender AUTOMATIK-Jobs. Zaehlt getrennt von den " +
+             "Spieler-Jobs oben, damit ein tickendes Geraet dem Spieler keinen der vier " +
+             "Parallel-Slots wegnimmt. Pro Geraet laeuft ohnehin hoechstens einer — der " +
+             "Wert ist nur das Sicherheitsnetz ueber allen Geraeten zusammen.")]
+    [SerializeField] private int maxParallelAutomationJobs = 12;
+
     [Tooltip("Harte Obergrenze über ALLE Werkzeuge — verhindert dass ein Drag über das halbe " +
              "Feld hunderte Aktionen einreiht. Die eigentliche Grenze kommt pro Werkzeug aus " +
              "ToolData.GetQueueSize() und ist über Meilensteine ausbaubar; dieser Wert ist " +
@@ -63,13 +69,21 @@ public class ToolUseHandler : MonoBehaviour
     public IReadOnlyList<ToolJob> RunningJobs => running;
     public IReadOnlyList<ToolJob> QueuedJobs => queued;
 
-    /// <summary>Läuft gerade mindestens ein Job?</summary>
-    public bool IsCasting => running.Count > 0;
+    /// <summary>
+    /// Läuft gerade mindestens ein SPIELER-Job?
+    ///
+    /// Automatik-Jobs zählen bewusst nicht mit: die Castbar hängt am Cursor des Spielers,
+    /// und GridInput würde bei abgeschaltetem Queueing sonst jede Eingabe ablehnen, nur
+    /// weil irgendwo auf der Farm ein Sprinkler tickt.
+    /// </summary>
+    public bool IsCasting => CountRunningPlayerJobs() > 0;
 
-    /// <summary>Fortschritt des ältesten laufenden Jobs, 0–1. Für die Cursor-Castbar.</summary>
-    public float CastProgress => running.Count > 0 ? running[0].Progress : 0f;
+    /// <summary>Fortschritt des ältesten laufenden Spieler-Jobs, 0–1. Für die Cursor-Castbar.</summary>
+    public float CastProgress => FirstRunningPlayerJob()?.Progress ?? 0f;
 
     public int MaxParallelJobs => Mathf.Max(1, maxParallelJobs);
+
+    public int MaxParallelAutomationJobs => Mathf.Max(1, maxParallelAutomationJobs);
 
     // ── Events ────────────────────────────────────────────────────────────────
 
@@ -100,7 +114,7 @@ public class ToolUseHandler : MonoBehaviour
 
     // Wiederverwendete Puffer für PromoteQueued — vermeidet Allokationen pro Frame.
     private readonly List<ToolJob> promotable = new();
-    private readonly HashSet<ToolType> toolsBusyThisPass = new();
+    private readonly HashSet<(ToolType, int)> lanesBusyThisPass = new();
 
     void Awake()
     {
@@ -114,12 +128,55 @@ public class ToolUseHandler : MonoBehaviour
     /// Reiht eine Aktion auf (x, z) mit dem gegebenen Tool ein.
     /// Gibt false zurück wenn die Aktion dort nichts bewirken würde oder die Queue voll ist.
     /// </summary>
-    /// <summary>Wartende Jobs dieses Werkzeugs (ohne die bereits laufenden).</summary>
+    // ── Spur-Zähler ──────────────────────────────────────────────────────────
+    // Spieler und Automatik teilen sich zwar dieselben Listen, aber keine Kontingente.
+    // Ohne diese Trennung würden vier tickende Geräte die Warteschlange füllen und
+    // TryStartUse gäbe bei jedem Spielerklick stumm false zurück.
+
+    private int CountRunningPlayerJobs()
+    {
+        int count = 0;
+        foreach (var job in running)
+            if (job.Source == ToolJobSource.Player) count++;
+        return count;
+    }
+
+    private ToolJob FirstRunningPlayerJob()
+    {
+        foreach (var job in running)
+            if (job.Source == ToolJobSource.Player) return job;
+        return null;
+    }
+
+    private int CountQueuedPlayerJobs()
+    {
+        int count = 0;
+        foreach (var job in queued)
+            if (job.Source == ToolJobSource.Player) count++;
+        return count;
+    }
+
+    private int CountQueuedAutomationJobs()
+    {
+        int count = 0;
+        foreach (var job in queued)
+            if (job.Source == ToolJobSource.Automation) count++;
+        return count;
+    }
+
+    /// <summary>
+    /// Spur-Schlüssel eines Jobs: (Werkzeug, Besitzer). Alle Spieler-Jobs teilen sich
+    /// Besitzer 0, jedes Gerät bekommt seine eigene Instanz-ID.
+    /// </summary>
+    private static (ToolType, int) LaneOf(ToolJob job) =>
+        (job.Tool, job.Source == ToolJobSource.Player ? 0 : job.OwnerId);
+
+    /// <summary>Wartende SPIELER-Jobs dieses Werkzeugs (ohne die bereits laufenden).</summary>
     public int CountQueuedFor(ToolType tool)
     {
         int count = 0;
         foreach (var job in queued)
-            if (job.Tool == tool) count++;
+            if (job.Tool == tool && job.Source == ToolJobSource.Player) count++;
         return count;
     }
 
@@ -134,12 +191,15 @@ public class ToolUseHandler : MonoBehaviour
         return Mathf.Clamp(capacity, 1, maxQueuedJobs);
     }
 
-    /// <summary>Wartende Tiles dieses Werkzeugs — die Summe über alle eingereihten Jobs.</summary>
+    /// <summary>Wartende Tiles dieses Werkzeugs — die Summe über alle eingereihten
+    /// SPIELER-Jobs. Automatik-Jobs bleiben draußen, sonst schrumpft die Vorausplanung
+    /// des Spielers, sobald ein Gerät arbeitet.</summary>
     public int CountQueuedTilesFor(ToolType tool)
     {
         int count = 0;
         foreach (var job in queued)
-            if (job.Tool == tool) count += job.Tiles?.Count ?? 0;
+            if (job.Tool == tool && job.Source == ToolJobSource.Player)
+                count += job.Tiles?.Count ?? 0;
 
         return count;
     }
@@ -165,11 +225,12 @@ public class ToolUseHandler : MonoBehaviour
         if (tool == ToolType.None) return false;
 
         // Queueing aus → altes Verhalten: solange etwas läuft, wird nichts angenommen.
-        if (!GameSettings.ActionQueueingEnabled && running.Count > 0) return false;
+        // Nur Spieler-Jobs: ein tickendes Gerät darf den Spieler nicht aussperren.
+        if (!GameSettings.ActionQueueingEnabled && CountRunningPlayerJobs() > 0) return false;
 
         var origin = new Vector2Int(x, z);
 
-        if (queued.Count >= maxQueuedJobs) return false;
+        if (CountQueuedPlayerJobs() >= maxQueuedJobs) return false;
 
         // Kapazität pro Werkzeug: die Warteschlange ist ein eigener Progressionsstrang.
         // Nur bei aktivem Queueing prüfen — sonst wäre die Kapazität auch die Schranke
@@ -202,7 +263,7 @@ public class ToolUseHandler : MonoBehaviour
             if (IsTileScheduled(tile, allowLayering ? tool : ToolType.None))
                 continue;
 
-            if (CanApplyTool(tile.x, tile.y, tool))
+            if (CanApplyTool(tile.x, tile.y, tool, seed))
             {
                 tiles.Add(tile);
                 continue;
@@ -214,6 +275,12 @@ public class ToolUseHandler : MonoBehaviour
             if (allowLayering && IsTileScheduled(tile, ToolType.None))
                 tiles.Add(tile);
         }
+
+        // Scythe darf laut CanApplyTool sowohl reife Pflanzen als auch Gras treffen — aber
+        // nur EIN Verhalten pro Aktion. Steckt irgendwo ein Erntefeld in der Fläche, war
+        // das die Absicht, die Gras-Tiles fliegen raus.
+        if (tool == ToolType.Scythe)
+            FilterScytheTiles(tiles);
 
         if (tiles.Count == 0) return false;
 
@@ -283,7 +350,9 @@ public class ToolUseHandler : MonoBehaviour
             : 0;
 
         // Vor dem Einreihen prüfen: lag schon was an, staffelt der Spieler wirklich.
-        bool stacked = running.Count > 0 || queued.Count > 0;
+        // Nur Spieler-Jobs — sonst gälte jeder einzelne Klick als "gestaffelt", solange
+        // irgendwo ein Gerät arbeitet, und die QueueActions-Mission liefe nebenbei durch.
+        bool stacked = CountRunningPlayerJobs() > 0 || CountQueuedPlayerJobs() > 0;
 
         var job = new ToolJob(tool, seed, yieldBonus, origin, tiles, duration);
         queued.Add(job);
@@ -296,6 +365,104 @@ public class ToolUseHandler : MonoBehaviour
 
         PromoteQueued();
         return true;
+    }
+
+    /// <summary>
+    /// Einstiegspunkt für Automatik-Geräte: reiht einen Job auf einer fertigen Kachelliste
+    /// ein. Gibt den Job zurück, oder null wenn nichts einzureihen war.
+    ///
+    /// Bewusst NICHT über TryStartUse: der geht von einem Spielerklick aus und würde die
+    /// AoE neu berechnen, das ActionQueueingEnabled-Gate prüfen, die Spieler-Warteschlange
+    /// belasten und OnActionStackedStatic feuern — womit die Automatik nebenbei die
+    /// "QueueActions"-Mission für den Spieler erfüllen würde.
+    ///
+    /// Was bleibt: die Prüfung auf bereits eingeplante Kacheln (keine Doppelbearbeitung
+    /// zwischen Spieler und Gerät, in beide Richtungen), CanApplyTool, das geteilte
+    /// Saatgut- und Dünger-Budget und der Sichel-Filter.
+    ///
+    /// Die Dauer kommt vom Gerät und NICHT aus ToolRegistry.GetJobDuration — so läuft ein
+    /// Gerät auch dann, wenn der Spieler das zugehörige Werkzeug gar nicht besitzt.
+    /// </summary>
+    public ToolJob TryEnqueueAutomationJob(IReadOnlyList<Vector2Int> tiles, ToolType tool,
+                                           PlantType seed, int ownerId, float duration)
+    {
+        if (tool == ToolType.None || tiles == null || tiles.Count == 0) return null;
+
+        // Sicherheitsnetz gegen eine entgleiste Automatik. Die Spieler-Grenze bleibt
+        // davon unberührt — beide Spuren haben ihr eigenes Kontingent.
+        if (CountQueuedAutomationJobs() >= maxQueuedJobs) return null;
+
+        var accepted = new List<Vector2Int>();
+        foreach (var tile in tiles)
+        {
+            // Werkzeugübergreifend prüfen (ToolType.None): solange allowLayering aus ist,
+            // darf auf einer eingeplanten Kachel nichts Zweites laufen — egal ob der
+            // Spieler oder ein anderes Gerät sie schon belegt hat.
+            if (IsTileScheduled(tile, allowLayering ? tool : ToolType.None)) continue;
+            if (!CanApplyTool(tile.x, tile.y, tool, seed)) continue;
+
+            accepted.Add(tile);
+        }
+
+        // Anders als beim Spieler: die Station maeht NIE Gras. CanApplyTool laesst Gras fuer
+        // die Sichel zu (Not-Samen-Rettung), aber ein Ernte-Modul wuerde damit endlos die
+        // Wiese um sich herum mulchen und dabei die Rettungschance verheizen, die dem
+        // Spieler zusteht. Hier fliegen reine Gras-Kacheln deshalb immer raus.
+        if (tool == ToolType.Scythe)
+        {
+            for (int i = accepted.Count - 1; i >= 0; i--)
+            {
+                var cell = GridManager.Instance?.GetCell(accepted[i].x, accepted[i].y);
+                if (cell != null && cell.Type == TileType.Grass && !cell.HasPlant)
+                    accepted.RemoveAt(i);
+            }
+        }
+
+        if (accepted.Count == 0) return null;
+
+        // Saatgut und Dünger kommen aus DEMSELBEN Inventar wie beim Spieler — die
+        // Reservierung muss deshalb geteilt bleiben, sonst verplanen beide denselben Vorrat.
+        if (tool == ToolType.Seed)
+        {
+            if (seed == null) return null;
+
+            int available = PlayerInventory.Instance != null
+                ? PlayerInventory.Instance.GetSeedCount(seed)
+                : 0;
+
+            int budget = available - CountScheduledSeedUses(seed);
+            if (budget <= 0) return null;
+
+            if (accepted.Count > budget)
+                accepted.RemoveRange(budget, accepted.Count - budget);
+        }
+
+        if (tool == ToolType.Fertilize)
+        {
+            int available = PlayerInventory.Instance != null
+                ? PlayerInventory.Instance.Fertilizer
+                : 0;
+
+            int budget = available - CountScheduledFertilizerUses();
+            if (budget <= 0) return null;
+
+            if (accepted.Count > budget)
+                accepted.RemoveRange(budget, accepted.Count - budget);
+        }
+
+        int yieldBonus = tool == ToolType.Scythe
+            ? ToolRegistry.Instance?.GetYieldBonus(tool) ?? 0
+            : 0;
+
+        var job = new ToolJob(tool, seed, yieldBonus, accepted[0], accepted,
+                              Mathf.Max(0f, duration), ToolJobSource.Automation, ownerId);
+        queued.Add(job);
+
+        OnJobEnqueued?.Invoke(job);
+        OnQueueChanged?.Invoke();
+
+        PromoteQueued();
+        return job;
     }
 
     /// <summary>Bricht alles ab — laufende Jobs und Warteschlange.</summary>
@@ -390,15 +557,23 @@ public class ToolUseHandler : MonoBehaviour
         foreach (var job in finishedThisFrame)
             CompleteJob(job);
 
-        if (running.Count > 0)
-            OnCastProgressChanged?.Invoke(running[0].Progress);
+        // Die Cursor-Castbar folgt dem ältesten laufenden SPIELER-Job. Ein Automatik-Job
+        // an der Spitze von 'running' würde sie sonst mit einem Fortschritt füttern, der
+        // zu gar keiner Eingabe des Spielers gehört.
+        var primary = FirstRunningPlayerJob();
+        if (primary != null)
+            OnCastProgressChanged?.Invoke(primary.Progress);
 
         if (finishedThisFrame.Count > 0)
             OnQueueChanged?.Invoke();
 
+        bool playerJobFinished = false;
+        foreach (var job in finishedThisFrame)
+            if (job.Source == ToolJobSource.Player) { playerJobFinished = true; break; }
+
         PromoteQueued();
 
-        if (running.Count == 0 && queued.Count == 0 && finishedThisFrame.Count > 0)
+        if (playerJobFinished && CountRunningPlayerJobs() == 0 && CountQueuedPlayerJobs() == 0)
             OnCastCompleted?.Invoke();
     }
 
@@ -442,26 +617,43 @@ public class ToolUseHandler : MonoBehaviour
         // 'queued' iterieren, verschöben sich die Indizes mitten im Durchlauf.
         promotable.Clear();
 
-        int busySlots = running.Count;
-        toolsBusyThisPass.Clear();
+        int playerSlots = 0;
+        int automationSlots = 0;
+        lanesBusyThisPass.Clear();
 
         foreach (var job in running)
-            toolsBusyThisPass.Add(job.Tool);
+        {
+            if (job.Source == ToolJobSource.Player) playerSlots++;
+            else automationSlots++;
+
+            lanesBusyThisPass.Add(LaneOf(job));
+        }
 
         foreach (var job in queued)
         {
-            if (busySlots >= MaxParallelJobs) break;
+            bool isPlayer = job.Source == ToolJobSource.Player;
 
-            // Pro Werkzeug läuft genau einer — dadurch arbeiten Hacke, Seeder und
-            // Gießkanne gleichzeitig, jeweils aus ihrer eigenen Warteschlange.
-            if (toolsBusyThisPass.Contains(job.Tool)) continue;
+            // Getrennte Kontingente. Bewusst 'continue' statt des früheren 'break':
+            // hinter einem blockierten Automatik-Job kann noch ein Spieler-Job stehen,
+            // und der soll trotzdem starten dürfen.
+            if (isPlayer && playerSlots >= MaxParallelJobs) continue;
+            if (!isPlayer && automationSlots >= MaxParallelAutomationJobs) continue;
+
+            // Eine Spur ist (Werkzeug, Besitzer): der Spieler hat pro Werkzeug genau eine,
+            // jedes Gerät seine eigene. Dadurch arbeiten Hacke, Seeder und Gießkanne
+            // gleichzeitig — ein einzelnes Gerät aber nie an zwei Kacheln zugleich, womit
+            // "eine Kachel pro Takt" strukturell gilt und nicht nur per Timer.
+            var lane = LaneOf(job);
+            if (lanesBusyThisPass.Contains(lane)) continue;
 
             // Layering: Vorgänger auf derselben Tile noch nicht fertig → später nochmal.
             if (allowLayering && WaitsForEarlierJob(job)) continue;
 
             promotable.Add(job);
-            toolsBusyThisPass.Add(job.Tool);
-            busySlots++;
+            lanesBusyThisPass.Add(lane);
+
+            if (isPlayer) playerSlots++;
+            else automationSlots++;
         }
 
         if (promotable.Count == 0) return;
@@ -480,7 +672,10 @@ public class ToolUseHandler : MonoBehaviour
         // Tiles die inzwischen ungültig geworden sind rausfiltern
         for (int i = job.Tiles.Count - 1; i >= 0; i--)
         {
-            if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool))
+            // Mit dem Saatgut-Snapshot des Jobs prüfen, nicht mit dem der Hotbar: sonst
+            // fliegt der Job einer Sämaschine hier raus, sobald der Spieler eine andere
+            // Sorte ausgewählt hat.
+            if (!CanApplyTool(job.Tiles[i].x, job.Tiles[i].y, job.Tool, job.Seed))
                 job.Tiles.RemoveAt(i);
         }
 
@@ -499,7 +694,9 @@ public class ToolUseHandler : MonoBehaviour
 
         // Die Cursor-Castbar kennt nur einen Cast — sie folgt dem ersten laufenden Job.
         // Die Fortschrittsringe auf den Tiles zeigen dagegen alle Jobs einzeln.
-        if (running.Count == 1)
+        // Nur Spieler-Jobs: die Castbar klebt am Cursor und darf nicht aufpoppen, weil
+        // irgendwo auf der Farm ein Gerät angesprungen ist.
+        if (job.Source == ToolJobSource.Player && CountRunningPlayerJobs() == 1)
             OnCastStarted?.Invoke(job.Tiles);
 
         // Duration 0 → sofort anwenden, kein visuelles Warten
@@ -510,12 +707,33 @@ public class ToolUseHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Quelle des gerade angewendeten Jobs. Der MissionManager liest das, um automatische
+    /// Aktionen von Spieler-Aktionen zu unterscheiden.
+    ///
+    /// Ein Schalter statt eines zweiten Event-Satzes: PlantManager.TryX feuert die
+    /// statischen Events, an denen auch CropSfx und StarterSeedFoundFx haengen — eine
+    /// automatische Ernte SOLL klingen und funkeln. Gefiltert wird deshalb ausschliesslich
+    /// am Empfaenger im MissionManager, nicht beim Feuern.
+    /// </summary>
+    public static ToolJobSource CurrentJobSource { get; private set; } = ToolJobSource.Player;
+
     private void CompleteJob(ToolJob job)
     {
         job.State = ToolJobState.Finished;
 
-        foreach (var tile in job.Tiles)
-            ApplyTool(tile.x, tile.y, job);
+        var previousSource = CurrentJobSource;
+        CurrentJobSource = job.Source;
+
+        try
+        {
+            foreach (var tile in job.Tiles)
+                ApplyTool(tile.x, tile.y, job);
+        }
+        finally
+        {
+            CurrentJobSource = previousSource;
+        }
 
         OnJobFinished?.Invoke(job);
     }
@@ -546,7 +764,12 @@ public class ToolUseHandler : MonoBehaviour
                 break;
 
             case ToolType.Scythe:
-                applied = PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
+                // Gemischte AoE möglich: manche Tiles haben eine reife Pflanze, andere sind
+                // einfach Gras. CanApplyTool lässt beides durch, hier wird pro Tile entschieden.
+                var scytheCell = GridManager.Instance?.GetCell(x, z);
+                applied = scytheCell != null && scytheCell.Type == TileType.Grass && !scytheCell.HasPlant
+                    ? PlantManager.Instance.TryGatherGrass(x, z)
+                    : PlantManager.Instance.TryHarvest(x, z, job.YieldBonus);
                 break;
         }
 
@@ -588,10 +811,28 @@ public class ToolUseHandler : MonoBehaviour
     /// Prüft ob das Tool auf dieser Tile überhaupt anwendbar ist.
     /// Public, damit AoEPreview pro Tile einfärben kann ob die Aktion dort etwas bewirkt.
     /// </summary>
-    public bool CanApplyTool(int x, int z, ToolType tool)
+    public bool CanApplyTool(int x, int z, ToolType tool) =>
+        CanApplyTool(x, z, tool, Hotbar.Instance != null ? Hotbar.Instance.SelectedSeed : null);
+
+    /// <summary>
+    /// Wie oben, aber mit ausdrücklich übergebenem Saatgut statt dem der Hotbar.
+    ///
+    /// Nötig für die Sämaschine: die hat eine eigene, pro Gerät gespeicherte Sortenwahl.
+    /// Ohne diese Überladung flöge ihr Job in StartJob wieder raus, sobald der Spieler
+    /// etwas anderes in der Hotbar stehen hat. Für den Spieler ändert sich nichts — die
+    /// 3-Parameter-Version delegiert hierher, AoEPreview und alle externen Aufrufer
+    /// bleiben unverändert.
+    /// </summary>
+    public bool CanApplyTool(int x, int z, ToolType tool, PlantType seed)
     {
         var cell = GridManager.Instance?.GetCell(x, z);
         if (cell == null || cell.IsLocked) return false;
+
+        // Geraete belegen ihre Kachel exklusiv. Faerbt sie in AoEPreview automatisch
+        // ungueltig — und faengt vor allem den Durchklick-Fall ab: GridInput raycastet
+        // gegen eine Ebene, nicht gegen Collider, ein Klick aufs Geraet traefe sonst die
+        // Kachel darunter mit.
+        if (AutomationDeviceManager.IsOccupied(x, z)) return false;
 
         return tool switch
         {
@@ -600,17 +841,55 @@ public class ToolUseHandler : MonoBehaviour
             // Wachstumsphase schon hat, ist kein gültiges Ziel mehr. Sonst reiht man
             // Gieß-Jobs auf Felder ein, auf denen nichts passiert.
             ToolType.WateringCan => cell.HasPlant && cell.Plant != null && cell.Plant.NeedsWatering,
-            ToolType.Scythe      => cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown,
+            // Zusätzlich zum Ernten: Gras mähen. Kein Ertrag, aber eine Chance auf einen
+            // Not-Samen (PlantManager.TryGatherGrass) — Rettungsanker gegen den Softlock
+            // "kein Geld, keine Samen mehr".
+            ToolType.Scythe      => (cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
+                                    || cell.Type == TileType.Grass,
+            // requiresFertilizedSoil faerbt die Kachel in AoEPreview automatisch ungueltig
+            // und haelt auch das Saat-Modul der Station davon ab, dort zu saeen.
             ToolType.Seed        => cell.IsTilled && !cell.HasPlant
-                                    && Hotbar.Instance.SelectedSeed != null
-                                    && PlayerInventory.Instance.GetSeedCount(Hotbar.Instance.SelectedSeed) > 0,
+                                    && seed != null
+                                    && (!seed.requiresFertilizedSoil || cell.IsFertilized)
+                                    && (PlayerInventory.Instance != null
+                                        ? PlayerInventory.Instance.GetSeedCount(seed) : 0) > 0,
             // Jedes Feld, egal ob schon gehackt oder bepflanzt — der Dünger wirkt auf den
             // Rest des laufenden Anbauzyklus. Bereits gedüngte Felder sind kein Ziel mehr,
             // sonst könnte man denselben Vorrat mehrfach auf dieselbe Tile kippen.
             ToolType.Fertilize   => cell.Type == TileType.FarmPlot && !cell.IsFertilized
-                                    && PlayerInventory.Instance.Fertilizer > 0,
+                                    && (PlayerInventory.Instance != null
+                                        ? PlayerInventory.Instance.Fertilizer : 0) > 0,
             _                    => false
         };
+    }
+
+    /// <summary>
+    /// Reine Gras-Fläche bleibt unangetastet (mäht normal). Ist auch nur ein Erntefeld
+    /// dabei, fliegen alle Gras-Tiles aus der Liste — sonst würde ein einzelnes Erntefeld
+    /// am Rand einer großen Wiese eine Handvoll ungewollte Not-Samen-Würfe auslösen, nur
+    /// weil die AoE zufällig viel Gras mitnimmt.
+    /// </summary>
+    private void FilterScytheTiles(List<Vector2Int> tiles)
+    {
+        bool hasHarvestTile = false;
+        foreach (var tile in tiles)
+        {
+            var cell = GridManager.Instance?.GetCell(tile.x, tile.y);
+            if (cell != null && cell.HasPlant && cell.Plant != null && cell.Plant.IsFullyGrown)
+            {
+                hasHarvestTile = true;
+                break;
+            }
+        }
+
+        if (!hasHarvestTile) return;
+
+        for (int i = tiles.Count - 1; i >= 0; i--)
+        {
+            var cell = GridManager.Instance?.GetCell(tiles[i].x, tiles[i].y);
+            if (cell != null && cell.Type == TileType.Grass && !cell.HasPlant)
+                tiles.RemoveAt(i);
+        }
     }
 
     /// <summary>

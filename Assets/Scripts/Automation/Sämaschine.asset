@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4de23bb8d8f03de42ba08c7bc9e40736, type: 3}
+  m_Name: "S\xE4maschine"
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationDeviceData
+  deviceType: 3
+  executesTool: 3
+  displayName: Seeder
+  icon: {fileID: 0}
+  worldPrefab: {fileID: 6173750295843848844, guid: dfce9042841a4c4409b66e2c18418180, type: 3}
+  maxLevel: 30
+  baseInterval: 6
+  intervalReductionPerLevel: 0.12
+  minInterval: 1.5
+  actionDuration: 2
+  baseTilesPerTick: 1
+  buyPrice: 2000
+  baseCost: 200
+  costScalingPerLevel: 12
+  milestones:
+  - level: 5
+    radius: 0
+    intervalMultiplier: 0.8
+    tilesPerTick: 0
+    unlockText: 
+  - level: 10
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 2
+    unlockText: 
+  - level: 15
+    radius: 0
+    intervalMultiplier: 0.5
+    tilesPerTick: 0
+    unlockText: 
+  - level: 15
+    radius: 0
+    intervalMultiplier: 0.6
+    tilesPerTick: 0
+    unlockText: 
+  - level: 20
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 3
+    unlockText: 
+  - level: 25
+    radius: 0
+    intervalMultiplier: 0.5
+    tilesPerTick: 0
+    unlockText: 
+  - level: 30
+    radius: 0
+    intervalMultiplier: 0
+    tilesPerTick: 4
+    unlockText: 

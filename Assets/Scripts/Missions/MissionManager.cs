@@ -58,6 +58,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnSeedPlanted += HandlePlanted;
         PlantManager.OnPlantWatered += HandleWatered;
         PlantManager.OnCropHarvested += HandleHarvested;
+        PlantManager.OnFieldFertilized += HandleFertilized;
+        ComposterInteraction.OnCompostStartedStatic += HandleCompostStarted;
+        ComposterInteraction.OnFertilizerCollectedStatic += HandleFertilizerCollected;
         PlayerInventory.OnCropSoldStatic += HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic += HandleBuildModeEntered;
@@ -82,6 +85,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnSeedPlanted -= HandlePlanted;
         PlantManager.OnPlantWatered -= HandleWatered;
         PlantManager.OnCropHarvested -= HandleHarvested;
+        PlantManager.OnFieldFertilized -= HandleFertilized;
+        ComposterInteraction.OnCompostStartedStatic -= HandleCompostStarted;
+        ComposterInteraction.OnFertilizerCollectedStatic -= HandleFertilizerCollected;
         PlayerInventory.OnCropSoldStatic -= HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic -= HandleBuildModeEntered;
@@ -175,6 +181,40 @@ public class MissionManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sammelt die highlightIds der NPCs, die gerade ein Gespraech schulden: Missionen, die
+    /// dran waeren, deren Voraussetzungen erfuellt sind, die aber noch auf den Dialog
+    /// warten (startedByDialogue).
+    ///
+    /// Genau in diesem Fenster gibt es noch KEIN Objective — der MissionHighlightDirector
+    /// haette also nichts, woran er ein Ziel festmachen koennte, obwohl der nextStepHint
+    /// schon "Sprich mit Onkel Ozan" sagt.
+    /// </summary>
+    public void CollectPendingDialogueStarters(List<string> into)
+    {
+        if (into == null) return;
+
+        AppendStarter(into, NextStoryMission);
+
+        if (sideMissions == null) return;
+        foreach (var mission in sideMissions)
+            AppendStarter(into, mission);
+    }
+
+    private void AppendStarter(List<string> into, MissionData mission)
+    {
+        if (mission == null) return;
+        if (!mission.startedByDialogue) return;
+        if (string.IsNullOrWhiteSpace(mission.starterHighlightId)) return;
+
+        if (completedMissionIds.Contains(mission.missionId)) return;
+        if (activeMissions.Exists(m => m.Data.missionId == mission.missionId)) return;
+        if (!ArePrerequisitesMet(mission)) return;
+
+        if (!into.Contains(mission.starterHighlightId))
+            into.Add(mission.starterHighlightId);
+    }
+
     /// <summary>Läuft gerade eine Story-Mission?</summary>
     public bool HasActiveStoryMission => activeMissions.Exists(m => m.Data.isStoryMission);
 
@@ -237,14 +277,26 @@ public class MissionManager : MonoBehaviour
     private void HandlePlanted(PlantType type) =>
         ReportProgress(MissionObjectiveType.PlantCrop, type, 1);
 
-    private void HandleWatered(PlantType type) =>
-        ReportProgress(MissionObjectiveType.WaterCrop, type, 1);
+    private void HandleWatered(PlantType type, int amount) =>
+        ReportProgress(MissionObjectiveType.WaterCrop, type, Mathf.Max(1, amount));
 
     private void HandleHarvested(PlantType type) =>
         ReportProgress(MissionObjectiveType.HarvestCrop, type, 1);
 
     private void HandleCropSold(PlantType type, int amount) =>
         ReportProgress(MissionObjectiveType.SellCrop, type, amount);
+
+    private void HandleFertilized() =>
+        ReportProgress(MissionObjectiveType.FertilizeField, null, 1);
+
+    // Menge statt 1: "kompostiere 10" soll die Stuecke zaehlen, nicht die Wuerfe — sonst
+    // waere es mit zehn Ein-Stueck-Wuerfen erfuellt und der Spieler haette nie gesehen,
+    // dass ein grosser Batch effizienter ist.
+    private void HandleCompostStarted(int crops) =>
+        ReportProgress(MissionObjectiveType.CompostCrops, null, Mathf.Max(0, crops));
+
+    private void HandleFertilizerCollected(int amount) =>
+        ReportProgress(MissionObjectiveType.CollectFertilizer, null, Mathf.Max(0, amount));
 
     private void HandleBuildModeEntered() => ReportProgress(MissionObjectiveType.EnterBuildMode, null, 1);
     private void HandleBuildModeExited()  => ReportProgress(MissionObjectiveType.ExitBuildMode, null, 1);
@@ -327,29 +379,25 @@ public class MissionManager : MonoBehaviour
                                 ToolType tool = ToolType.None, string zoneId = null,
                                 string licenseId = null)
     {
+        // Ein einziger Filter fuer alles: laeuft der Fortschritt aus einem Automatik-Job,
+        // zaehlt er nur fuer Missionen, die das ausdruecklich erlauben.
+        bool fromAutomation = ToolUseHandler.CurrentJobSource == ToolJobSource.Automation;
+
         for (int m = activeMissions.Count - 1; m >= 0; m--)
         {
             var state = activeMissions[m];
-            bool missionUpdated = false;
+            if (fromAutomation && !state.Data.countsAutomatedActions) continue;
 
-            // Sequential: nur das erste unvollständige Objective kann Fortschritt machen
-            int sequentialLimit = -1;
-            if (state.Data.sequentialObjectives)
-            {
-                for (int j = 0; j < state.Data.objectives.Length; j++)
-                {
-                    if (!state.ObjectiveCompleted(j)) { sequentialLimit = j; break; }
-                }
-                if (sequentialLimit < 0) continue; // Alle fertig
-            }
+            bool missionUpdated = false;
 
             for (int i = 0; i < state.Data.objectives.Length; i++)
             {
-                if (state.Data.sequentialObjectives && i != sequentialLimit) continue;
+                // Sequenz und Stufen stecken beide in IsObjectiveActive — eine Regel,
+                // damit Fortschritt und Highlighting nicht auseinanderlaufen koennen.
+                if (!state.IsObjectiveActive(i)) continue;
 
                 var obj = state.Data.objectives[i];
                 if (obj.type != type) continue;
-                if (state.ObjectiveCompleted(i)) continue;
                 if (obj.targetPlantType != null && obj.targetPlantType != plantType) continue;
                 if (CarriesTool(type) && obj.targetTool != ToolType.None && obj.targetTool != tool) continue;
                 if (!string.IsNullOrWhiteSpace(obj.targetZoneId) && obj.targetZoneId != zoneId) continue;

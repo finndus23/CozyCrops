@@ -17,6 +17,15 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 8209bd20a658f9d4b84cd3bd50ce0a4f, type: 3}
   seedPrice: 24
   sellPrice: 80
+  growthSpeedMultiplier: 1
+  actionSpeedMultiplier: 1
+  automationDurationMultiplier: 1.8
+  requiresFertilizedSoil: 1
+  compostValue: 1
+  plantSfx: []
+  harvestSfx: []
+  sellSfx: []
+  sfxVolume: 0.6
   modelYRotation: 180
   growthStages:
   - stageName: 1

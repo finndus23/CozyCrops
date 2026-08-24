@@ -13,50 +13,58 @@ MonoBehaviour:
   m_Name: story_2_carrot_run
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_2_carrot_run
-  title: "Von der Saat zum Gold"
-  description: "Die ganze Runde am Stück: acht Karotten setzen, zweimal pro Pflanze gießen, abernten und in der Stadt verkaufen. Du musst nicht warten, bis ein Schritt fertig ist - säen, gießen und ernten laufen nebeneinander."
+  title: Von der Saat zum Gold
+  description: "Die ganze Runde am St\xFCck: acht Karotten setzen, zweimal pro Pflanze
+    gie\xDFen, abernten und in der Stadt verkaufen. Du musst nicht warten, bis ein
+    Schritt fertig ist - s\xE4en, gie\xDFen und ernten laufen nebeneinander."
   objectives:
   - type: 1
     targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
+    description: 
   - type: 2
     targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 16
-    description:
+    description: 
   - type: 3
     targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
-  - type: 4
+    description: 
+  - stage: 1
+    type: 4
     targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 250
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   - type: 3
     amount: 1
     plant: {fileID: 0}
     tool: 0
     zoneName: zone_1
-    licenseId:
+    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
@@ -64,5 +72,6 @@ MonoBehaviour:
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Onkel Ozan hat noch was."
+  starterHighlightId: ozan
+  nextStepHint: Onkel Ozan hat noch was.
   sequentialObjectives: 0

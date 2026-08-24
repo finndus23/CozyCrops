@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_4_cauliflower_run
   title: "Blumenkohl-Saison"
-  description: "Die Lizenz hängt an der Wand, jetzt muss sie sich rentieren. Blumenkohl braucht länger, bringt aber knapp das Dreifache pro Feld. Dieselbe Runde wie bei den Karotten - setzen, gießen, ernten, verkaufen."
+  description: "Die Lizenz hängt an der Wand, jetzt muss sie sich rentieren. Blumenkohl ist durstiger als die Karotte: er will pro Wachstumsschritt ZWEIMAL gegossen werden, sonst steht er einfach. Dafür bringt er knapp das Dreifache pro Feld."
   objectives:
   - type: 1
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
@@ -28,7 +28,7 @@ MonoBehaviour:
     targetTool: 0
     targetZoneId:
     targetLicenseId:
-    requiredAmount: 16
+    requiredAmount: 32
     description:
   - type: 3
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
@@ -37,7 +37,8 @@ MonoBehaviour:
     targetLicenseId:
     requiredAmount: 8
     description:
-  - type: 4
+  - stage: 1
+    type: 4
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
     targetTool: 0
     targetZoneId:

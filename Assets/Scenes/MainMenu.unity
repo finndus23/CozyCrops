@@ -2681,6 +2681,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1122334455667788990011223344556a, type: 2}
   - {fileID: 11400000, guid: 1122334455667788990011223344556c, type: 2}
   - {fileID: 11400000, guid: 1122334455667788990011223344556e, type: 2}
+  - {fileID: 11400000, guid: ae94f5308ed64e129e2ea99248ffba23, type: 2}
   - {fileID: 11400000, guid: 112233445566778899001122334455a0, type: 2}
   - {fileID: 11400000, guid: 112233445566778899001122334455a2, type: 2}
   sideMissions: []
@@ -5606,6 +5607,10 @@ PrefabInstance:
       propertyPath: musicVolume
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 6883119319124072564, guid: db248e30f13d4844198056c81a267e8f, type: 3}
+      propertyPath: 'impactPath.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 59e7b01040e23d24880308378cf28e2f, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8722,6 +8727,7 @@ GameObject:
   - component: {fileID: 1972460178}
   - component: {fileID: 1972460179}
   - component: {fileID: 1972460180}
+  - component: {fileID: 1972460181}
   m_Layer: 0
   m_Name: SaveSystem
   m_TagString: Untagged
@@ -8820,6 +8826,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionHighlightDirector
   enableHighlighting: 1
+--- !u!114 &1972460181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972460175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6faa37a0625bbcf4d90d562167b45dd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutomationDeviceCatalog
+  station: {fileID: 11400000, guid: 369ae586d8169754284e29f9af775470, type: 2}
+  devices:
+  - {fileID: 11400000, guid: b209e9e06c28b6248a11e5654ada562e, type: 2}
+  - {fileID: 11400000, guid: 5a1f580a46d31bb4887dded372e46b2e, type: 2}
+  - {fileID: 11400000, guid: 93654a2bee49e9f4bb8ee03bdf197306, type: 2}
+  - {fileID: 11400000, guid: ef4246024ca6d044faa3263b77f0bb1b, type: 2}
 --- !u!1 &1987454519
 GameObject:
   m_ObjectHideFlags: 0

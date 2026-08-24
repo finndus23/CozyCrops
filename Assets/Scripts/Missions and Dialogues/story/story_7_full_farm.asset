@@ -13,44 +13,51 @@ MonoBehaviour:
   m_Name: story_7_full_farm
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_7_full_farm
-  title: "Die volle Farm"
-  description: "Letzter Abschnitt. Kanne auf zehn, Sichel auf fünf - danach läuft die Farm wie von selbst. Und das Stück Land hinter dem Zaun schenkt dir diesmal keiner."
+  title: Die volle Farm
+  description: "Letzter Abschnitt. Kanne auf zehn, Sichel auf f\xFCnf - danach l\xE4uft
+    die Farm wie von selbst. Und das St\xFCck Land hinter dem Zaun schenkt dir diesmal
+    keiner."
   objectives:
   - type: 18
     targetPlantType: {fileID: 0}
     targetTool: 2
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 10
-    description:
+    description: 
   - type: 18
     targetPlantType: {fileID: 0}
     targetTool: 4
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 5
-    description:
+    description: 
   - type: 5
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1500
-    description:
+    description: 
   - type: 16
     targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: zone_4
-    targetLicenseId:
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 1
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 1200
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
@@ -58,5 +65,6 @@ MonoBehaviour:
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Sprich mit Onkel Ozan auf der Farm."
+  starterHighlightId: ozan
+  nextStepHint: Sprich mit Onkel Ozan auf der Farm.
   sequentialObjectives: 0

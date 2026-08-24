@@ -55,6 +55,16 @@ public class GridInput : MonoBehaviour
         HoveredZ       = hoveredZ;
         IsHoveringGrid = isOverGrid && !isLockedTile;
 
+        // Geraete-Platzierung hat Vorrang vor dem Baumodus: sonst wuerde derselbe Klick
+        // zusaetzlich als Kachel-Bemalen durchgehen.
+        var placement = AutomationPlacementController.Instance;
+        if (placement != null && placement.IsPlacing)
+        {
+            UpdateHover(false);
+            placement.HandleInput(mouse, hoveredX, hoveredZ, isOverGrid && !isLockedTile);
+            return;
+        }
+
         // Build-Modus: Tiles platzieren (bestehende Logik)
         if (BuildModeManager.Instance.IsActive)
         {

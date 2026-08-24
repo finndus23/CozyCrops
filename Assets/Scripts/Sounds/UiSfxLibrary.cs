@@ -81,6 +81,24 @@ public class UiSfxLibrary : ScriptableObject
              "Leer = rewardCollected.")]
     public AudioClip[] compostReady;
 
+    [Header("Automations-Station")]
+    [Tooltip("Station wurde auf eine Kachel gesetzt — der schwere Aufschlag beim Aufstellen. " +
+             "Leer = purchase.")]
+    public AudioClip[] stationPlaced;
+
+    [Tooltip("Ein Modul wurde in die Station eingebaut. Darf nach Metall klicken — es ist " +
+             "der Moment, in dem die Maschine ein Stueck mehr kann. Leer = toolAcquired.")]
+    public AudioClip[] moduleInstalled;
+
+    [Tooltip("Station oder Modul wurde aufgewertet. Leer = toolUpgraded.")]
+    public AudioClip[] stationUpgraded;
+
+    [Tooltip("Station wurde eingepackt und ins Lager gelegt. Leer = panelClose.")]
+    public AudioClip[] stationPacked;
+
+    [Tooltip("Ein Modul wurde an- oder ausgeschaltet. Kurzer Kippschalter. Leer = buttonClick.")]
+    public AudioClip[] moduleToggled;
+
     [Header("Münzflug")]
     [Tooltip("Klingt, sobald fliegende Münzen ankommen — bei Missions-Belohnungen genauso " +
              "wie beim Verkauf.\n\n" +

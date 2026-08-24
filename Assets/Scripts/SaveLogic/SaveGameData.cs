@@ -26,6 +26,9 @@ public class SaveGameData
     /// nach einem Neuladen weiß wie weit er ist, statt bei 0% neu anzufangen.</summary>
     public float composterTotalBrewTime;
 
+    /// <summary>Ausbaustufe des Komposters — kuerzere Brauzeit und Extra-Duenger-Chance.</summary>
+    public int composterLevel;
+
     /// <summary>Was aktuell im Komposter brodelt, pro Sorte — nötig, damit "Abbrechen" die
     /// richtige Ernte zurückerstatten kann, auch nach einem Neuladen mitten im Brauvorgang.</summary>
     public List<InventoryStackSaveData> composterComposition = new();
@@ -38,6 +41,21 @@ public class SaveGameData
 
     /// <summary>licenseIds der gekauften Lizenzen.</summary>
     public List<string> ownedLicenses = new();
+
+    /// <summary>
+    /// Platzierte Automatik-Geraete. Eine Liste reicht: das Level haengt am einzelnen
+    /// Geraet und einen unplatzierten Bestand gibt es nicht.
+    ///
+    /// version bleibt bewusst bei 4 — es gibt nichts zu migrieren, JsonUtility liefert bei
+    /// Altsaves einfach eine leere Liste.
+    /// </summary>
+    public List<AutomationDeviceSaveData> automationDevices = new();
+
+    /// <summary>
+    /// Eingepackte Stationen samt Modulen. x/z sind hier bedeutungslos.
+    /// Einpacken ist kein Verkauf — der investierte Wert muss den Spielstand ueberleben.
+    /// </summary>
+    public List<AutomationDeviceSaveData> packedAutomationDevices = new();
 
     /// <summary>
     /// Beim Anlegen des Slots gewähltes Spieltempo. 0 = Normal, damit Altsaves
@@ -83,4 +101,33 @@ public class ToolLevelSaveData
 {
     public string toolType;
     public int level;
+}
+
+[Serializable]
+public class AutomationDeviceSaveData
+{
+    public int x;
+    public int z;
+
+    /// <summary>Level der Station — bestimmt die Reichweite.</summary>
+    public int level;
+
+    /// <summary>Eingesetzte Module. Leer = leeres Gehaeuse.</summary>
+    public List<AutomationModuleSaveData> modules = new();
+}
+
+[Serializable]
+public class AutomationModuleSaveData
+{
+    /// <summary>AutomationDeviceType als Text — wie bei ToolLevelSaveData, damit ein
+    /// Umsortieren des Enums keine Altsaves zerlegt.</summary>
+    public string moduleType;
+
+    public int level;
+    public bool enabled = true;
+
+    /// <summary>Nur das Saat-Modul: gewaehlte Sorte, ueber PlantDatabase aufgeloest.</summary>
+    public string seedId;
+
+    public float cooldownRemaining;
 }

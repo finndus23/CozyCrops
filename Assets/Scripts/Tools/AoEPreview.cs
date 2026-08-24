@@ -69,6 +69,9 @@ public class AoEPreview : MonoBehaviour
     [Range(0.1f, 1f)]
     [SerializeField] private float hoverAlphaFactor = 0.7f;
 
+    [Tooltip("Standardfarbe der externen Vorschau — Reichweite eines Automatik-Geraets.")]
+    [SerializeField] private Color externalPreviewColor = new(0.45f, 0.8f, 1f, 0.55f);
+
     [Header("Animation")]
     [SerializeField] private float popInDuration = 0.16f;
     [SerializeField] private float popInFromScale = 0.55f;
@@ -76,6 +79,26 @@ public class AoEPreview : MonoBehaviour
     private readonly List<GameObject> pool = new();
     private readonly Dictionary<Vector2Int, GameObject> hoverOverlays = new();
     private readonly Dictionary<Vector2Int, GameObject> jobOverlays = new();
+
+    /// <summary>
+    /// Dritte Spur neben Hover und Warteschlange: eine von aussen gesetzte Kachelmenge,
+    /// die stehen bleibt, bis sie ausdruecklich geloescht wird. Fuer die
+    /// Reichweiten-Vorschau der Automatik-Geraete.
+    ///
+    /// Bewusst eine Kachelmenge und kein LineRenderer-Rechteck wie bei den Farm-Zonen: die
+    /// Reichweite beschneidet sich am Gitterrand und an gesperrten Zonen unregelmaessig,
+    /// ein Rechteck wuerde dem Spieler etwas Falsches zeigen.
+    /// </summary>
+    private readonly Dictionary<Vector2Int, GameObject> externalOverlays = new();
+    private readonly List<Vector2Int> externalTiles = new();
+    private Color externalColor;
+    private bool externalActive;
+
+    // Optional eine einzelne hervorgehobene Kachel innerhalb der Menge — die Zielkachel
+    // beim Platzieren, gruen oder rot je nach Gueltigkeit.
+    private bool hasExternalHighlight;
+    private Vector2Int externalHighlightTile;
+    private Color externalHighlightColor;
 
     // Wiederverwendet — im Gegensatz zu renderer.material erzeugt ein
     // MaterialPropertyBlock keine Material-Instanz pro Overlay.
@@ -107,14 +130,132 @@ public class AoEPreview : MonoBehaviour
     void Update()
     {
         UpdateJobOverlays();
+        UpdateExternalOverlays();
         UpdateHoverOverlay();
+    }
+
+    // ── Externe Vorschau ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Zeigt eine feste Kachelmenge an, bis <see cref="ClearExternalPreview"/> kommt.
+    /// Mehrfach aufrufbar — die Menge wird ersetzt, nicht ergaenzt.
+    /// </summary>
+    public void SetExternalPreview(IReadOnlyList<Vector2Int> tiles, Color color)
+    {
+        externalTiles.Clear();
+        if (tiles != null) externalTiles.AddRange(tiles);
+
+        externalColor = color;
+        externalActive = externalTiles.Count > 0;
+        hasExternalHighlight = false;
+
+        if (!externalActive) HideAllExternal();
+    }
+
+    /// <summary>
+    /// Wie oben, hebt aber eine Kachel der Menge gesondert hervor — beim Platzieren die
+    /// Zielkachel. Die Reichweite bleibt dabei als Flaeche lesbar, waehrend die Zielkachel
+    /// zeigt, ob dort ueberhaupt gesetzt werden darf.
+    /// </summary>
+    public void SetExternalPreview(IReadOnlyList<Vector2Int> tiles, Color color,
+                                   Vector2Int highlight, Color highlightColor)
+    {
+        SetExternalPreview(tiles, color);
+
+        hasExternalHighlight = externalActive;
+        externalHighlightTile = highlight;
+        externalHighlightColor = highlightColor;
+    }
+
+    private Color ResolveExternalColor(Vector2Int tile) =>
+        hasExternalHighlight && tile == externalHighlightTile ? externalHighlightColor : externalColor;
+
+    /// <summary>Wie oben, in der im Inspector eingestellten Standardfarbe.</summary>
+    public void SetExternalPreview(IReadOnlyList<Vector2Int> tiles) =>
+        SetExternalPreview(tiles, externalPreviewColor);
+
+    public void ClearExternalPreview()
+    {
+        externalTiles.Clear();
+        externalActive = false;
+        HideAllExternal();
+    }
+
+    /// <summary>
+    /// Laeuft jeden Frame und baut die Overlays gediffed nach — dadurch heilt die Vorschau
+    /// von selbst, wenn eine Kachel zwischenzeitlich von einem Job-Overlay belegt war.
+    /// </summary>
+    private void UpdateExternalOverlays()
+    {
+        if (!externalActive)
+        {
+            if (externalOverlays.Count > 0) HideAllExternal();
+            return;
+        }
+
+        staleKeys.Clear();
+        foreach (var kvp in externalOverlays)
+        {
+            // Job-Overlays haben Vorrang, sonst liegen zwei Quads deckungsgleich
+            // uebereinander und flimmern gegeneinander.
+            if (!externalTiles.Contains(kvp.Key) || jobOverlays.ContainsKey(kvp.Key))
+                staleKeys.Add(kvp.Key);
+        }
+
+        foreach (var key in staleKeys)
+        {
+            Release(externalOverlays[key]);
+            externalOverlays.Remove(key);
+        }
+
+        foreach (var tile in externalTiles)
+        {
+            if (jobOverlays.ContainsKey(tile)) continue;
+            if (GridManager.Instance == null || GridManager.Instance.GetCell(tile.x, tile.y) == null) continue;
+
+            var tileColor = ResolveExternalColor(tile);
+
+            if (externalOverlays.TryGetValue(tile, out var existing))
+            {
+                Apply(existing, tileColor, 1f, HoverCornerLength);
+                continue;
+            }
+
+            var go = Acquire(tile);
+            if (go == null) continue;
+
+            Apply(go, tileColor, 1f, HoverCornerLength);
+            PlayPopIn(go);
+            externalOverlays[tile] = go;
+        }
+    }
+
+    private void HideAllExternal()
+    {
+        if (externalOverlays.Count == 0) return;
+
+        foreach (var kvp in externalOverlays)
+            Release(kvp.Value);
+
+        externalOverlays.Clear();
     }
 
     // ── Hover ─────────────────────────────────────────────────────────────────
 
     private void UpdateHoverOverlay()
     {
-        if (!GridInput.IsHoveringGrid)
+        // Waehrend eine Station platziert oder verschoben wird, gehoert die Kachelanzeige
+        // allein der Reichweiten-Vorschau. Der Werkzeug-Hover wuerde sich sonst genau
+        // darunterlegen und beide unleserlich machen.
+        bool placing = AutomationPlacementController.Instance != null
+                       && AutomationPlacementController.Instance.IsPlacing;
+
+        // Dasselbe, solange das Stations-Popup offen ist: dort zeigt die externe Vorschau
+        // die Reichweite, und der Werkzeug-Hover wuerde sich direkt darueberlegen.
+        bool stationPopupOpen = AutomationDevicePopup.Instance != null
+                                && AutomationDevicePopup.Instance.IsOpen;
+
+        if (placing || stationPopupOpen || !GridInput.IsHoveringGrid)
         {
             HideAllHover();
             InvalidateHoverCache();
@@ -171,8 +312,10 @@ public class AoEPreview : MonoBehaviour
 
         foreach (var tile in tiles)
         {
-            // Warteschlangen-Overlay hat Vorrang
+            // Warteschlangen- und Reichweiten-Overlay haben Vorrang — sonst liegen zwei
+            // Quads deckungsgleich uebereinander und flimmern gegeneinander.
             if (jobOverlays.ContainsKey(tile)) continue;
+            if (externalOverlays.ContainsKey(tile)) continue;
             if (GridManager.Instance == null || GridManager.Instance.GetCell(tile.x, tile.y) == null) continue;
 
             var hoverColor = ResolveHoverColor(tool);

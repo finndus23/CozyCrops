@@ -17,9 +17,12 @@ public class PlantType : ScriptableObject
     public int sellPrice = 25;
 
     [Header("Balancing")]
-    [Tooltip("Multiplikator auf die Wachstumszeit JEDER Phase (GrowthStage.timeToNextStage). " +
-             "1 = wie in den Phasen eingetragen. Unter 1 = wächst schneller, über 1 = " +
-             "langsamer.\n\n" +
+    [Tooltip("TEMPO-Multiplikator aufs Wachstum. 1 = wie in den Phasen eingetragen. " +
+             "UEBER 1 = waechst SCHNELLER, unter 1 = langsamer. " +
+             "Achtung, das ist die Gegenrichtung zu actionSpeedMultiplier weiter unten: " +
+             "dieser Wert geht auf die RATE (PlantManager: dt *= growthSpeedMultiplier), " +
+             "jener auf die DAUER. 0,8 heisst hier also 25 Prozent langsamer, dort 20 " +
+             "Prozent schneller.\n\n" +
              "Eigener Hebel getrennt von den einzelnen Phasenzeiten — damit du am " +
              "Gesamttempo einer Sorte drehen kannst, ohne jede Phase einzeln nachzuziehen. " +
              "Wirkt multiplikativ mit dem Dünger-Bonus (GridCell.IsFertilized).")]
@@ -35,6 +38,24 @@ public class PlantType : ScriptableObject
              "gemischter AoE-Fläche zählt der Durchschnitt über alle betroffenen Pflanzen.")]
     [Range(0.5f, 2f)]
     public float actionSpeedMultiplier = 1f;
+
+    [Tooltip("DAUER-Multiplikator fuer AUTOMATIK-Jobs an dieser Sorte — wirkt nur auf " +
+             "Stationen, nie auf den Spieler. Unter 1 = die Station arbeitet an dieser " +
+             "Sorte schneller, ueber 1 = langsamer. " +
+             "Der Hebel, mit dem billige Sorten zum Automatik-Futter werden und teure der " +
+             "Handarbeit vorbehalten bleiben: Karotte niedrig, Sonnenblume hoch. Wirkt auf " +
+             "Jobdauer UND Takt, ein Wert von 1,8 verlangsamt den Zyklus also wirklich um " +
+             "das 1,8-fache.")]
+    [Range(0.3f, 3f)]
+    public float automationDurationMultiplier = 1f;
+
+    [Tooltip("Diese Sorte laesst sich NUR auf geduengtem Boden pflanzen. Harvest() setzt " +
+             "den Duenger zurueck, es braucht also vor jedem Anbau frischen — die Sorte " +
+             "haengt damit dauerhaft am Komposter-Kreislauf. " +
+             "Der Hebel fuer die Spitzensorte: statt Duengen wirtschaftlich attraktiv zu " +
+             "rechnen, wird es zur Voraussetzung. Das haelt auch, wenn spaeter an Preisen " +
+             "gedreht wird.")]
+    public bool requiresFertilizedSoil;
 
     [Header("Kompostieren")]
     [Tooltip("Wie viel Dünger-Wert 1 Stück dieser Frucht beim Kompostieren beisteuert " +

@@ -12,6 +12,13 @@ public class MissionData : ScriptableObject
     [Header("Aufgaben")]
     public MissionObjectiveData[] objectives;
 
+    [Tooltip("Zaehlen Aktionen von Automatik-Geraeten fuer diese Mission?\n\n" +
+             "Standard aus: sonst hakt eine Maschine abseits vom Bildschirm Tutorial-Ziele " +
+             "ab, waehrend der Tutorial-Highlight noch auf etwas Erledigtes zeigt. Ein neuer " +
+             "bool ist auf allen bestehenden MissionData-Assets false — genau der gewuenschte " +
+             "Default, kein Asset muss angefasst werden.")]
+    public bool countsAutomatedActions;
+
     [Header("Belohnung")]
     public MissionReward[] rewards;
 
@@ -41,6 +48,14 @@ public class MissionData : ScriptableObject
              "bevor der Spieler den Dialog überhaupt gesehen hat. Die Kette hält hier an und " +
              "zeigt stattdessen nextStepHint an.")]
     public bool startedByDialogue;
+
+    [Tooltip("highlightId des NPCs, der diese Mission per Dialog startet — z.B. 'ozan'. " +
+             "Fuellt die Luecke zwischen 'Mission ist dran' und 'Mission laeuft': solange sie " +
+             "auf das Gespraech wartet, gibt es noch KEIN Objective, an dem der " +
+             "MissionHighlightDirector ein Ziel festmachen koennte. Der Spieler liest im " +
+             "nextStepHint 'Sprich mit Onkel Ozan', bekommt aber nichts gezeigt. " +
+             "Nur sinnvoll zusammen mit startedByDialogue.")]
+    public string starterHighlightId;
 
     [Header("Anzeige")]
     [Tooltip("Kurzer Hinweis wohin der Spieler als Nächstes soll. Wird in der Missions-UI " +

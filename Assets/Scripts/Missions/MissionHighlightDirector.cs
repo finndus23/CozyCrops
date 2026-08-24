@@ -49,6 +49,12 @@ public class MissionHighlightDirector : MonoBehaviour
     private void OnEnable()
     {
         HighlightTarget.OnRegistryChanged += Refresh;
+
+        // Duengen aendert, welche Kacheln fuer eine Sorte mit requiresFertilizedSoil
+        // ueberhaupt in Frage kommen. Ohne dieses Abo bliebe die frisch geduengte Kachel
+        // dunkel, bis zufaellig etwas anderes ein Refresh ausloest.
+        PlantManager.OnFieldFertilized += Refresh;
+
         TrySubscribeToManager();
         Refresh();
     }
@@ -56,6 +62,7 @@ public class MissionHighlightDirector : MonoBehaviour
     private void OnDisable()
     {
         HighlightTarget.OnRegistryChanged -= Refresh;
+        PlantManager.OnFieldFertilized -= Refresh;
         UnsubscribeFromManager();
     }
 
@@ -91,6 +98,26 @@ public class MissionHighlightDirector : MonoBehaviour
         subscribedToManager = false;
     }
 
+    // Wiederverwendeter Puffer — Refresh laeuft bei jedem Missions-Ereignis komplett durch.
+    private readonly List<string> pendingStarters = new();
+
+    private bool MatchesPendingStarter(HighlightTarget target)
+    {
+        if (pendingStarters.Count == 0 || target == null) return false;
+
+        string id = target.HighlightId;
+        if (string.IsNullOrWhiteSpace(id)) return false;
+
+        for (int i = 0; i < pendingStarters.Count; i++)
+        {
+            if (string.Equals(pendingStarters[i].Trim(), id.Trim(),
+                              System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
     private void HandleMissionChanged(MissionData _) => Refresh();
     private void HandleObjectiveUpdated(MissionData _, int __, int ___, int ____) => Refresh();
 
@@ -107,10 +134,24 @@ public class MissionHighlightDirector : MonoBehaviour
         {
             CollectActiveObjectives();
 
+            // NPCs, die gerade ein Gespraech schulden. Diese Missionen haben noch kein
+            // Objective — sie warten ja erst darauf, gestartet zu werden — also greift die
+            // Objective-Zuordnung unten nicht. Ohne diesen Zweig sagt der nextStepHint
+            // "Sprich mit Onkel Ozan", aber nichts leuchtet.
+            pendingStarters.Clear();
+            MissionManager.Instance?.CollectPendingDialogueStarters(pendingStarters);
+
             var targets = HighlightTarget.All;
             for (int t = 0; t < targets.Count; t++)
             {
                 var target = targets[t];
+
+                if (MatchesPendingStarter(target))
+                {
+                    shouldGlow.Add(target);
+                    continue;
+                }
+
                 for (int o = 0; o < activeObjectives.Count; o++)
                 {
                     if (target.Matches(activeObjectives[o]))
@@ -145,22 +186,11 @@ public class MissionHighlightDirector : MonoBehaviour
             var objectives = state.Data.objectives;
             if (objectives == null || objectives.Length == 0) continue;
 
-            if (state.Data.sequentialObjectives)
             {
-                // Nur das erste offene Ziel — alles danach ist noch gar nicht dran.
+                // Dieselbe Regel wie beim Fortschritt: was nicht zaehlen kann, soll auch
+                // nicht leuchten.
                 for (int i = 0; i < objectives.Length; i++)
-                {
-                    if (!state.ObjectiveCompleted(i))
-                    {
-                        activeObjectives.Add(objectives[i]);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < objectives.Length; i++)
-                    if (!state.ObjectiveCompleted(i))
+                    if (state.IsObjectiveActive(i))
                         activeObjectives.Add(objectives[i]);
             }
         }

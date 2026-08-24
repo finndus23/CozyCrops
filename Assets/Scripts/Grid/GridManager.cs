@@ -238,6 +238,9 @@ public class GridManager : MonoBehaviour
     public bool TryPlaceTile(int x, int z, TileType type)
     {
         if (!IsPlayerEditable(x, z)) return false;
+        // Unter einem Geraet wird nicht umgebaut — ReplaceTile zerstoert das Tile-Objekt,
+        // und die Kachel gehoert dem Geraet, solange es dort steht.
+        if (AutomationDeviceManager.IsOccupied(x, z)) return false;
         GridCell cell = GetCell(x, z);
         if (cell.IsLocked) return false;
         if (cell.HasPlant) return false;
@@ -256,6 +259,7 @@ public class GridManager : MonoBehaviour
     public bool TryRemoveTile(int x, int z)
     {
         if (!IsPlayerEditable(x, z)) return false;
+        if (AutomationDeviceManager.IsOccupied(x, z)) return false;
         GridCell cell = GetCell(x, z);
         if (cell.IsLocked) return false;
         if (cell.HasPlant) return false;

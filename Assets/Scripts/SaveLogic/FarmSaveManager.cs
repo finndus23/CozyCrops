@@ -768,8 +768,156 @@ public class FarmSaveManager : MonoBehaviour
             data.missionProgress.AddRange(MissionManager.Instance.GetSaveData());
         }
 
+        // Der Guard ist hier das Entscheidende — exakt dasselbe Muster wie bei SaveGrid und
+        // SaveComposter. Der Manager lebt nur in der Farm-Szene; ohne diese Abfrage wuerde
+        // jeder Speichervorgang auf dem Marktplatz die Liste leeren und saemtliche Geraete
+        // aus dem Spielstand wischen.
+        if (AutomationDeviceManager.Instance != null)
+        {
+            data.automationDevices.Clear();
+            data.packedAutomationDevices.Clear();
+            SaveAutomationDevices(data);
+        }
+
         EnsureSaveLists(data);
         return data;
+    }
+
+    private void SaveAutomationDevices(SaveGameData data)
+    {
+        var manager = AutomationDeviceManager.Instance;
+        if (manager == null) return;
+
+        foreach (var station in manager.AllDevices)
+        {
+            if (station == null || station.Data == null) continue;
+
+            var tile = station.TilePosition;
+            var entry = new AutomationDeviceSaveData
+            {
+                x = tile.x,
+                z = tile.y,
+                level = station.Level
+            };
+
+            foreach (var module in station.Modules)
+                AppendModule(entry, module);
+
+            data.automationDevices.Add(entry);
+        }
+
+        // Eingelagerte Stationen: dieselbe Struktur, x/z bleiben ungenutzt.
+        foreach (var packed in manager.PackedStations)
+        {
+            if (packed == null) continue;
+
+            var entry = new AutomationDeviceSaveData { level = packed.level };
+
+            foreach (var module in packed.modules)
+                AppendModule(entry, module);
+
+            data.packedAutomationDevices.Add(entry);
+        }
+    }
+
+    private static void AppendModule(AutomationDeviceSaveData entry, AutomationModule module)
+    {
+        if (entry == null || module == null || module.data == null) return;
+
+        entry.modules.Add(new AutomationModuleSaveData
+        {
+            moduleType = module.data.deviceType.ToString(),
+            level = module.level,
+            enabled = module.enabled,
+            seedId = module.seed != null ? PlantDatabase.GetPlantId(module.seed) : null,
+            cooldownRemaining = Mathf.Max(0f, module.cooldown)
+        });
+    }
+
+    /// <summary>Baut ein Modul aus seinem Save-Eintrag. Null, wenn der Typ unbekannt ist.</summary>
+    private static AutomationModule BuildModule(AutomationModuleSaveData saved)
+    {
+        if (saved == null) return null;
+        if (!Enum.TryParse(saved.moduleType, out AutomationDeviceType type)) return null;
+        if (type == AutomationDeviceType.None) return null;
+
+        var moduleData = AutomationDeviceCatalog.Get(type);
+        if (moduleData == null) return null;
+
+        return new AutomationModule
+        {
+            data = moduleData,
+            level = Mathf.Clamp(saved.level, 0, moduleData.maxLevel),
+            enabled = saved.enabled,
+            cooldown = Mathf.Max(0f, saved.cooldownRemaining),
+            seed = !string.IsNullOrEmpty(saved.seedId) && PlantDatabase.Instance != null
+                ? PlantDatabase.Instance.GetById(saved.seedId)
+                : null
+        };
+    }
+
+    private void ApplyAutomation(SaveGameData data)
+    {
+        var manager = AutomationDeviceManager.Instance;
+        if (manager == null) return;
+
+        manager.Clear();
+        if (data.automationDevices == null) return;
+
+        var stationData = AutomationDeviceCatalog.Station;
+        if (stationData == null)
+        {
+            if (data.automationDevices.Count > 0)
+                Debug.LogWarning("[Automation] Kein Stations-Asset im AutomationDeviceCatalog " +
+                                 "hinterlegt — gespeicherte Stationen koennen nicht geladen werden.");
+            return;
+        }
+
+        foreach (var entry in data.automationDevices)
+        {
+            if (entry == null) continue;
+
+            var station = manager.Spawn(stationData, entry.x, entry.z);
+            if (station == null) continue;
+
+            station.SetLevel(entry.level);
+
+            if (entry.modules == null) continue;
+
+            var built = new List<AutomationModule>();
+            foreach (var saved in entry.modules)
+            {
+                var module = BuildModule(saved);
+                if (module != null) built.Add(module);
+            }
+
+            station.RestoreModules(built);
+        }
+
+        // Lager wiederherstellen.
+        var packedList = new List<PackedStation>();
+        if (data.packedAutomationDevices != null)
+        {
+            foreach (var entry in data.packedAutomationDevices)
+            {
+                if (entry == null) continue;
+
+                var packed = new PackedStation { level = entry.level };
+
+                if (entry.modules != null)
+                {
+                    foreach (var saved in entry.modules)
+                    {
+                        var module = BuildModule(saved);
+                        if (module != null) packed.modules.Add(module);
+                    }
+                }
+
+                packedList.Add(packed);
+            }
+        }
+
+        manager.SetPackedStations(packedList);
     }
 
     private void SaveInventory(SaveGameData data)
@@ -810,6 +958,9 @@ public class FarmSaveManager : MonoBehaviour
     /// </summary>
     private void SaveComposter(SaveGameData data)
     {
+        if (ComposterInteraction.Instance != null)
+            data.composterLevel = ComposterInteraction.Instance.Level;
+
         if (ComposterInteraction.Instance == null) return;
 
         data.composterBrewing = ComposterInteraction.Instance.IsBrewing;
@@ -898,6 +1049,13 @@ public class FarmSaveManager : MonoBehaviour
             ApplyInventory(data);
             ApplyComposter(data);
             ApplyToolLevels(data);
+
+            // Nach ApplyGrid, weil die Geraete beim Platzieren ihre Kachelliste cachen —
+            // Zellen und IsLocked muessen also schon stehen. Und nach ApplyInventory, weil
+            // die Sorte der Saemaschine ueber die PlantDatabase aufgeloest wird.
+            // Vor ApplyMissions.
+            ApplyAutomation(data);
+
             ApplyMissions(data);
         }
         finally
@@ -948,6 +1106,8 @@ public class FarmSaveManager : MonoBehaviour
 
     private void ApplyComposter(SaveGameData data)
     {
+        ComposterInteraction.Instance?.SetLevel(data.composterLevel);
+
         if (ComposterInteraction.Instance == null) return;
 
         ComposterInteraction.Instance.ApplyLoadedData(
@@ -1004,6 +1164,8 @@ public class FarmSaveManager : MonoBehaviour
         if (data.ownedTools == null) data.ownedTools = new List<string>();
         if (data.missionProgress == null) data.missionProgress = new List<MissionProgressSaveData>();
         if (data.ownedLicenses == null) data.ownedLicenses = new List<string>();
+        if (data.automationDevices == null) data.automationDevices = new List<AutomationDeviceSaveData>();
+        if (data.packedAutomationDevices == null) data.packedAutomationDevices = new List<AutomationDeviceSaveData>();
     }
 
     private void OnApplicationQuit()

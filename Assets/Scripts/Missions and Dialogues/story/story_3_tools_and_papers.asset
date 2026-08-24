@@ -13,37 +13,43 @@ MonoBehaviour:
   m_Name: story_3_tools_and_papers
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_3_tools_and_papers
-  title: "Werkzeug und Papiere"
-  description: "Ein Gang durch die Stadt, drei Dinge zu erledigen. Stufe 5 macht die Hacke nicht schneller, du kannst nur mehr vorausplanen - fünf Felder in der Warteschlange statt drei. Jedes Werkzeug hat seine eigene."
+  title: Werkzeug und Papiere
+  description: "Ein Gang durch die Stadt, drei Dinge zu erledigen. Stufe 5 macht
+    die Hacke nicht schneller, du kannst nur mehr vorausplanen - f\xFCnf Felder in
+    der Warteschlange statt drei. Jedes Werkzeug hat seine eigene."
   objectives:
   - type: 18
     targetPlantType: {fileID: 0}
     targetTool: 1
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 5
-    description:
+    description: 
   - type: 19
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId:
+    targetZoneId: 
     targetLicenseId: lic_cauliflower
+    targetHighlightId: 
     requiredAmount: 1
-    description:
+    description: 
   - type: 7
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 270
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
@@ -51,5 +57,6 @@ MonoBehaviour:
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Der Schmied auf dem Marktplatz hat was für dich."
+  starterHighlightId: smith
+  nextStepHint: "Der Schmied auf dem Marktplatz hat was f\xFCr dich."
   sequentialObjectives: 0

@@ -36,6 +36,12 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 {
     public static ComposterInteraction Instance { get; private set; }
 
+    /// <summary>Ernte in den Komposter geworfen — Anzahl der STUECKE. Fuers Missions-System.</summary>
+    public static event System.Action<int> OnCompostStartedStatic;
+
+    /// <summary>Fertiger Duenger abgeholt — Anzahl der Einheiten. Fuers Missions-System.</summary>
+    public static event System.Action<int> OnFertilizerCollectedStatic;
+
     public bool IsBrewing { get; private set; }
     public float TimeRemaining { get; private set; }
     public int PendingFertilizerYield { get; private set; }
@@ -66,9 +72,76 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     [SerializeField] private int stepAmount = 1;
 
     [Header("Brauzeit")]
+    // Dauer = Min(maxBrewTime, baseBrewTime + Anzahl * perCropBrewTime)
+    // perCropBrewTime sinkt mit der Ausbaustufe Richtung minPerCropBrewTime (siehe unten).
+
+    [Tooltip("Grundzeit pro BATCH, unabhaengig von der Menge. Wirkt als Fixkosten und " +
+             "bestraft damit viele kleine Wuerfe: drei Fruechte einzeln zu kompostieren " +
+             "kostet dreimal diese Zeit. Hochdrehen, wenn der Spieler seltener und dafuer " +
+             "groesser kompostieren soll.")]
     [SerializeField] private float baseBrewTime = 20f;
+
+    [Tooltip("Zusatzzeit pro Frucht im Batch. Der eigentliche Durchsatz-Hebel — dieser Wert " +
+             "bestimmt, wie viel Duenger pro Minute maximal moeglich ist (Obergrenze: " +
+             "compostValue / cropsPerFertilizer geteilt durch diesen Wert). Sinkt mit der " +
+             "Ausbaustufe bis auf minPerCropBrewTime.")]
     [SerializeField] private float perCropBrewTime = 2f;
+
+    [Tooltip("Harte Obergrenze der Brauzeit, egal wie gross der Batch ist. Greift erst ab " +
+             "(maxBrewTime - baseBrewTime) / perCropBrewTime Fruechten — bei den " +
+             "Standardwerten also ab 80 Stueck. Darueber wird Kompostieren pro Frucht immer " +
+             "billiger, das ist die Belohnung fuers Sammeln.")]
     [SerializeField] private float maxBrewTime = 180f;
+
+    [Header("Ausbau")]
+    [Tooltip("Hoechststufe des Komposters.")]
+    [SerializeField] private int maxLevel = 10;
+
+    [Tooltip("Goldkosten fuer die erste Stufe (0 auf 1).")]
+    [SerializeField] private int upgradeBaseCost = 150;
+
+    [Tooltip("Zusaetzliche Goldkosten pro Stufe.")]
+    [SerializeField] private int upgradeCostPerLevel = 50;
+
+    [Tooltip("Brauzeit pro Frucht auf Hoechststufe. Der Wert oben gilt auf Stufe 0, " +
+             "dazwischen wird linear interpoliert.")]
+    [SerializeField] private float minPerCropBrewTime = 0.8f;
+
+    [Tooltip("Chance auf einen Extra-Duenger pro Batch auf Hoechststufe, auf Stufe 0 null. " +
+             "Wirkt frueh am staerksten, solange Ackerflaeche knapp ist und jeder Duenger " +
+             "echtes Land kostet. Spaeter, wenn eine Station das Futter liefert, ist der " +
+             "Nachschub ohnehin im Ueberfluss da.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float maxExtraFertilizerChance = 0.5f;
+
+    /// <summary>Ausbaustufe des Komposters. Wird mitgespeichert.</summary>
+    public int Level { get; private set; }
+
+    public int MaxLevel => maxLevel;
+
+    /// <summary>Goldkosten der naechsten Stufe, oder -1 wenn schon am Maximum.</summary>
+    public int GetUpgradeCost() =>
+        Level >= maxLevel ? -1 : upgradeBaseCost + Level * upgradeCostPerLevel;
+
+    /// <summary>Brauzeit pro Frucht auf der aktuellen Stufe.</summary>
+    private float CurrentPerCropBrewTime =>
+        maxLevel <= 0 ? perCropBrewTime
+                      : Mathf.Lerp(perCropBrewTime, minPerCropBrewTime, Level / (float)maxLevel);
+
+    /// <summary>Chance auf einen Extra-Duenger auf der aktuellen Stufe.</summary>
+    public float ExtraFertilizerChance =>
+        maxLevel <= 0 ? 0f : Mathf.Lerp(0f, maxExtraFertilizerChance, Level / (float)maxLevel);
+
+    /// <summary>Setzt die Stufe (Ladepfad).</summary>
+    public void SetLevel(int level) => Level = Mathf.Clamp(level, 0, maxLevel);
+
+    /// <summary>Hebt den Komposter um eine Stufe. Gold bucht der Aufrufer ab.</summary>
+    public bool TryUpgrade()
+    {
+        if (Level >= maxLevel) return false;
+        Level++;
+        return true;
+    }
 
     [Header("Bestätigungsfenster — Optik (optional)")]
     [Tooltip("Leer = Flachfarben-Fallback. Für denselben Look wie den Schmied: " +
@@ -77,6 +150,9 @@ public class ComposterInteraction : MonoBehaviour, IClickable
     [SerializeField] private Sprite confirmOkButtonSprite;
     [SerializeField] private Sprite confirmCancelButtonSprite;
     [SerializeField] private Canvas hudCanvas;
+
+    private UnityEngine.UI.Button upgradeButton;
+    private TextMeshProUGUI upgradeLabel;
 
     [Header("Status-Anzeige")]
     [Tooltip("DASSELBE Prefab, das PlantStatusOverlay für den Wachstums-Bogen benutzt " +
@@ -194,6 +270,48 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     // ── Brauen ────────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Kauft eine Ausbaustufe. Der Komposter ist die Stellschraube fuers fruehe Spiel:
+    /// solange Ackerflaeche knapp ist, kostet jeder Duenger echtes Land — spaeter liefert
+    /// eine Automations-Station das Futter ohnehin im Ueberfluss.
+    /// </summary>
+    private void TryBuyUpgrade()
+    {
+        int cost = GetUpgradeCost();
+        if (cost < 0) return;
+
+        var inventory = PlayerInventory.Instance;
+        if (inventory == null || !inventory.TrySpendMoney(cost)) return;
+
+        if (!TryUpgrade())
+        {
+            inventory.AddMoney(cost);
+            return;
+        }
+
+        UiSfx.StationUpgraded();
+        FarmSaveManager.Instance?.RequestSave();
+        RefreshUpgradeButton();
+    }
+
+    /// <summary>Beschriftet den Upgrade-Knopf mit Stufe, Kosten und Wirkung.</summary>
+    private void RefreshUpgradeButton()
+    {
+        if (upgradeButton == null || upgradeLabel == null) return;
+
+        int cost = GetUpgradeCost();
+        if (cost < 0)
+        {
+            upgradeLabel.text = $"Komposter Stufe {Level} — Hoechststufe";
+            upgradeButton.interactable = false;
+            return;
+        }
+
+        int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
+        upgradeLabel.text = $"Komposter Stufe {Level} aufwerten — {cost} G";
+        upgradeButton.interactable = money >= cost;
+    }
+
     private void StartBrewing()
     {
         HideConfirmPopup();
@@ -223,8 +341,16 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        PendingFertilizerYield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
-        TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * perCropBrewTime);
+        int yield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
+
+        // Extra-Duenger einmal pro Batch, nicht pro Frucht — sonst skaliert der Bonus mit
+        // der Batchgroesse und ein einziger grosser Wurf waere immer optimal.
+        if (Random.value < ExtraFertilizerChance) yield++;
+
+        PendingFertilizerYield = yield;
+        TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
+
+        OnCompostStartedStatic?.Invoke(totalItems);
         TotalBrewTime = TimeRemaining;
         IsBrewing = true;
         readyChimePlayed = false;
@@ -239,6 +365,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         PlayerInventory.Instance?.AddFertilizer(PendingFertilizerYield);
         UiSfx.FertilizerCollected();
+        OnFertilizerCollectedStatic?.Invoke(PendingFertilizerYield);
 
         brewingComposition.Clear();
         IsBrewing = false;
@@ -394,7 +521,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        brewingRoot = CreatePopupUiObject("ComposterBrewingStatus", canvas.transform);
+        brewingRoot = RuntimePopupBuilder.CreateUiObject("ComposterBrewingStatus", canvas.transform);
         brewingRoot.transform.SetAsLastSibling();
 
         Canvas popupCanvas = brewingRoot.AddComponent<Canvas>();
@@ -412,7 +539,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         blocker.color = new Color(0f, 0f, 0f, 0.55f);
         blocker.raycastTarget = true;
 
-        GameObject panel = CreatePopupUiObject("Panel", brewingRoot.transform);
+        GameObject panel = RuntimePopupBuilder.CreateUiObject("Panel", brewingRoot.transform);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.sizeDelta = new Vector2(400f, 260f);
@@ -422,7 +549,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         panelImage.type = confirmPanelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
         panelImage.color = confirmPanelSprite != null ? Color.white : new Color(1f, 0.86f, 0.62f, 1f);
 
-        GameObject titleObj = CreatePopupUiObject("Title", panel.transform);
+        GameObject titleObj = RuntimePopupBuilder.CreateUiObject("Title", panel.transform);
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.anchoredPosition = new Vector2(0f, 95f);
@@ -436,7 +563,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.raycastTarget = false;
 
-        GameObject statusObj = CreatePopupUiObject("StatusText", panel.transform);
+        GameObject statusObj = RuntimePopupBuilder.CreateUiObject("StatusText", panel.transform);
         RectTransform statusRect = statusObj.GetComponent<RectTransform>();
         statusRect.anchorMin = statusRect.anchorMax = new Vector2(0.5f, 0.5f);
         statusRect.anchoredPosition = new Vector2(0f, 45f);
@@ -450,7 +577,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         brewingStatusText.raycastTarget = false;
 
         // Fortschrittsbalken: Hintergrund + gefüllter Vordergrund übereinander.
-        GameObject barBg = CreatePopupUiObject("ProgressBarBg", panel.transform);
+        GameObject barBg = RuntimePopupBuilder.CreateUiObject("ProgressBarBg", panel.transform);
         RectTransform barBgRect = barBg.GetComponent<RectTransform>();
         barBgRect.anchorMin = barBgRect.anchorMax = new Vector2(0.5f, 0.5f);
         barBgRect.anchoredPosition = new Vector2(0f, -5f);
@@ -460,7 +587,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         barBgImage.color = new Color(0.28f, 0.18f, 0.1f, 0.55f);
         barBgImage.raycastTarget = false;
 
-        GameObject barFill = CreatePopupUiObject("ProgressBarFill", barBg.transform);
+        GameObject barFill = RuntimePopupBuilder.CreateUiObject("ProgressBarFill", barBg.transform);
         RectTransform barFillRect = barFill.GetComponent<RectTransform>();
         barFillRect.anchorMin = Vector2.zero;
         barFillRect.anchorMax = Vector2.one;
@@ -478,10 +605,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         // brodelt einfach weiter) rechts — dieselbe Links/Rechts-Konvention wie beim
         // Upgrade-Bestätigungsfenster im Schmied: rechts ist immer der Weg, der nichts
         // kaputt macht oder rückgängig ist.
-        CreatePopupButton(panel.transform, "CancelBrewButton", new Vector2(-95f, -95f), new Vector2(170f, 52f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CancelBrewButton", new Vector2(-95f, -95f), new Vector2(170f, 52f),
             "Abbrechen", confirmCancelButtonSprite, CancelBrewing);
 
-        CreatePopupButton(panel.transform, "CloseButton", new Vector2(95f, -95f), new Vector2(170f, 52f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CloseButton", new Vector2(95f, -95f), new Vector2(170f, 52f),
             "Schließen", confirmOkButtonSprite, HideBrewingPopup);
 
         brewingRoot.SetActive(false);
@@ -525,7 +652,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     private void CreateAmountRow(PlantType type, int have, float y)
     {
-        GameObject row = CreatePopupUiObject($"Row_{type.plantName}", panelTransform);
+        GameObject row = RuntimePopupBuilder.CreateUiObject($"Row_{type.plantName}", panelTransform);
         RectTransform rowRect = row.GetComponent<RectTransform>();
         rowRect.anchorMin = rowRect.anchorMax = new Vector2(0.5f, 0.5f);
         rowRect.anchoredPosition = new Vector2(0f, y);
@@ -534,7 +661,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         if (type.icon != null)
         {
-            GameObject iconObj = CreatePopupUiObject("Icon", row.transform);
+            GameObject iconObj = RuntimePopupBuilder.CreateUiObject("Icon", row.transform);
             RectTransform iconRect = iconObj.GetComponent<RectTransform>();
             iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
             iconRect.anchoredPosition = new Vector2(-175f, 0f);
@@ -546,7 +673,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             iconImage.raycastTarget = false;
         }
 
-        GameObject nameObj = CreatePopupUiObject("Name", row.transform);
+        GameObject nameObj = RuntimePopupBuilder.CreateUiObject("Name", row.transform);
         RectTransform nameRect = nameObj.GetComponent<RectTransform>();
         nameRect.anchorMin = nameRect.anchorMax = new Vector2(0.5f, 0.5f);
         nameRect.anchoredPosition = new Vector2(-80f, 0f);
@@ -559,10 +686,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         nameText.alignment = TextAlignmentOptions.Left;
         nameText.raycastTarget = false;
 
-        CreatePopupButton(row.transform, "Minus", new Vector2(45f, 0f), new Vector2(34f, 34f),
+        RuntimePopupBuilder.CreateButton(row.transform, "Minus", new Vector2(45f, 0f), new Vector2(34f, 34f),
             "-", confirmCancelButtonSprite, () => AdjustTypeAmount(type, -stepAmount, have));
 
-        GameObject amountObj = CreatePopupUiObject("Amount", row.transform);
+        GameObject amountObj = RuntimePopupBuilder.CreateUiObject("Amount", row.transform);
         RectTransform amountRect = amountObj.GetComponent<RectTransform>();
         amountRect.anchorMin = amountRect.anchorMax = new Vector2(0.5f, 0.5f);
         amountRect.anchoredPosition = new Vector2(100f, 0f);
@@ -581,7 +708,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         rowAmountLabels[type] = amountLabel;
 
-        CreatePopupButton(row.transform, "Plus", new Vector2(155f, 0f), new Vector2(34f, 34f),
+        RuntimePopupBuilder.CreateButton(row.transform, "Plus", new Vector2(155f, 0f), new Vector2(34f, 34f),
             "+", confirmCancelButtonSprite, () => AdjustTypeAmount(type, stepAmount, have));
     }
 
@@ -603,6 +730,10 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
     private void RefreshConfirmText()
     {
+        // Der Ausbau-Knopf haengt an Gold und Stufe — beides kann sich geaendert haben,
+        // seit das Popup zuletzt offen war.
+        RefreshUpgradeButton();
+
         int totalItems = 0;
         float totalValue = 0f;
         foreach (var kvp in selectedPerType)
@@ -623,8 +754,14 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             if (totalItems > 0)
             {
                 int yield = Mathf.Max(1, Mathf.FloorToInt(totalValue / cropsPerFertilizer));
-                float brewSeconds = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * perCropBrewTime);
-                confirmText.text = $"Ergibt: {yield} Dünger\nDauer: {brewSeconds:F0}s";
+                float brewSeconds = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
+                // Der Bonus ist eine Chance — als "(+1 zu 30%)" statt als glatte Zahl,
+                // sonst wirkt ein Batch ohne Bonus wie ein Fehler.
+                string bonus = ExtraFertilizerChance > 0f
+                    ? $" (+1 zu {ExtraFertilizerChance * 100f:F0}%)"
+                    : "";
+                
+                confirmText.text = $"Ergibt: {yield}{bonus} Dünger\nDauer: {brewSeconds:F0}s";
             }
             else
             {
@@ -654,7 +791,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
             return;
         }
 
-        confirmRoot = CreatePopupUiObject("ComposterConfirmation", canvas.transform);
+        confirmRoot = RuntimePopupBuilder.CreateUiObject("ComposterConfirmation", canvas.transform);
         confirmRoot.transform.SetAsLastSibling();
 
         Canvas popupCanvas = confirmRoot.AddComponent<Canvas>();
@@ -672,7 +809,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         blocker.color = new Color(0f, 0f, 0f, 0.55f);
         blocker.raycastTarget = true;
 
-        GameObject panel = CreatePopupUiObject("Panel", confirmRoot.transform);
+        GameObject panel = RuntimePopupBuilder.CreateUiObject("Panel", confirmRoot.transform);
         panelTransform = panel.transform;
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -683,7 +820,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         panelImage.type = confirmPanelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
         panelImage.color = confirmPanelSprite != null ? Color.white : new Color(1f, 0.86f, 0.62f, 1f);
 
-        GameObject titleObj = CreatePopupUiObject("Title", panel.transform);
+        GameObject titleObj = RuntimePopupBuilder.CreateUiObject("Title", panel.transform);
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = titleRect.anchorMax = new Vector2(0.5f, 0.5f);
         titleRect.anchoredPosition = new Vector2(0f, 210f);
@@ -697,7 +834,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.raycastTarget = false;
 
-        GameObject textObj = CreatePopupUiObject("Text", panel.transform);
+        GameObject textObj = RuntimePopupBuilder.CreateUiObject("Text", panel.transform);
         RectTransform textRect = textObj.GetComponent<RectTransform>();
         textRect.anchorMin = textRect.anchorMax = new Vector2(0.5f, 0.5f);
         textRect.anchoredPosition = new Vector2(0f, 175f);
@@ -713,79 +850,24 @@ public class ComposterInteraction : MonoBehaviour, IClickable
         // Die Sorten-Zeilen selbst kommen erst in BuildAmountRows() — die Menge an
         // Sorten steht erst fest, wenn das Popup tatsächlich geöffnet wird.
 
-        CreatePopupButton(panel.transform, "CancelButton", new Vector2(-95f, -195f), new Vector2(180f, 56f),
+        RuntimePopupBuilder.CreateButton(panel.transform, "CancelButton", new Vector2(-95f, -195f), new Vector2(180f, 56f),
             "Abbrechen", confirmCancelButtonSprite, HideConfirmPopup);
 
-        confirmOkButton = CreatePopupButton(panel.transform, "OkButton", new Vector2(95f, -195f), new Vector2(180f, 56f),
+        confirmOkButton = RuntimePopupBuilder.CreateButton(panel.transform, "OkButton", new Vector2(95f, -195f), new Vector2(180f, 56f),
             "Kompostieren", confirmOkButtonSprite, StartBrewing);
+
+        upgradeButton = RuntimePopupBuilder.CreateButton(panel.transform, "UpgradeButton", new Vector2(0f, -245f),
+            new Vector2(370f, 44f), "", confirmOkButtonSprite, TryBuyUpgrade);
+        upgradeLabel = upgradeButton.GetComponentInChildren<TextMeshProUGUI>();
 
         confirmRoot.SetActive(false);
     }
 
     /// <summary>
-    /// Findet den EINEN richtigen Root-Canvas statt blind irgendeinen zu nehmen — die Szene
-    /// hat mehrere (PersistentUI, UI, HUD). HotbarUI hängt nachweislich im richtigen Baum
-    /// (HotbarPanel → HUD → UI), darüber lässt sich der Wurzel-Canvas zuverlässig finden,
-    /// ohne dass jemand hudCanvas von Hand im Inspector verdrahten muss.
+    /// Delegiert an den gemeinsamen Popup-Baukasten. Das im Inspector gesetzte hudCanvas
+    /// gewinnt weiterhin, wenn es verdrahtet ist.
     /// </summary>
-    private Canvas ResolveHudCanvas()
-    {
-        if (hudCanvas != null) return hudCanvas;
-        if (HotbarUI.Instance != null)
-        {
-            var root = HotbarUI.Instance.transform.root.GetComponent<Canvas>();
-            if (root != null) return root;
-        }
-
-        return FindFirstObjectByType<Canvas>();
-    }
-
-    private static Button CreatePopupButton(Transform parent, string objectName, Vector2 position, Vector2 size,
-        string label, Sprite sprite, UnityEngine.Events.UnityAction action)
-    {
-        GameObject go = CreatePopupUiObject(objectName, parent);
-        RectTransform rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
-
-        Image image = go.AddComponent<Image>();
-        image.sprite = sprite;
-        image.type = sprite != null ? Image.Type.Sliced : Image.Type.Simple;
-        image.color = sprite != null ? Color.white : new Color(0.96f, 0.78f, 0.4f, 1f);
-
-        Button button = go.AddComponent<Button>();
-        button.targetGraphic = image;
-        ColorBlock colors = button.colors;
-        colors.highlightedColor = new Color(0.86f, 0.86f, 0.86f, 1f);
-        colors.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
-        colors.disabledColor = new Color(0.6f, 0.6f, 0.6f, 0.5f);
-        button.colors = colors;
-        button.onClick.AddListener(action);
-
-        GameObject textObj = CreatePopupUiObject("Text", go.transform);
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = textRect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI text = textObj.AddComponent<TextMeshProUGUI>();
-        text.text = label;
-        text.fontSize = 18f;
-        text.fontStyle = FontStyles.Bold;
-        text.color = new Color(0.22f, 0.12f, 0.06f, 1f);
-        text.alignment = TextAlignmentOptions.Center;
-        text.raycastTarget = false;
-
-        return button;
-    }
-
-    private static GameObject CreatePopupUiObject(string objectName, Transform parent)
-    {
-        GameObject go = new(objectName, typeof(RectTransform));
-        go.transform.SetParent(parent, false);
-        return go;
-    }
+    private Canvas ResolveHudCanvas() => RuntimePopupBuilder.ResolveHudCanvas(hudCanvas);
 
     // ── Fortschritts-Indikator über dem Komposter ───────────────────────────
     //

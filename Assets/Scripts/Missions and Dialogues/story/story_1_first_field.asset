@@ -13,43 +13,49 @@ MonoBehaviour:
   m_Name: story_1_first_field
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_1_first_field
-  title: "Der eigene Acker"
-  description: "Ein Feld nach dem anderen anzuklicken hält dich auf. Zieh im Baumodus über die Fläche, und beim Hacken klickst du einfach weiter - die Aktionen reihen sich von selbst auf. Reihenfolge egal."
+  title: Der eigene Acker
+  description: "Ein Feld nach dem anderen anzuklicken h\xE4lt dich auf. Zieh im Baumodus
+    \xFCber die Fl\xE4che, und beim Hacken klickst du einfach weiter - die Aktionen
+    reihen sich von selbst auf. Reihenfolge egal."
   objectives:
   - type: 11
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
+    description: 
   - type: 17
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 3
-    description:
+    description: 
   - type: 0
     targetPlantType: {fileID: 0}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 8
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 50
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   - type: 1
     amount: 8
     plant: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
@@ -57,5 +63,6 @@ MonoBehaviour:
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Sprich mit Onkel Ozan - er wartet bei der Scheune."
+  starterHighlightId: ozan
+  nextStepHint: Sprich mit Onkel Ozan - er wartet bei der Scheune.
   sequentialObjectives: 0

@@ -8,6 +8,10 @@ public class SeedDropdownUI : MonoBehaviour
 {
     public static SeedDropdownUI Instance { get; private set; }
 
+    // Gesetzt, solange das Dropdown fuer ein Automatik-Geraet offen ist statt fuer die Hotbar.
+    private System.Action<PlantType> pendingCallback;
+    private PlantType pendingCurrent;
+
     [SerializeField] private GameObject panel;
     [SerializeField] private Transform entryContainer;
     [SerializeField] private Button blocker;
@@ -79,6 +83,18 @@ public class SeedDropdownUI : MonoBehaviour
 
     public void Toggle() => (IsOpen ? (System.Action)Close : Open)();
 
+    /// <summary>
+    /// Ruecksprung-Modus: statt in die Hotbar zu schreiben, geht die Auswahl an
+    /// <paramref name="onSelect"/>. Fuer die Saemaschine, die eine eigene, pro Geraet
+    /// gespeicherte Sortenwahl hat.
+    /// </summary>
+    public void Open(System.Action<PlantType> onSelect, PlantType current = null)
+    {
+        pendingCallback = onSelect;
+        pendingCurrent = current;
+        Open();
+    }
+
     public void Open()
     {
         Populate();
@@ -95,6 +111,11 @@ public class SeedDropdownUI : MonoBehaviour
         panel.SetActive(false);
         blocker.gameObject.SetActive(false);
         IsOpen = false;
+
+        // Immer zuruecksetzen: sonst schriebe das naechste normale Oeffnen ueber die
+        // Hotbar weiterhin in das zuletzt angeklickte Geraet.
+        pendingCallback = null;
+        pendingCurrent = null;
     }
 
     private void Populate()
@@ -189,7 +210,9 @@ public class SeedDropdownUI : MonoBehaviour
         bg.sprite = entrySprite;
         bg.preserveAspect = true;
         bool hasSeeds = count > 0;
-        bool isSelected = hasSeeds && Hotbar.Instance.SelectedSeed == type;
+        // Im Rueckspruch-Modus zeigt der Haken die Sorte des Geraets, nicht die der Hotbar.
+        var selectedSeed = pendingCallback != null ? pendingCurrent : Hotbar.Instance.SelectedSeed;
+        bool isSelected = hasSeeds && selectedSeed == type;
 
         bg.sprite = !hasSeeds && entryDisabledSprite != null
             ? entryDisabledSprite
@@ -351,7 +374,10 @@ public class SeedDropdownUI : MonoBehaviour
         if (PlayerInventory.Instance.GetSeedCount(type) <= 0)
             return;
 
-        Hotbar.Instance.SetSeed(type);
+        // Reihenfolge zaehlt: Close() raeumt den Callback, also vorher aufrufen.
+        if (pendingCallback != null) pendingCallback(type);
+        else Hotbar.Instance.SetSeed(type);
+
         Close();
     }
 

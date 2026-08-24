@@ -138,6 +138,15 @@ public class HighlightTarget : MonoBehaviour
         }
         if (!typeMatches) return false;
 
+        // Sorten, die geduengten Boden brauchen: nur Kacheln anleuchten, auf denen wirklich
+        // gesaet werden kann. Sonst zeigt der Pfeil auf Felder, die den Samen ablehnen —
+        // und das sieht fuer den Spieler nach einem Fehler aus, nicht nach einer Regel.
+        if (objective.type == MissionObjectiveType.PlantCrop
+            && objective.targetPlantType != null
+            && objective.targetPlantType.requiresFertilizedSoil
+            && StandsOnUnfertilizedFarmTile())
+            return false;
+
         // Zonen-Eingrenzung. Ohne die würde bei "Schalte Zone 2 frei" JEDER ZoneBlocker
         // leuchten, der UnlockZone bei sich stehen hat — also auch Zone 1 und 3.
         // Nur prüfen, wenn das Objective eine Zone nennt UND dieses Objekt zu einer
@@ -157,6 +166,25 @@ public class HighlightTarget : MonoBehaviour
             return objective.targetTool == toolType;
 
         return true;
+    }
+
+    /// <summary>
+    /// Steht dieses Objekt auf einer UNGEDUENGTEN Ackerkachel?
+    ///
+    /// Ziele, die auf gar keiner Zelle sitzen (Hotbar-Slots, NPCs), liefern false und
+    /// bleiben damit von der Einschraenkung unberuehrt — deren Weltposition landet
+    /// ausserhalb des Gitters und faellt schon an IsInBounds durch.
+    /// </summary>
+    private bool StandsOnUnfertilizedFarmTile()
+    {
+        var grid = GridManager.Instance;
+        if (grid == null) return false;
+        if (!grid.WorldToGrid(transform.position, out int x, out int z)) return false;
+
+        var cell = grid.GetCell(x, z);
+        if (cell == null || cell.Type != TileType.FarmPlot) return false;
+
+        return !cell.IsFertilized;
     }
 
     /// <summary>

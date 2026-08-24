@@ -67,6 +67,14 @@ public class HotbarUI : MonoBehaviour
     [SerializeField] private Sprite pathTileIconSprite;
     [SerializeField] private Sprite farmTileIconSprite;
 
+    [Header("Automations-Station")]
+    [Tooltip("Das AutomationStationData-Asset. Die Station ist das einzige, was im Baumodus " +
+             "gekauft wird — die Module kommen danach ueber das Popup an der Station dazu.")]
+    [SerializeField] private AutomationStationData buildStation;
+
+    [Tooltip("Farbe des Geraete-Slots, wenn das Gold nicht reicht.")]
+    [SerializeField] private Color unaffordableColor = new(0.45f, 0.45f, 0.45f, 1f);
+
     [Header("Farben")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color activeColor  = new Color(0.75f, 0.55f, 0.1f, 1f);
@@ -75,6 +83,10 @@ public class HotbarUI : MonoBehaviour
     private readonly List<HotbarSlotUI> slotInstances = new();
     private readonly List<HotbarSlotUI> buildSlotInstances = new();
     private readonly TileType[] buildTileTypes = { TileType.FarmPlot, TileType.Path, TileType.Grass };
+
+    // Geraete-Slots im Baumodus. Muss im Inspector von Hand gefuellt werden — Arrays
+    // uebernehmen keinen C#-Default auf bestehenden Szenen-Komponenten.
+    private readonly List<HotbarSlotUI> deviceSlotInstances = new();
     private GameObject buildToggleSlot;
     private HotbarSlotUI buildToggleSlotUI;
 
@@ -95,6 +107,7 @@ public class HotbarUI : MonoBehaviour
         SyncOwnedToolsToHotbar();
         SpawnBuildToggleSlot();
         SpawnBuildSlots();
+        SpawnDeviceSlots();
 
         if (ToolRegistry.Instance != null)
             ToolRegistry.Instance.OnOwnedToolsChanged += SyncOwnedToolsToHotbar;
@@ -105,7 +118,11 @@ public class HotbarUI : MonoBehaviour
         PlayerInventory.Instance.OnFertilizerChanged += _ => UpdateFertilizerSlot();
         BuildModeManager.Instance.OnBuildModeChanged += OnBuildModeChanged;
         BuildModeManager.Instance.OnSelectedTileChanged += UpdateBuildHighlight;
+        BuildModeManager.Instance.OnStationSelectionChanged += UpdateStationHighlight;
+        PlayerInventory.Instance.OnMoneyChanged += _ => UpdateDeviceAffordability();
+        AutomationDeviceManager.OnPackedChanged += UpdateDeviceAffordability;
 
+        UpdateDeviceAffordability();
         UpdateHighlight(Hotbar.Instance.ActiveTool);
         UpdateSeedSlot();
         UpdateFertilizerSlot();
@@ -117,7 +134,9 @@ public class HotbarUI : MonoBehaviour
         {
             BuildModeManager.Instance.OnBuildModeChanged -= OnBuildModeChanged;
             BuildModeManager.Instance.OnSelectedTileChanged -= UpdateBuildHighlight;
+            BuildModeManager.Instance.OnStationSelectionChanged -= UpdateStationHighlight;
         }
+        AutomationDeviceManager.OnPackedChanged -= UpdateDeviceAffordability;
         if (Hotbar.Instance != null)
             Hotbar.Instance.OnToolChanged -= OnToolChanged;
         if (ToolRegistry.Instance != null)
@@ -269,6 +288,7 @@ public class HotbarUI : MonoBehaviour
         ToolType.WateringCan => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.WaterCrop },
         ToolType.Seed        => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.PlantCrop },
         ToolType.Scythe      => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.HarvestCrop },
+        ToolType.Fertilize   => new[] { MissionObjectiveType.SelectTool, MissionObjectiveType.FertilizeField },
         _                    => new[] { MissionObjectiveType.SelectTool },
     };
 
@@ -371,6 +391,11 @@ public class HotbarUI : MonoBehaviour
         foreach (var slot in buildSlotInstances)
             slot.gameObject.SetActive(buildModeActive);
 
+        foreach (var slot in deviceSlotInstances)
+            slot.gameObject.SetActive(buildModeActive);
+
+        if (buildModeActive) UpdateDeviceAffordability();
+
         if (buildToggleSlot != null)
         {
             Sprite toggleIcon = buildModeActive ? hoeIconSprite : hammerIconSprite;
@@ -453,6 +478,108 @@ public class HotbarUI : MonoBehaviour
 
             go.SetActive(false);
             buildSlotInstances.Add(slotUI);
+        }
+    }
+
+    /// <summary>
+    /// Ein Slot je kaufbarem Geraet, direkt neben den Kachel-Slots. Kaufen und Platzieren
+    /// sind derselbe Vorgang: der Klick startet die Platzierung, Gold fliesst erst beim
+    /// Setzen.
+    /// </summary>
+    private void SpawnDeviceSlots()
+    {
+        if (buildStation == null) return;
+
+        var data = buildStation;
+        {
+            GameObject go = Instantiate(slotPrefab, container);
+            go.name = "DeviceSlot_Station";
+
+            HotbarSlotUI slotUI = go.GetComponent<HotbarSlotUI>();
+
+            // showCount an: die Zahl-Anzeige des Slots traegt hier den Preis.
+            ConfigureVisualSlot(slotUI, data.icon, true);
+
+            if (slotUI != null && slotUI.countLabel != null)
+                slotUI.countLabel.text = data.buyPrice.ToString();
+
+            // Geraete sind ueber Missionsziele nicht auffindbar — kein Unlock daran geknuepft.
+            var deviceHighlight = go.GetComponent<HighlightTarget>();
+            if (deviceHighlight != null)
+                deviceHighlight.SetObjectiveTypes();
+
+            var capturedData = data;
+
+            Button button = go.GetComponent<Button>();
+            ApplyButtonSpriteStates(button);
+            button.onClick.AddListener(() =>
+            {
+                // Eingelagerte Stationen haben Vorrang vor einem Neukauf: sie sind schon
+                // bezahlt und ausgebaut, ein versehentlicher Neukauf daneben waere teuer.
+                var manager = AutomationDeviceManager.Instance;
+                bool hasPacked = manager != null && manager.PackedCount > 0;
+
+                // Reihenfolge zaehlt: Begin* bricht intern eine laufende Platzierung ab
+                // und raeumt dabei die Auswahl. Erst danach die neue setzen.
+                if (hasPacked) AutomationPlacementController.Instance?.BeginUnpack(capturedData);
+                else           AutomationPlacementController.Instance?.BeginBuy(capturedData);
+
+                BuildModeManager.Instance?.SelectStation();
+            });
+
+            go.SetActive(false);
+            deviceSlotInstances.Add(slotUI);
+        }
+    }
+
+    /// <summary>Graut Geraete-Slots aus, deren Kaufpreis das Gold uebersteigt.</summary>
+    /// <summary>
+    /// Beschriftet den Stations-Slot und graut ihn aus, wenn er gerade nicht nutzbar ist.
+    ///
+    /// Zwei Zustaende: liegt etwas im Lager, zeigt der Slot den Bestand und das Aufstellen
+    /// ist kostenlos. Sonst zeigt er den Kaufpreis.
+    /// </summary>
+    private void UpdateDeviceAffordability()
+    {
+        if (buildStation == null) return;
+
+        var manager = AutomationDeviceManager.Instance;
+        int packed = manager != null ? manager.PackedCount : 0;
+
+        int money = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
+        bool usable = packed > 0 || money >= buildStation.buyPrice;
+
+        foreach (var slotUI in deviceSlotInstances)
+        {
+            if (slotUI == null) continue;
+
+            if (slotUI.icon != null)
+                slotUI.icon.color = buildStation.icon == null
+                    ? Color.clear
+                    : (usable ? Color.white : unaffordableColor);
+
+            if (slotUI.countLabel != null)
+            {
+                slotUI.countLabel.text = packed > 0
+                    ? $"x{packed}"
+                    : buildStation.buyPrice.ToString();
+                slotUI.countLabel.color = usable ? Color.white : unaffordableColor;
+            }
+        }
+    }
+
+    private void UpdateStationHighlight(bool selected)
+    {
+        if (buildStation == null) return;
+
+        foreach (var slotUI in deviceSlotInstances)
+        {
+            if (slotUI == null || slotUI.background == null) continue;
+
+            slotUI.background.sprite = selected && highlightedSlotSprite != null
+                ? highlightedSlotSprite
+                : normalSlotSprite;
+            slotUI.background.color = Color.white;
         }
     }
 

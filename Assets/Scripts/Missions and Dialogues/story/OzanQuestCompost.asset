@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 126ce4a51c8200541a9368b3b76aa58b, type: 3}
+  m_Name: OzanQuestCompost
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - speakerName: Onkel Ozan
+    text: "Werkzeug scharf, Lizenzen an der Wand, ein Feld das was hergibt. Bleibt noch eine Sorte — und die ist die beste von allen. Sonnenblumen."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Achtzig Gold das Stück. Aber sie sind wählerisch: in normaler Erde gehen sie dir nicht auf. Die wollen gedüngten Boden — ohne den nimmt das Feld den Samen gar nicht erst an."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Dünger kaufst du nicht, den machst du. Der Komposter frisst alles, was du geerntet hast. Wirf rein, was du nicht verkaufen willst — Karotten tun es völlig, die wachsen ja schnell genug nach."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Dann dauert es ein bisschen. Und merk dir das: je mehr auf einmal drin liegt, desto weniger Wartezeit pro Stück. Einmal ordentlich beladen ist besser als fünfmal eine Handvoll."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  - speakerName: Onkel Ozan
+    text: "Ist er fertig, holst du ihn ab und streust ihn aufs Feld. Erst dann wird gesät. Das Werkzeug dafür hat der Schmied — hol es dir, dann fangen wir an."
+    portrait: {fileID: 21300000, guid: ba11caedc4ed7bd43a4e11aeb95d84aa, type: 3}
+  missionToStartAfter: {fileID: 11400000, guid: ae94f5308ed64e129e2ea99248ffba23, type: 2}
