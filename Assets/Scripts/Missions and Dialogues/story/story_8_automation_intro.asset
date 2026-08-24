@@ -18,6 +18,14 @@ MonoBehaviour:
     Stell eine auf, ruest sie mit allen vier Modulen aus, werte einmal die Reichweite
     auf - und dann lass sie einfach machen."
   objectives:
+  - type: 9
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId:
+    targetLicenseId:
+    targetHighlightId:
+    requiredAmount: 1
+    description:
   - type: 23
     targetPlantType: {fileID: 0}
     targetTool: 0
