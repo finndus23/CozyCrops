@@ -50,14 +50,14 @@ MonoBehaviour:
     yieldBonus: 0
     durationOverride: -1
     queueSize: 8
-    wateringPower: 0
+    wateringPower: 2
     unlockText: Warteschlange 8
   - level: 20
     aoSize: 3
     yieldBonus: 0
     durationOverride: -1
     queueSize: 10
-    wateringPower: 2
+    wateringPower: 0
     unlockText: "Fl\xE4che 3\xD73"
   - level: 25
     aoSize: 0

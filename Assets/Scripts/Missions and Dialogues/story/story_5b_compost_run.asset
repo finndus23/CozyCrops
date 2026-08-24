@@ -10,67 +10,61 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3576dc41e5ea2be479ce0f0e48d22b73, type: 3}
-  m_Name: story_2_carrot_run
+  m_Name: story_5b_compost_run
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
-  missionId: story_2_carrot_run
-  title: Von der Saat zum Gold
-  description: "Die ganze Runde am St\xFCck: acht Karotten setzen, zweimal pro Pflanze
-    gie\xDFen, abernten und in der Stadt verkaufen. Du musst nicht warten, bis ein
-    Schritt fertig ist - s\xE4en, gie\xDFen und ernten laufen nebeneinander."
+  missionId: story_5b_compost_run
+  title: Schwarzes Gold
+  description: "Sonnenblumen sind das Beste, was hier wachsen kann - nur wachsen sie
+    nicht in normaler Erde. Sie brauchen geduengten Boden, und Duenger machst du dir
+    selbst: Ernte in den Komposter, warten, abholen, aufs Feld."
   objectives:
-  - type: 1
-    targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
-    targetTool: 0
+  - type: 6
+    targetPlantType: {fileID: 0}
+    targetTool: 5
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 8
+    requiredAmount: 1
     description: 
-  - type: 2
-    targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  - type: 21
+    targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 16
+    requiredAmount: 12
     description: 
-  - type: 3
-    targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  - type: 22
+    targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 8
+    requiredAmount: 6
     description: 
-  - type: 4
-    targetPlantType: {fileID: 11400000, guid: 945e7020128fb784fb3218cae07b7a25, type: 2}
+  - type: 20
+    targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
-    requiredAmount: 8
+    requiredAmount: 6
     description: 
   countsAutomatedActions: 0
   rewards:
   - type: 0
-    amount: 250
+    amount: 400
     plant: {fileID: 0}
     tool: 0
     zoneName: 
     licenseId: 
-  - type: 3
-    amount: 1
-    plant: {fileID: 0}
-    tool: 0
-    zoneName: zone_1
-    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
-  - story_1_first_field
+  - story_5_upgrade_run
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
   starterHighlightId: ozan
-  nextStepHint: Onkel Ozan hat noch was.
-  sequentialObjectives: 0
+  nextStepHint: Onkel Ozan will dir was ueber Duenger erzaehlen.
+  sequentialObjectives: 1

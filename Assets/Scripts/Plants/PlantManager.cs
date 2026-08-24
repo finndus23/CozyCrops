@@ -16,6 +16,9 @@ public class PlantManager : MonoBehaviour
     public static event Action<PlantType> OnPlantWatered;
     public static event Action<PlantType> OnCropHarvested;
 
+    /// <summary>Ein Feld wurde gedüngt — für das Missions-System.</summary>
+    public static event Action OnFieldFertilized;
+
     // --- Wachstums-Events (gefeuert von TickGrowth) ---
     /// <summary>Eine Pflanze hat eine Wachstumsstufe erreicht, ist aber noch nicht erntereif.</summary>
     public static event Action<PlantType> OnPlantGrew;
@@ -141,6 +144,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
+        OnFieldFertilized?.Invoke();
         return true;
     }
 

@@ -58,6 +58,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnSeedPlanted += HandlePlanted;
         PlantManager.OnPlantWatered += HandleWatered;
         PlantManager.OnCropHarvested += HandleHarvested;
+        PlantManager.OnFieldFertilized += HandleFertilized;
+        ComposterInteraction.OnCompostStartedStatic += HandleCompostStarted;
+        ComposterInteraction.OnFertilizerCollectedStatic += HandleFertilizerCollected;
         PlayerInventory.OnCropSoldStatic += HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic += HandleBuildModeEntered;
@@ -82,6 +85,9 @@ public class MissionManager : MonoBehaviour
         PlantManager.OnSeedPlanted -= HandlePlanted;
         PlantManager.OnPlantWatered -= HandleWatered;
         PlantManager.OnCropHarvested -= HandleHarvested;
+        PlantManager.OnFieldFertilized -= HandleFertilized;
+        ComposterInteraction.OnCompostStartedStatic -= HandleCompostStarted;
+        ComposterInteraction.OnFertilizerCollectedStatic -= HandleFertilizerCollected;
         PlayerInventory.OnCropSoldStatic -= HandleCropSold;
 
         BuildModeManager.OnBuildModeEnteredStatic -= HandleBuildModeEntered;
@@ -279,6 +285,18 @@ public class MissionManager : MonoBehaviour
 
     private void HandleCropSold(PlantType type, int amount) =>
         ReportProgress(MissionObjectiveType.SellCrop, type, amount);
+
+    private void HandleFertilized() =>
+        ReportProgress(MissionObjectiveType.FertilizeField, null, 1);
+
+    // Menge statt 1: "kompostiere 10" soll die Stuecke zaehlen, nicht die Wuerfe — sonst
+    // waere es mit zehn Ein-Stueck-Wuerfen erfuellt und der Spieler haette nie gesehen,
+    // dass ein grosser Batch effizienter ist.
+    private void HandleCompostStarted(int crops) =>
+        ReportProgress(MissionObjectiveType.CompostCrops, null, Mathf.Max(0, crops));
+
+    private void HandleFertilizerCollected(int amount) =>
+        ReportProgress(MissionObjectiveType.CollectFertilizer, null, Mathf.Max(0, amount));
 
     private void HandleBuildModeEntered() => ReportProgress(MissionObjectiveType.EnterBuildMode, null, 1);
     private void HandleBuildModeExited()  => ReportProgress(MissionObjectiveType.ExitBuildMode, null, 1);

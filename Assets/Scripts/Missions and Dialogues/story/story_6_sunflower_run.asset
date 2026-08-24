@@ -13,56 +13,80 @@ MonoBehaviour:
   m_Name: story_6_sunflower_run
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_6_sunflower_run
-  title: "Sonnenblumen-Feld"
-  description: "Teure Samen, doppelter Wasserbedarf, achtzig Gold pro Stück. Sechs Stück durchziehen und verkaufen - vier Gießgänge pro Pflanze, dafür brauchst du die Warteschlange."
+  title: Sonnenblumen-Feld
+  description: "Teure Samen, doppelter Wasserbedarf, achtzig Gold pro St\xFCck. Sechs
+    St\xFCck durchziehen und verkaufen - vier Gie\xDFg\xE4nge pro Pflanze, daf\xFCr
+    brauchst du die Warteschlange."
   objectives:
+  - type: 19
+    targetPlantType: {fileID: 0}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: lic_sunflower
+    targetHighlightId: 
+    requiredAmount: 1
+    description: 
+  - type: 7
+    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
+    targetTool: 0
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
+    requiredAmount: 6
+    description: 
   - type: 1
     targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 6
-    description:
+    description: 
   - type: 2
     targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 24
-    description:
+    description: 
   - type: 3
     targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 6
-    description:
+    description: 
   - type: 4
     targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
     targetTool: 0
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 6
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 450
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   - type: 3
     amount: 1
     plant: {fileID: 0}
     tool: 0
     zoneName: zone_3
-    licenseId:
+    licenseId: 
   isStoryMission: 1
   unlocks: []
   requiredMissionIds:
-  - story_5_upgrade_run
+  - story_5b_compost_run
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Onkel Ozan hat die Samen erwartet."
+  starterHighlightId: ozan
+  nextStepHint: Onkel Ozan hat die Samen erwartet.
   sequentialObjectives: 0

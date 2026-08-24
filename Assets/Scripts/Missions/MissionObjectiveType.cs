@@ -44,5 +44,18 @@ public enum MissionObjectiveType
     ToolLevelReached,
 
     /// <summary>Lizenz gekauft. Über <c>targetLicenseId</c> auf eine bestimmte eingrenzbar.</summary>
-    BuyLicense
+    BuyLicense,
+
+    /// <summary>Ein Feld gedüngt. <c>requiredAmount</c> zählt gedüngte Kacheln.</summary>
+    FertilizeField,
+
+    /// <summary>
+    /// Ernte in den Komposter geworfen. <c>requiredAmount</c> zählt die STÜCKE, nicht die
+    /// Vorgänge — sonst wäre "kompostiere 10" mit zehn Ein-Stück-Würfen erfüllbar, und der
+    /// Spieler hätte die eigentliche Mechanik (viel auf einmal ist effizienter) nie gesehen.
+    /// </summary>
+    CompostCrops,
+
+    /// <summary>Fertigen Dünger abgeholt. <c>requiredAmount</c> zählt die Einheiten.</summary>
+    CollectFertilizer
 }

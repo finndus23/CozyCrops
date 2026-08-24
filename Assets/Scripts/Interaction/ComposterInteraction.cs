@@ -36,6 +36,12 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 {
     public static ComposterInteraction Instance { get; private set; }
 
+    /// <summary>Ernte in den Komposter geworfen — Anzahl der STUECKE. Fuers Missions-System.</summary>
+    public static event System.Action<int> OnCompostStartedStatic;
+
+    /// <summary>Fertiger Duenger abgeholt — Anzahl der Einheiten. Fuers Missions-System.</summary>
+    public static event System.Action<int> OnFertilizerCollectedStatic;
+
     public bool IsBrewing { get; private set; }
     public float TimeRemaining { get; private set; }
     public int PendingFertilizerYield { get; private set; }
@@ -343,6 +349,8 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         PendingFertilizerYield = yield;
         TimeRemaining = Mathf.Min(maxBrewTime, baseBrewTime + totalItems * CurrentPerCropBrewTime);
+
+        OnCompostStartedStatic?.Invoke(totalItems);
         TotalBrewTime = TimeRemaining;
         IsBrewing = true;
         readyChimePlayed = false;
@@ -357,6 +365,7 @@ public class ComposterInteraction : MonoBehaviour, IClickable
 
         PlayerInventory.Instance?.AddFertilizer(PendingFertilizerYield);
         UiSfx.FertilizerCollected();
+        OnFertilizerCollectedStatic?.Invoke(PendingFertilizerYield);
 
         brewingComposition.Clear();
         IsBrewing = false;

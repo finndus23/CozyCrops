@@ -14,8 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_5_upgrade_run
   title: "Der große Einkauf"
-  description: "Stufe 15 macht aus der Kanne ein anderes Werkzeug: ein Guss zählt ab da doppelt. Kein zweiter Gang mehr über dasselbe Feld - gerade beim Blumenkohl halbiert das die Arbeit. Dazu die teuerste Lizenz der Stadt. Das wird ein Sparziel."
+  description: "Bevor es an die grossen Sorten geht, wird die Ausruestung nachgezogen: jedes Werkzeug auf Stufe 10, die Kanne auf 15. Die bekommt dabei den Doppelguss - kein zweiter Gang mehr ueber dasselbe Feld, gerade beim Blumenkohl halbiert das die Arbeit."
   objectives:
+  - type: 18
+    targetPlantType: {fileID: 0}
+    targetTool: 1
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 10
+    description:
   - type: 18
     targetPlantType: {fileID: 0}
     targetTool: 2
@@ -23,19 +30,19 @@ MonoBehaviour:
     targetLicenseId:
     requiredAmount: 15
     description:
-  - type: 19
+  - type: 18
     targetPlantType: {fileID: 0}
-    targetTool: 0
-    targetZoneId:
-    targetLicenseId: lic_sunflower
-    requiredAmount: 1
-    description:
-  - type: 7
-    targetPlantType: {fileID: 11400000, guid: c13e78d737f849d89bcfd6c900ad0552, type: 2}
-    targetTool: 0
+    targetTool: 3
     targetZoneId:
     targetLicenseId:
-    requiredAmount: 6
+    requiredAmount: 10
+    description:
+  - type: 18
+    targetPlantType: {fileID: 0}
+    targetTool: 4
+    targetZoneId:
+    targetLicenseId:
+    requiredAmount: 10
     description:
   rewards:
   - type: 0
