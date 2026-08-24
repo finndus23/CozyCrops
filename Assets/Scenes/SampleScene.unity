@@ -132637,6 +132637,10 @@ MonoBehaviour:
     dialogue: {fileID: 11400000, guid: 05fff2a1505a413094ed2e75ee36f9be, type: 2}
   smallTalkDialogue: {fileID: 11400000, guid: 8192a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
   repeatTutorialDialogue: 1
+  identityIconPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
+  identityIconHeightOffset: 0.32
+  identityIconWorldSize: 0.55
+  identityIconColor: {r: 1, g: 0.72, b: 0.25, a: 1}
   availableIndicator: {fileID: 0}
   indicatorRefreshInterval: 0.5
 --- !u!114 &1305319180
@@ -205238,7 +205242,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
   width: 30
-  height: 39
+  height: 19
+  startZ: 10
   cellSize: 1
   expansionSize: 13
   decorationBorderSize: 180
@@ -205284,13 +205289,15 @@ MonoBehaviour:
   enablePathTileDecoration: 1
   pathStoneDecorationPrefabs:
   - {fileID: 3167933080424967449, guid: 6729c2d78ee9040829d69b1c626b3903, type: 3}
-  - {fileID: 6908711010690672192, guid: cbc1d3b7475814f20818245d9e54aca9, type: 3}
   pathDecorationSeed: 18743
   pathDecorationSurfaceOffset: 0.055
-  pathStoneDecorationMinScale: 0.22
-  pathStoneDecorationMaxScale: 0.42
+  pathStoneDecorationMinScale: 0.1
+  pathStoneDecorationMaxScale: 0.21
+  pathStoneMinimumRadiusFactor: 0.12
+  pathStoneMaximumRadiusFactor: 0.62
   pathTileDecorationChance: 1
-  secondPathStoneChance: 0.7
+  pathStoneMinimumCount: 8
+  pathStoneMaximumCount: 13
   tileRippleRadius: 2
   tileRippleDelayPerTile: 0.035
 --- !u!4 &2084970582

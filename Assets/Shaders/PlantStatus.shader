@@ -22,7 +22,7 @@ Shader "CozyCrops/PlantStatus"
 
         [Header(Symbol)]
         // 0 = keins, 1 = Wassertropfen, 2 = Funkeln (erntereif),
-        // 3 = Saatgut, 4 = Verkauf, 5 = Werkzeug, 6 = Lizenz.
+        // 3 = Saatgut, 4 = Verkauf, 5 = Werkzeug, 6 = Lizenz, 7 = Dialog.
         _Symbol       ("Symbol (0/1/2)", Float) = 0
         _SymbolScale  ("Symbolgroesse", Range(0.1, 1.0)) = 0.42
 
@@ -192,6 +192,18 @@ Shader "CozyCrops/PlantStatus"
                 return min(page, min(lineA, lineB));
             }
 
+            // Dialog-NPC: Sprechblase mit drei Punkten. Anders als ein Ausrufezeichen
+            // verspricht sie keine neue Quest, sondern nur eine moegliche Interaktion.
+            float sdDialogue(float2 p)
+            {
+                float bubble = abs(sdBox(p - float2(0.0, 0.035), float2(0.19, 0.14))) - 0.022;
+                float tail = sdSegment(p, float2(-0.07, -0.09), float2(-0.145, -0.18)) - 0.022;
+                float dots = min(sdCircle(p, float2(-0.08, 0.035), 0.018),
+                                 min(sdCircle(p, float2(0.0, 0.035), 0.018),
+                                     sdCircle(p, float2(0.08, 0.035), 0.018)));
+                return min(bubble, min(tail, dots));
+            }
+
             float fillMask(float dist, float softness)
             {
                 return 1.0 - smoothstep(-softness, softness, dist);
@@ -229,8 +241,10 @@ Shader "CozyCrops/PlantStatus"
                     symbolAlpha = fillMask(sdCoin(p), _EdgeSoftness);
                 else if (_Symbol > 4.5 && _Symbol < 5.5)
                     symbolAlpha = fillMask(sdHammer(p), _EdgeSoftness);
-                else if (_Symbol > 5.5)
+                else if (_Symbol > 5.5 && _Symbol < 6.5)
                     symbolAlpha = fillMask(sdDocument(p), _EdgeSoftness);
+                else if (_Symbol > 6.5)
+                    symbolAlpha = fillMask(sdDialogue(p), _EdgeSoftness);
 
                 float alpha = saturate(max(ringAlpha, symbolAlpha)) * _BaseColor.a;
 

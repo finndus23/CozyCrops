@@ -43,6 +43,12 @@ public class StoryStep
 /// </summary>
 public class StoryDialogueNpc : MonoBehaviour, IClickable
 {
+    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+    private static readonly int ProgressId = Shader.PropertyToID("_Progress");
+    private static readonly int SymbolId = Shader.PropertyToID("_Symbol");
+    private static readonly int ScaleId = Shader.PropertyToID("_Scale");
+    private const float DialogueSymbol = 7f;
+
     [Header("Story-Schritte")]
     [Tooltip("Alle Schritte für die dieser NPC etwas zu sagen hat. Reihenfolge egal — " +
              "es zählt, welche Mission gerade in der Kette dran ist.")]
@@ -58,6 +64,12 @@ public class StoryDialogueNpc : MonoBehaviour, IClickable
     [SerializeField] private bool repeatTutorialDialogue = true;
 
     [Header("Anzeige")]
+    [Tooltip("Optionales dauerhaftes Erkennungs-Icon im Stil der Markt-NPCs.")]
+    [SerializeField] private GameObject identityIconPrefab;
+    [SerializeField, Min(0f)] private float identityIconHeightOffset = 0.32f;
+    [SerializeField, Min(0.05f)] private float identityIconWorldSize = 0.55f;
+    [SerializeField] private Color identityIconColor = new(1f, 0.72f, 0.25f, 1f);
+
     [Tooltip("Optional: wird eingeblendet solange dieser NPC eine Mission zu VERGEBEN hat. " +
              "Bei reinen Wegweiser-Dialogen bewusst nicht — sonst leuchtet Onkel Ozan " +
              "dauerhaft, obwohl der Spieler zum Markt soll.")]
@@ -67,6 +79,8 @@ public class StoryDialogueNpc : MonoBehaviour, IClickable
              "Missionsabschlüssen, ein grober Takt reicht.")]
     [SerializeField] private float indicatorRefreshInterval = 0.5f;
 
+    private void Start() => CreateIdentityIcon();
+
     private void OnEnable()
     {
         if (availableIndicator != null)
@@ -74,6 +88,42 @@ public class StoryDialogueNpc : MonoBehaviour, IClickable
     }
 
     private void OnDisable() => CancelInvoke(nameof(RefreshIndicator));
+
+    private void CreateIdentityIcon()
+    {
+        const string iconName = "Story NPC Identity Icon";
+        if (identityIconPrefab == null || transform.Find(iconName) != null)
+            return;
+
+        float topY = transform.position.y + 2f;
+        foreach (Renderer characterRenderer in GetComponentsInChildren<Renderer>(true))
+        {
+            if (characterRenderer != null && characterRenderer.enabled)
+                topY = Mathf.Max(topY, characterRenderer.bounds.max.y);
+        }
+
+        GameObject icon = Instantiate(identityIconPrefab, transform);
+        icon.name = iconName;
+        icon.transform.position = new Vector3(
+            transform.position.x,
+            topY + identityIconHeightOffset,
+            transform.position.z);
+
+        Renderer iconRenderer = icon.GetComponentInChildren<Renderer>();
+        if (iconRenderer == null)
+        {
+            Destroy(icon);
+            return;
+        }
+
+        var properties = new MaterialPropertyBlock();
+        iconRenderer.GetPropertyBlock(properties);
+        properties.SetColor(BaseColorId, identityIconColor);
+        properties.SetFloat(ProgressId, 1f);
+        properties.SetFloat(SymbolId, DialogueSymbol);
+        properties.SetFloat(ScaleId, identityIconWorldSize);
+        iconRenderer.SetPropertyBlock(properties);
+    }
 
     /// <summary>
     /// Der Dialog für den aktuellen Story-Schritt, oder null.
