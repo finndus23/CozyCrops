@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Schmied
-    text: "Jetzt wird's ernst. Hacke auf zehn — ab da greift sie 2x2 Felder auf einmal, das ist der eigentliche Sprung."
-    portrait: {fileID: 0}
+    text: "Jetzt wird's ernst. Hacke auf zehn \u2014 ab da greift sie 2x2 Felder
+      auf einmal, das ist der eigentliche Sprung."
+    portrait: {fileID: 21300000, guid: cd7b29284c68de04fa7faab17997b26b, type: 3}
   - speakerName: Schmied
-    text: "Weißt du, was du am häufigsten machst? Gießen. Jeden Tag, jede Pflanze, zweimal. Die Kanne auf fünf, dann passt mehr in ihre Schlange."
-    portrait: {fileID: 0}
+    text: "Wei\xDFt du, was du am h\xE4ufigsten machst? Gie\xDFen. Jeden Tag, jede
+      Pflanze, zweimal. Die Kanne auf f\xFCnf, dann passt mehr in ihre Schlange."
+    portrait: {fileID: 21300000, guid: cd7b29284c68de04fa7faab17997b26b, type: 3}
   - speakerName: Schmied
-    text: "Und beim Amt liegt die Sonnenblumen-Lizenz. Siebenhundert Gold, kein Scherz. Nimm sechs Samen mit, wenn du sie hast — das ist der Rest deines Vermögens, aber danach rechnet sich jedes Feld doppelt."
-    portrait: {fileID: 0}
+    text: "Und beim Amt liegt die Sonnenblumen-Lizenz. Siebenhundert Gold, kein Scherz.
+      Nimm sechs Samen mit, wenn du sie hast \u2014 das ist der Rest deines Verm\xF6gens,
+      aber danach rechnet sich jedes Feld doppelt."
+    portrait: {fileID: 21300000, guid: cd7b29284c68de04fa7faab17997b26b, type: 3}
   missionToStartAfter: {fileID: 11400000, guid: 1122334455667788990011223344556e, type: 2}

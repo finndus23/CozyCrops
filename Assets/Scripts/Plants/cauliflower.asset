@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlantType
   saveId: cauliflower
   plantName: Cauliflower
-  icon: {fileID: 21300000, guid: ba4366ba2e0ca344284d38bcc9ca4c9b, type: 3}
+  icon: {fileID: 21300000, guid: e019519800317d04ba0b452329c1ec37, type: 3}
   seedPrice: 10
   sellPrice: 48
   growthSpeedMultiplier: 1.15

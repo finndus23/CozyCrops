@@ -18,15 +18,17 @@ MonoBehaviour:
     die Hacke nicht schneller, du kannst nur mehr vorausplanen - f\xFCnf Felder in
     der Warteschlange statt drei. Jedes Werkzeug hat seine eigene."
   objectives:
-  - type: 18
+  - stage: 0
+    type: 18
     targetPlantType: {fileID: 0}
-    targetTool: 1
+    targetTool: 2
     targetZoneId: 
     targetLicenseId: 
     targetHighlightId: 
     requiredAmount: 5
     description: 
-  - type: 19
+  - stage: 0
+    type: 19
     targetPlantType: {fileID: 0}
     targetTool: 0
     targetZoneId: 
@@ -34,7 +36,8 @@ MonoBehaviour:
     targetHighlightId: 
     requiredAmount: 1
     description: 
-  - type: 7
+  - stage: 0
+    type: 7
     targetPlantType: {fileID: 11400000, guid: 6c4d47834d944a4cb980f87f24e2b687, type: 2}
     targetTool: 0
     targetZoneId: 
@@ -51,6 +54,7 @@ MonoBehaviour:
     zoneName: 
     licenseId: 
   isStoryMission: 1
+  isBackgroundAchievement: 0
   unlocks: []
   requiredMissionIds:
   - story_2_carrot_run

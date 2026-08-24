@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolData
   toolType: 5
   displayName: "D\xFCnger"
-  icon: {fileID: 21300000, guid: ca582652d8e43994fbe14a331af06b90, type: 3}
+  icon: {fileID: 21300000, guid: a9908bd7b7e4b504caf79ef6850e3ded, type: 3}
   maxLevel: 30
   baseAoSize: 1
   extraTileCost: 0.9

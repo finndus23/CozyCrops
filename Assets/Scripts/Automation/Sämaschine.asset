@@ -15,7 +15,7 @@ MonoBehaviour:
   deviceType: 3
   executesTool: 3
   displayName: Seeder
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 8291ccc03e6755949bb6d12457ed7bbb, type: 3}
   worldPrefab: {fileID: 6173750295843848844, guid: dfce9042841a4c4409b66e2c18418180, type: 3}
   maxLevel: 30
   baseInterval: 6

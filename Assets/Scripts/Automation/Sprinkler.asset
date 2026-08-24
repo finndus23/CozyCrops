@@ -15,7 +15,7 @@ MonoBehaviour:
   deviceType: 1
   executesTool: 2
   displayName: Sprinkler
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 35c9fce405ca6be49bfc9b704f2910fd, type: 3}
   worldPrefab: {fileID: 1916981570707718138, guid: 6c95a1578fd4be04aaa92ace4c5b285d, type: 3}
   maxLevel: 30
   baseInterval: 6

@@ -13,50 +13,64 @@ MonoBehaviour:
   m_Name: story_5_upgrade_run
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_5_upgrade_run
-  title: "Der große Einkauf"
-  description: "Bevor es an die grossen Sorten geht, wird die Ausruestung nachgezogen: jedes Werkzeug auf Stufe 10, die Kanne auf 15. Die bekommt dabei den Doppelguss - kein zweiter Gang mehr ueber dasselbe Feld, gerade beim Blumenkohl halbiert das die Arbeit."
+  title: "Der gro\xDFe Einkauf"
+  description: 'Bevor es an die grossen Sorten geht, wird die Ausruestung nachgezogen:
+    jedes Werkzeug auf Stufe 10, die Kanne auf 15. Die bekommt dabei den Doppelguss
+    - kein zweiter Gang mehr ueber dasselbe Feld, gerade beim Blumenkohl halbiert
+    das die Arbeit.'
   objectives:
-  - type: 18
+  - stage: 0
+    type: 18
     targetPlantType: {fileID: 0}
     targetTool: 1
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 10
-    description:
-  - type: 18
+    description: 
+  - stage: 0
+    type: 18
     targetPlantType: {fileID: 0}
     targetTool: 2
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 15
-    description:
-  - type: 18
+    description: 
+  - stage: 0
+    type: 18
     targetPlantType: {fileID: 0}
     targetTool: 3
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 10
-    description:
-  - type: 18
+    description: 
+  - stage: 0
+    type: 18
     targetPlantType: {fileID: 0}
     targetTool: 4
-    targetZoneId:
-    targetLicenseId:
+    targetZoneId: 
+    targetLicenseId: 
+    targetHighlightId: 
     requiredAmount: 10
-    description:
+    description: 
+  countsAutomatedActions: 0
   rewards:
   - type: 0
     amount: 650
     plant: {fileID: 0}
     tool: 0
-    zoneName:
-    licenseId:
+    zoneName: 
+    licenseId: 
   isStoryMission: 1
+  isBackgroundAchievement: 0
   unlocks: []
   requiredMissionIds:
   - story_4_cauliflower_run
   requiredCompletedCount: 0
   autoStartWhenAvailable: 0
   startedByDialogue: 1
-  nextStepHint: "Der Schmied wartet auf dem Marktplatz."
+  starterHighlightId: smith
+  nextStepHint: Der Schmied wartet auf dem Marktplatz.
   sequentialObjectives: 0

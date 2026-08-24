@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - speakerName: Schmied
-    text: "Du bist der Neue von der Farm. Deine Hacke ist noch die vom ersten Tag, das sieht man von hier."
-    portrait: {fileID: 0}
+    text: Du bist der Neue von der Farm. Deine Hacke ist noch die vom ersten Tag,
+      das sieht man von hier.
+    portrait: {fileID: 21300000, guid: cd7b29284c68de04fa7faab17997b26b, type: 3}
   - speakerName: Schmied
-    text: "Bring sie auf Stufe fünf. Schneller wird sie davon nicht — aber du kannst fünf Felder vorausplanen statt drei. Jedes Werkzeug hat seine eigene Schlange, das läuft alles nebeneinander."
-    portrait: {fileID: 0}
+    text: "Bring sie auf Stufe f\xFCnf. Schneller wird sie davon nicht \u2014 aber
+      du kannst f\xFCnf Felder vorausplanen statt drei. Jedes Werkzeug hat seine
+      eigene Schlange, das l\xE4uft alles nebeneinander."
+    portrait: {fileID: 21300000, guid: cd7b29284c68de04fa7faab17997b26b, type: 3}
   - speakerName: Schmied
-    text: "Und wenn du schon in der Stadt bist: das Lizenzamt gegenüber verkauft die Blumenkohl-Lizenz. Ohne die kriegst du das Saatgut nirgends. Hol beides und nimm gleich acht Samen mit."
+    text: "Und wenn du schon in der Stadt bist: das Lizenzamt gegen\xFCber verkauft
+      die Blumenkohl-Lizenz. Ohne die kriegst du das Saatgut nirgends. Hol beides
+      und nimm gleich acht Samen mit."
     portrait: {fileID: 0}
   missionToStartAfter: {fileID: 11400000, guid: 1122334455667788990011223344556a, type: 2}

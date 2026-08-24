@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AutomationStation
   m_EditorClassIdentifier: Assembly-CSharp::AutomationStationData
   displayName: Automations-Station
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 8291ccc03e6755949bb6d12457ed7bbb, type: 3}
   worldPrefab: {fileID: 796192721320504356, guid: da1ce0c510e1c5b49b7d6d224b78353e, type: 3}
   maxLevel: 30
   baseRadius: 1

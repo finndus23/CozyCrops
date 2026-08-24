@@ -15,7 +15,7 @@ MonoBehaviour:
   deviceType: 2
   executesTool: 1
   displayName: Plow
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 3695ee97992c0cf40917d834b4b68b39, type: 3}
   worldPrefab: {fileID: 7609801466453061712, guid: a518df415d0459c4a8fc5e31aca030d3, type: 3}
   maxLevel: 30
   baseInterval: 6

@@ -15,7 +15,7 @@ MonoBehaviour:
   deviceType: 4
   executesTool: 4
   displayName: Harvester
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 23a33288e784e274b84e1044253342e1, type: 3}
   worldPrefab: {fileID: 8577570621130929421, guid: 301a47f76ac10aa4b9dfc65108a4ba73, type: 3}
   maxLevel: 30
   baseInterval: 6
