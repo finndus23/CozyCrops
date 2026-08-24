@@ -341,6 +341,21 @@ public class FarmSaveManager : MonoBehaviour
             return false;
         }
 
+        // Debounce-Schutz: RequestSave() setzt einen Timer über Time.unscaledTime, der einen
+        // Szenenwechsel unbeeinflusst übersteht. PlayerInventory dagegen ist NICHT
+        // DontDestroyOnLoad — ihr Awake() setzt Geld/Samen/Ernte auf die leeren Startwerte
+        // zurück, und ApplyLoadedData() füllt sie erst etwas später wieder (über
+        // FarmSceneAutoLoad, nach dem OnEnable der übrigen Szenen-Objekte). Feuert der
+        // Timer eines VOR dem Szenenwechsel angestoßenen Saves in genau dieser Lücke, würde
+        // BuildCurrentSaveData ein frisches, leeres Inventar auf die Platte schreiben und
+        // den echten Spielstand überschreiben — das Inventar wäre nach dem Wechsel weg.
+        if (!InventoryRestored)
+        {
+            Debug.LogWarning("[FarmSaveManager] Save abgebrochen: Inventar der aktuellen Szene " +
+                             "ist noch nicht aus dem Spielstand wiederhergestellt.");
+            return false;
+        }
+
         return true;
     }
 
