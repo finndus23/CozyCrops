@@ -277,8 +277,8 @@ public class MissionManager : MonoBehaviour
     private void HandlePlanted(PlantType type) =>
         ReportProgress(MissionObjectiveType.PlantCrop, type, 1);
 
-    private void HandleWatered(PlantType type) =>
-        ReportProgress(MissionObjectiveType.WaterCrop, type, 1);
+    private void HandleWatered(PlantType type, int amount) =>
+        ReportProgress(MissionObjectiveType.WaterCrop, type, Mathf.Max(1, amount));
 
     private void HandleHarvested(PlantType type) =>
         ReportProgress(MissionObjectiveType.HarvestCrop, type, 1);

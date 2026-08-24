@@ -13,7 +13,16 @@ public class PlantManager : MonoBehaviour
     // --- Statische Events für Mission-System ---
     public static event Action OnFieldTilled;
     public static event Action<PlantType> OnSeedPlanted;
-    public static event Action<PlantType> OnPlantWatered;
+    /// <summary>
+    /// Eine Pflanze wurde gegossen. Der int ist die Zahl der tatsaechlich angerechneten
+    /// Giessungen, nicht die Zahl der Aktionen.
+    ///
+    /// Der Unterschied ist ab Giesskraft 2 entscheidend: ein Einsatz deckt dann zwei
+    /// Giessungen ab. Ein Missionsziel wie "giesse 24x Sonnenblume" waere mit nur einer
+    /// gemeldeten Giessung pro Aktion unerfuellbar — sechs Pflanzen lassen sich mit
+    /// Giesskraft 2 gar nicht oefter als zwoelfmal giessen.
+    /// </summary>
+    public static event Action<PlantType, int> OnPlantWatered;
     public static event Action<PlantType> OnCropHarvested;
 
     /// <summary>Ein Feld wurde gedüngt — für das Missions-System.</summary>
@@ -203,7 +212,11 @@ public class PlantManager : MonoBehaviour
             ? ToolRegistry.Instance.GetWateringPower(ToolType.WateringCan)
             : 1;
 
+        // Vorher/Nachher statt einfach 'power': braucht die Pflanze nur noch eine
+        // Giessung, wird die zweite von Water() gedeckelt und darf nicht mitzaehlen.
+        int before = cell.Plant.WateringsThisStage;
         cell.Plant.Water(power);
+        int applied = Mathf.Max(1, cell.Plant.WateringsThisStage - before);
 
         if (cell.Plant.WateringsThisStage >= cell.Plant.Type.wateringsPerStage)
             cell.TileVisual?.SetState(FarmTileState.Watered);
@@ -211,7 +224,7 @@ public class PlantManager : MonoBehaviour
         if (FarmSaveManager.Instance != null)
             FarmSaveManager.Instance.RequestSave();
 
-        OnPlantWatered?.Invoke(wateredType);
+        OnPlantWatered?.Invoke(wateredType, applied);
         return true;
     }
 
