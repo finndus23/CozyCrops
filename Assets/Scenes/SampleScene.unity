@@ -92672,13 +92672,54 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 910000104}
+    - targetCorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 910000103}
   m_SourcePrefab: {fileID: 100100000, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
 --- !u!4 &910000101 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5339130301091616334, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
   m_PrefabInstance: {fileID: 910000100}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &910000102 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5339130301091616328, guid: fddebf1006faf8243bfa4f250660e465, type: 3}
+  m_PrefabInstance: {fileID: 910000100}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &910000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138fc582f735e2b408b1e360ae3f23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightOutline
+  startHighlighted: 0
+--- !u!114 &910000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
+  objectiveTypes: 
+  highlightId: ozan
+  plantType: {fileID: 0}
+  toolType: 0
+  showOffScreenIndicator: 1
 --- !u!1 &910211758
 GameObject:
   m_ObjectHideFlags: 0

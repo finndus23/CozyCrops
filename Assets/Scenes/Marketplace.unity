@@ -13213,38 +13213,6 @@ Transform:
   - {fileID: 810000014}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &810000021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 752232756}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b8e41ac9d7f4be1a26c580e92f347d1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcStatusIcons
-  iconPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
-  heightOffset: 0.32
-  iconWorldSize: 0.55
-  seedColor: {r: 0.55, g: 0.88, b: 0.38, a: 1}
-  sellColor: {r: 1, g: 0.78, b: 0.25, a: 1}
-  toolColor: {r: 0.95, g: 0.52, b: 0.24, a: 1}
-  licenseColor: {r: 0.52, g: 0.72, b: 1, a: 1}
---- !u!114 &810000022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 752232756}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d9c21ef4a8043acb72518e06f94d321, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcRouteRandomizer
-  randomizeDirection: 1
 --- !u!1001 &753342562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15086,7 +15054,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e5a1f64ac7642749a78387f4be8d6d8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcPatrol
   worldWaypoints: []
   localWaypoints:
@@ -15106,6 +15074,38 @@ MonoBehaviour:
   moveIntParameter: move
   idleMoveValue: 0
   walkMoveValue: 1
+--- !u!114 &810000021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752232756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b8e41ac9d7f4be1a26c580e92f347d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcStatusIcons
+  iconPrefab: {fileID: 7311204885520330001, guid: 7b2f9c34be5d42a1b8e6d0c9f2a3b4c6, type: 3}
+  heightOffset: 0.32
+  iconWorldSize: 0.55
+  seedColor: {r: 0.55, g: 0.88, b: 0.38, a: 1}
+  sellColor: {r: 1, g: 0.78, b: 0.25, a: 1}
+  toolColor: {r: 0.95, g: 0.52, b: 0.24, a: 1}
+  licenseColor: {r: 0.52, g: 0.72, b: 1, a: 1}
+--- !u!114 &810000022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752232756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d9c21ef4a8043acb72518e06f94d321, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FarmMarketNpcRouteRandomizer
+  randomizeDirection: 1
 --- !u!4 &811672819 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a55fbf8471203d74aadb7950979d45fd, type: 3}
@@ -18317,8 +18317,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 891c4025d978f7e48925002b7a47f17e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HighlightTarget
-  objectiveTypes: 060000000f000000
-  highlightId: 
+  objectiveTypes: 060000000f00000012000000
+  highlightId: smith
   plantType: {fileID: 0}
   toolType: 0
   showOffScreenIndicator: 1

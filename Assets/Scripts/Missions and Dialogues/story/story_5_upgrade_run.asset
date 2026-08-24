@@ -14,21 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionId: story_5_upgrade_run
   title: "Der große Einkauf"
-  description: "Stufe 10 macht aus der Hacke ein anderes Werkzeug: sie greift 2x2 Felder auf einmal. Die Kanne auf 5 für die längere Warteschlange, und dazu die teuerste Lizenz der Stadt. Das wird ein Sparziel."
+  description: "Stufe 15 macht aus der Kanne ein anderes Werkzeug: ein Guss zählt ab da doppelt. Kein zweiter Gang mehr über dasselbe Feld - gerade beim Blumenkohl halbiert das die Arbeit. Dazu die teuerste Lizenz der Stadt. Das wird ein Sparziel."
   objectives:
-  - type: 18
-    targetPlantType: {fileID: 0}
-    targetTool: 1
-    targetZoneId:
-    targetLicenseId:
-    requiredAmount: 10
-    description:
   - type: 18
     targetPlantType: {fileID: 0}
     targetTool: 2
     targetZoneId:
     targetLicenseId:
-    requiredAmount: 5
+    requiredAmount: 15
     description:
   - type: 19
     targetPlantType: {fileID: 0}
